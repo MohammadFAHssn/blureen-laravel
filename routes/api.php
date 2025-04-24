@@ -10,5 +10,5 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 Route::post('/login', [\App\Http\Controllers\Auth\AuthController::class, 'login']);
 
 Route::middleware('JwtMiddleware')->get('/test', function () {
-    return 1;
+    return "test";
 });
