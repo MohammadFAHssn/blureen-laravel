@@ -6,10 +6,10 @@
 
 > Composer version 2.8.8 2025-04-04 16:56:46
 
-- run in terminal:
+- go to secrets/jwt and run in terminal:
 ```
-openssl genrsa -out your-path-to-project/secrets/jwt/private.pem 2048
-openssl rsa -in your-path-to-project/secrets/jwt/private.pem -pubout -out your-path-to-project/secrets/jwt/public.pem
+openssl genrsa -out private.pem 2048
+openssl rsa -in private.pem -pubout -out public.pem
 ```
 
 - put these in your .env file:
@@ -52,6 +52,17 @@ FRONTEND_URL="http://localhost:3000"
 ```
 
 - run in terminal:
+
+```bash
+php artisan optimize:clear
+php artisan config:clear
+php artisan optimize
+php artisan clear-compiled
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+composer dump-autoload
+```
 
 ```bash
 php artisan serve
