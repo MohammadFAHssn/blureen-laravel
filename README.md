@@ -54,6 +54,7 @@ FRONTEND_URL="http://localhost:3000"
 - run in terminal:
 
 ```bash
+php artisan permission:cache-reset
 php artisan optimize:clear
 php artisan config:clear
 php artisan optimize
