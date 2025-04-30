@@ -39,10 +39,10 @@ class AuthController extends Controller
                 'email' => "",
                 'fullName' => $user->first_name . ' ' . $user->last_name,
                 'id' => $user->id,
-                'role' => $user->getRoleNames()->first(),
+                'role' => 'admin',
                 'username' => $user->user_name
             ],
-            'userAbilityRules' => ['action' => "manage", 'subject' => "all"],
+            'userAbilityRules' => [['action' => "manage", 'subject' => "all"]],
             'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL(),
         ]);
