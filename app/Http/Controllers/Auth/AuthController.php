@@ -29,17 +29,13 @@ class AuthController extends Controller
         }
 
         $user = User::where('user_name', $request->user_name)->first();
-        // return $user->getRoleNames();
-
-
 
         return response()->json([
             'accessToken' => $token,
             'userData' => [
-                'email' => "",
                 'fullName' => $user->first_name . ' ' . $user->last_name,
                 'id' => $user->id,
-                'role' => 'admin',
+                'role' => $user->getRoleNames(),
                 'username' => $user->user_name
             ],
             'userAbilityRules' => [['action' => "manage", 'subject' => "all"]],
