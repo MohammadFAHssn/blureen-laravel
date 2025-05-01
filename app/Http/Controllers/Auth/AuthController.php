@@ -30,6 +30,10 @@ class AuthController extends Controller
 
         $user = User::where('user_name', $request->user_name)->first();
 
+        $permissions = $user->getAllPermissions()->pluck('name')->map(function ($permission) {
+            return ['action' => explode(" ", $permission)[0], 'subject' => explode(" ", $permission)[1]];
+        });
+
         return response()->json([
             'accessToken' => $token,
             'userData' => [
@@ -38,7 +42,7 @@ class AuthController extends Controller
                 'role' => $user->getRoleNames(),
                 'username' => $user->user_name
             ],
-            'userAbilityRules' => [['action' => "manage", 'subject' => "all"]],
+            'userAbilityRules' => $permissions,
             'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL(),
         ]);
