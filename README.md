@@ -50,6 +50,12 @@ DB_PASSWORD=yourPassword
 php artisan migrate
 ```
 
+-   change the locale in .env file
+
+```dotenv
+APP_LOCALE=fa
+```
+
 -   set `FRONTEND_URL` in your .env file, for example:
 
 ```dotenv
