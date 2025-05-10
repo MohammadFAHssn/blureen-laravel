@@ -22,7 +22,13 @@ class AuthController extends Controller
 
         try {
             if (!$token = JWTAuth::attempt($credentials)) {
-                return response()->json(['error' => 'Invalid credentials'], 401);
+                return response()->json([
+                    'errors' => [
+                        'password' => [
+                            "رمز عبور برای نام کاربری {$credentials['user_name']} معتبر نمی‌باشد."
+                        ]
+                    ]
+                ], 401);
             }
         } catch (JWTException $e) {
             return response()->json(['error' => 'Could not create token'], 500);
