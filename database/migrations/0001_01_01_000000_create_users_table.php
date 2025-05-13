@@ -11,18 +11,21 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
+            // unique or index, nullable, default, foreignId(read more about this), primary, compound (or composite) index, full-text
+            // $table->primary(['id', 'parent_id']);	Adds composite keys.
+
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('user_name')->unique();
+            $table->string('username')->unique();
             $table->string('password');
-            $table->string('personnel_code')->nullable()->unique();
-            $table->string('national_code')->nullable()->unique();
+            $table->string('personnel_code')->nullable();
+            // $table->string('national_code')->unique();
             $table->string('phone_number')->nullable();
             $table->boolean('active')->default(false);
             $table->string('profile_image')->nullable();
-            $table->string('barcode')->nullable();
-            $table->string('qr_code')->nullable();
+            // $table->string('barcode')->nullable();
+            // $table->string('qr_code')->nullable();
             $table->timestamps();
         });
 
