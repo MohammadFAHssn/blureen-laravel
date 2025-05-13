@@ -9,6 +9,8 @@ class BaseService
 {
     public static function get($request)
     {
+        return $request->query('filter');
+
         $modelDir = $request->segment(2);
         $modelName = Str::studly($request->segment(3));
 
