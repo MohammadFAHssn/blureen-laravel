@@ -14,18 +14,18 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'user_name' => 'required|string|max:20|exists:users,user_name',
+            'username' => 'required|string|max:20|exists:users,username',
             'password' => 'required|string|max:20',
         ]);
 
-        $credentials = $request->only('user_name', 'password');
+        $credentials = $request->only('username', 'password');
 
         try {
             if (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json([
                     'errors' => [
                         'password' => [
-                            "رمز عبور برای نام کاربری {$credentials['user_name']} معتبر نمی‌باشد."
+                            "رمز عبور برای نام کاربری {$credentials['username']} معتبر نمی‌باشد."
                         ]
                     ]
                 ], 401);
@@ -34,7 +34,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Could not create token'], 500);
         }
 
-        $user = User::where('user_name', $request->user_name)->first();
+        $user = User::where('username', $request->username)->first();
 
         $permissions = $user->getAllPermissions()->pluck('name')->map(function ($permission) {
             return ['action' => explode(" ", $permission)[0], 'subject' => explode(" ", $permission)[1]];
@@ -46,7 +46,7 @@ class AuthController extends Controller
                 'fullName' => $user->first_name . ' ' . $user->last_name,
                 'id' => $user->id,
                 'role' => $user->getRoleNames(),
-                'username' => $user->user_name
+                'username' => $user->username
             ],
             'userAbilityRules' => $permissions,
             'token_type' => 'bearer',
