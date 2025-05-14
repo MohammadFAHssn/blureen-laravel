@@ -34,9 +34,15 @@ class AuthController
 
         $user = User::where('username', $request->username)->first();
 
-        $permissions = $user->getAllPermissions()->pluck('name')->map(function ($permission) {
-            return ['action' => explode(" ", $permission)[0], 'subject' => explode(" ", $permission)[1]];
-        });
+        // IMPORTANT: این خط زیری باس باشه
+        $permissions = ['', ''];
+        if ($user->hasRole('Super Admin')) {
+            $permissions = ['manage', 'all'];
+        } else {
+            $permissions = $user->getAllPermissions()->pluck('name')->map(function ($permission) {
+                return ['action' => explode(" ", $permission)[0], 'subject' => explode(" ", $permission)[1]];
+            });
+        }
 
         return response()->json([
             'accessToken' => $token,
