@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
+use Spatie\Permission\Exceptions\UnauthorizedException;
+
 class CheckPermissionsForParamsOfUserRoute
 {
     /**
@@ -16,7 +18,14 @@ class CheckPermissionsForParamsOfUserRoute
      */
     public function handle(Request $request, Closure $next): Response
     {
-        Log::info("!");
+        $user = $request->user();
+
+        $permission = 'read active-users';
+        if (($request->query('filter', [])['active'] ?? '') === 'true') {
+            if (!$user->can($permission)) {
+                throw UnauthorizedException::forPermissions([$permission]);
+            }
+        }
 
         return $next($request);
     }
