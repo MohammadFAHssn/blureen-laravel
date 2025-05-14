@@ -35,12 +35,12 @@ class AuthController
         $user = User::where('username', $request->username)->first();
 
         if ($user->hasRole('Super Admin')) {
-            $permissions = ['manage', 'all'];
+            $permissions = [['action' => 'manage', 'subject' => 'all']];
         } else {
             $allUserPermissions = $user->getAllPermissions();
 
             if (count($allUserPermissions) === 0) {
-                $permissions = ['', ''];
+                $permissions = [''];
             } else {
                 $permissions = $allUserPermissions->pluck('name')->map(function ($permission) {
                     return ['action' => explode(" ", $permission)[0], 'subject' => explode(" ", $permission)[1]];
