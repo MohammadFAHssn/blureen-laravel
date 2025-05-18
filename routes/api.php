@@ -11,7 +11,7 @@ Route::middleware('throttle:60,1')->group(function () {
         });
 
         Route::controller(\App\Http\Controllers\UserController::class)->prefix('/base/user')->group(function () {
-            Route::get('/get', 'get')->middleware(['permission:read user', 'CheckPermissionsForParamsOfUserRoute']);
+            Route::get('/get', 'get')->middleware(['permission:read ser', 'CheckPermissionsForParamsOfUserRoute']);
         });
     });
 });

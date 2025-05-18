@@ -18,6 +18,6 @@ class BaseService
             $modelClass = 'App\\Models\\' . Str::studly($modelDir) . '\\' . $modelName;
         }
 
-        return QueryBuilder::for($modelClass)->allowedFilters(array_keys($request->query('filter')))->get();
+        return QueryBuilder::for($modelClass)->allowedFilters(array_keys($request->query('filter', [])))->get();
     }
 }
