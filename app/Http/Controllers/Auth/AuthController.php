@@ -40,7 +40,7 @@ class AuthController
             $allUserPermissions = $user->getAllPermissions();
 
             if (count($allUserPermissions) === 0) {
-                $permissions = [''];
+                $permissions = [['action' => 'fuck', 'subject' => 'every-body']];
             } else {
                 $permissions = $allUserPermissions->pluck('name')->map(function ($permission) {
                     return ['action' => explode(" ", $permission)[0], 'subject' => explode(" ", $permission)[1]];
