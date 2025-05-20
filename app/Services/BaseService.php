@@ -18,6 +18,26 @@ class BaseService
             $modelClass = 'App\\Models\\' . Str::studly($modelDir) . '\\' . $modelName;
         }
 
-        return QueryBuilder::for($modelClass)->allowedFilters(array_keys($request->query('filter', [])))->get();
+        $filter = array_keys($request->query('filter', []));
+
+        $include = $request->query('include', "");
+        $arrayedInclude = explode(',', $include);
+
+        $fields = $request->query('fields', []);
+        $relations = array_keys($fields);
+
+        $allowedFields = [];
+        foreach ($relations as $relation) {
+            $fieldsOfRelation = explode(',', $fields[$relation]);
+            foreach ($fieldsOfRelation as $field) {
+                $allowedFields[] = $relation . '.' . $field;
+            }
+        }
+
+        return QueryBuilder::for($modelClass)
+            ->allowedFilters($filter)
+            ->allowedFields($allowedFields)
+            ->allowedIncludes($arrayedInclude)
+            ->get();
     }
 }
