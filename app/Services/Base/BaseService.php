@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class BaseService
 {
-    public static function get($request)
+    public function get($request)
     {
         $modelDir = $request->segment(2);
         $modelName = Str::studly($request->segment(3));
