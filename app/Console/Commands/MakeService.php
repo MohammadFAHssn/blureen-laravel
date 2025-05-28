@@ -27,27 +27,33 @@ class MakeService extends Command
      */
     public function handle()
     {
-        $name = $this->argument('name');
-        $path = app_path("Services/{$name}.php");
+        $nameInput = $this->argument('name');
+        $path = app_path("Services/{$nameInput}.php");
+
+        $namespace = dirname('App\\Services\\' . $nameInput);
+
+        $className = class_basename($nameInput);
 
         if (file_exists($path)) {
             $this->error("Service already exists!");
             return;
         }
 
-        (new Filesystem)->ensureDirectoryExists(app_path('Services'));
+        (new Filesystem)->ensureDirectoryExists(dirname($path));
 
-        file_put_contents($path, $this->generateServiceContent($name));
+        file_put_contents($path, $this->generateServiceContent($namespace, $className));
+
+        $this->info("Service {$className} created successfully at {$path}.");
     }
 
-    protected function generateServiceContent($name)
+    protected function generateServiceContent(string $namespace, string $className): string
     {
         return <<<PHP
         <?php
 
-        namespace App\Services;
+        namespace {$namespace};
 
-        class {$name}
+        class {$className}
         {
             //
         }
@@ -55,3 +61,4 @@ class MakeService extends Command
         PHP;
     }
 }
+
