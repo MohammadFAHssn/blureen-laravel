@@ -31,5 +31,17 @@ class AppServiceProvider extends ServiceProvider
         Gate::before(function ($user, $ability) {
             return $user->hasRole('Super Admin') ? true : null;
         });
+
+        // start loadMigrationsFrom
+
+        $migrationsPath = database_path('migrations');
+
+        $directories = glob($migrationsPath . '/*', GLOB_ONLYDIR);
+
+        $paths = array_merge([$migrationsPath], $directories);
+
+        $this->loadMigrationsFrom($paths);
+
+        // end loadMigrationsFrom
     }
 }
