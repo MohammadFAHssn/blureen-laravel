@@ -7,8 +7,12 @@ Route::middleware('throttle:60,1')->group(function () {
 
     Route::middleware('JwtMiddleware')->group(function () {
 
-        Route::controller(\App\Http\Controllers\UserController::class)->prefix('/base/user')->group(function () {
+        Route::controller(\App\Http\Controllers\Base\UserController::class)->prefix('/base/user')->group(function () {
             Route::get('/get', 'get')->middleware('CheckPermission');
+        });
+
+        Route::controller(\App\Http\Controllers\Api\RayvarzController::class)->prefix('/rayvarz')->group(function () {
+            Route::post('/sync', 'Sync');
         });
     });
 
