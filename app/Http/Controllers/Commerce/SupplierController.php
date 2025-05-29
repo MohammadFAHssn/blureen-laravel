@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Commerce;
 
-class SupplierController
+use App\Http\Controllers\Base\BaseController;
+
+class SupplierController extends BaseController
 {
 }

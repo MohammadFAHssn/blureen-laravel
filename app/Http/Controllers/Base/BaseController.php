@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Base;
 
 use Exception;
+use Illuminate\Http\Request;
+use App\Services\Base\BaseService;
 
 class BaseController
 {
@@ -13,5 +15,10 @@ class BaseController
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function get(Request $request)
+    {
+        return $this->manageResponse(BaseService::class, 'get', $request);
     }
 }

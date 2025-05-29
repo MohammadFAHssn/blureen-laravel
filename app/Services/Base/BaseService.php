@@ -9,13 +9,15 @@ class BaseService
 {
     public function get($request)
     {
-        $modelDir = $request->segment(2);
-        $modelName = Str::studly($request->segment(3));
+        $model = $request->query('model');
+        $explodedModel = explode(".", $model);
+        $modelDir = Str::studly($explodedModel[0]);
+        $modelName = Str::studly($explodedModel[1]);
 
-        if ($modelDir === "base") {
+        if ($modelDir === "Base") {
             $modelClass = 'App\\Models\\' . $modelName;
         } else {
-            $modelClass = 'App\\Models\\' . Str::studly($modelDir) . '\\' . $modelName;
+            $modelClass = 'App\\Models\\' . $modelDir . '\\' . $modelName;
         }
 
         $filter = array_keys($request->query('filter', []));
