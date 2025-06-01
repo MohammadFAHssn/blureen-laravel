@@ -53,7 +53,7 @@ return [
     'email' => 'فیلد :attribute باید یک آدرس ایمیل معتبر باشد.',
     'ends_with' => 'فیلد :attribute باید با یکی از مقادیر زیر پایان یابد: :values.',
     'enum' => 'مقدار انتخاب شده برای :attribute نامعتبر است.',
-    'exists' => 'مقدار انتخاب شده برای :attribute نامعتبر است.',
+    'exists' => ':attribute موجود نمی‌باشد.',
     'extensions' => 'فیلد :attribute باید دارای یکی از پسوندهای زیر باشد: :values.',
     'file' => 'فیلد :attribute باید یک فایل باشد.',
     'filled' => 'فیلد :attribute باید دارای مقدار باشد.',
@@ -187,6 +187,7 @@ return [
         'email' => 'آدرس ایمیل',
         'password' => 'رمز عبور',
         'username' => 'نام کاربری',
+        'phoneNumber' => 'شماره تلفن همراه'
     ],
 
 ];
