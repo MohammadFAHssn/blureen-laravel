@@ -187,7 +187,7 @@ return [
         'email' => 'آدرس ایمیل',
         'password' => 'رمز عبور',
         'username' => 'نام کاربری',
-        'phoneNumber' => 'شماره تلفن همراه'
+        'mobileNumber' => 'شماره تلفن همراه'
     ],
 
 ];

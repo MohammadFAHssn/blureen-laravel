@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->string('password');
             $table->string('personnel_code')->nullable();
             // $table->string('national_code')->unique();
-            $table->string('phone_number')->nullable();
+            $table->string('mobile_number')->nullable();
             $table->boolean('active')->default(false);
             $table->string('profile_image')->nullable();
             // $table->string('barcode')->nullable();
