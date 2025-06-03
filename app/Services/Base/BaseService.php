@@ -2,11 +2,19 @@
 
 namespace App\Services\Base;
 
+use App\Repositories\Base\BaseRepository;
 use Spatie\QueryBuilder\QueryBuilder;
 use Illuminate\Support\Str;
 
 class BaseService
 {
+    protected $baseRepository;
+
+    public function __construct()
+    {
+        $this->baseRepository = new BaseRepository();
+    }
+
     public function get($request)
     {
         $model = $request->query('model');
@@ -41,5 +49,10 @@ class BaseService
             ->allowedFields($allowedFields)
             ->allowedIncludes($arrayedInclude)
             ->get();
+    }
+
+    public function getByFiltersWithRelations($model, $filters, $with)
+    {
+        return $this->baseRepository->getByFiltersWithRelations($model, $filters, $with);
     }
 }
