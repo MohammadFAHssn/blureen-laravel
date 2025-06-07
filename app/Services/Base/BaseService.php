@@ -18,11 +18,11 @@ class BaseService
     public function get($request)
     {
         $model = $request->query('model');
-        $explodedModel = explode(".", $model);
+        $explodedModel = explode('.', $model);
         $modelDir = Str::studly($explodedModel[0]);
         $modelName = Str::studly($explodedModel[1]);
 
-        if ($modelDir === "Base") {
+        if ($modelDir === 'Base') {
             $modelClass = 'App\\Models\\' . $modelName;
         } else {
             $modelClass = 'App\\Models\\' . $modelDir . '\\' . $modelName;
@@ -30,7 +30,7 @@ class BaseService
 
         $filter = array_keys($request->query('filter', []));
 
-        $include = $request->query('include', "");
+        $include = $request->query('include', '');
         $arrayedInclude = explode(',', $include);
 
         $fields = $request->query('fields', []);

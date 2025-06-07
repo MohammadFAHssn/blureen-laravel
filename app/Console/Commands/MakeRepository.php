@@ -35,7 +35,7 @@ class MakeRepository extends Command
         $className = class_basename($nameInput);
 
         if (file_exists($path)) {
-            $this->error("Repository already exists!");
+            $this->error('Repository already exists!');
             return;
         }
 
