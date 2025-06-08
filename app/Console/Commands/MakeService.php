@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-
 use Illuminate\Filesystem\Filesystem;
 
 class MakeService extends Command
@@ -30,12 +29,13 @@ class MakeService extends Command
         $nameInput = $this->argument('name');
         $path = app_path("Services/{$nameInput}.php");
 
-        $namespace = dirname('App\\Services\\' . $nameInput);
+        $namespace = dirname('App\\Services\\'.$nameInput);
 
         $className = class_basename($nameInput);
 
         if (file_exists($path)) {
             $this->error('Service already exists!');
+
             return;
         }
 
@@ -61,4 +61,3 @@ class MakeService extends Command
         PHP;
     }
 }
-

@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-
 use Illuminate\Filesystem\Filesystem;
 
 class MakeRepository extends Command
@@ -30,12 +29,13 @@ class MakeRepository extends Command
         $nameInput = $this->argument('name');
         $path = app_path("Repositories/{$nameInput}.php");
 
-        $namespace = dirname('App\\Repositories\\' . $nameInput);
+        $namespace = dirname('App\\Repositories\\'.$nameInput);
 
         $className = class_basename($nameInput);
 
         if (file_exists($path)) {
             $this->error('Repository already exists!');
+
             return;
         }
 
@@ -61,4 +61,3 @@ class MakeRepository extends Command
         PHP;
     }
 }
-

@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController
 {
@@ -19,13 +19,13 @@ class AuthController
         $credentials = $request->only('username', 'password');
 
         try {
-            if (!$token = JWTAuth::attempt($credentials)) {
+            if (! $token = JWTAuth::attempt($credentials)) {
                 return response()->json([
                     'errors' => [
                         'password' => [
-                            "رمز عبور برای نام کاربری {$credentials['username']} معتبر نمی‌باشد."
-                        ]
-                    ]
+                            "رمز عبور برای نام کاربری {$credentials['username']} معتبر نمی‌باشد.",
+                        ],
+                    ],
                 ], 401);
             }
         } catch (JWTException $e) {
@@ -43,7 +43,7 @@ class AuthController
                 $permissions = [['action' => 'fuck', 'subject' => 'every-body']];
             } else {
                 $permissions = $allUserPermissions->pluck('name')->map(function ($permission) {
-                    return ['action' => explode(" ", $permission)[0], 'subject' => explode(" ", $permission)[1]];
+                    return ['action' => explode(' ', $permission)[0], 'subject' => explode(' ', $permission)[1]];
                 });
             }
         }
@@ -51,10 +51,10 @@ class AuthController
         return response()->json([
             'accessToken' => $token,
             'userData' => [
-                'fullName' => $user->first_name . ' ' . $user->last_name,
+                'fullName' => $user->first_name.' '.$user->last_name,
                 'id' => $user->id,
                 'role' => $user->getRoleNames(),
-                'username' => $user->username
+                'username' => $user->username,
             ],
             'userAbilityRules' => $permissions,
             'token_type' => 'bearer',

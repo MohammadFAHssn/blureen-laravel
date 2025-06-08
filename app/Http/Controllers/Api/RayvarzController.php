@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Base\BaseController;
 use App\Services\Api\RayvarzService;
+use Illuminate\Http\Request;
 
 class RayvarzController extends BaseController
 {
