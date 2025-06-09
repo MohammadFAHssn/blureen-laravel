@@ -6,6 +6,7 @@ use App\Exceptions\CustomException;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\LoginSupplierRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
+use App\Jobs\SendOtpSmsJob;
 use App\Models\Commerce\Supplier;
 use App\Models\User;
 use App\Services\Base\BaseService;
@@ -91,20 +92,7 @@ class AuthController
 
         $supplier->save();
 
-        // $response = Http::withOptions(['verify' => false])->withHeaders([
-        //     'Authorization' => env('SMS_PISHGAMRAYAN_TOKEN'),
-        //     'Content-Type' => 'application/json',
-        // ])->post(
-        //         'https://smsapi.pishgamrayan.com/Messages/SendOtp',
-        //         [
-        //             'otpId' => 100276,
-        //             'parameters' => [$otpCode],
-        //             'senderNumber' => '500032568500',
-        //             'recipientNumbers' => [$supplier->tel1]
-        //         ],
-        //     );
-
-        // Log::info($response);
+        SendOtpSmsJob::dispatch($otpCode, $supplier->tel1);
 
         return ['otpExpiresAt' => $otpExpiresAt];
     }
