@@ -45,6 +45,11 @@ return [
             'driver' => 'jwt',
             'provider' => 'users',
         ],
+
+        'supplier' => [
+            'driver' => 'jwt',
+            'provider' => 'suppliers',
+        ],
     ],
 
     /*
@@ -74,6 +79,11 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+
+        'suppliers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Commerce\Supplier::class,
+        ],
     ],
 
     /*
