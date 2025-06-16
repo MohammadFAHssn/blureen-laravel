@@ -9,6 +9,7 @@ use App\Http\Requests\Auth\VerifyOtpRequest;
 use App\Jobs\SendOtpSmsJob;
 use App\Models\Commerce\Supplier;
 use App\Models\User;
+use App\Services\Api\RayvarzService;
 use App\Services\Base\BaseService;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
@@ -17,11 +18,12 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController
 {
-    protected $baseService;
+    protected $baseService, $rayvarzService;
 
     public function __construct()
     {
         $this->baseService = new BaseService;
+        $this->rayvarzService = new RayvarzService;
     }
 
     public function login(LoginRequest $request)
@@ -80,6 +82,13 @@ class AuthController
             []
         )->first();
 
+        // if (!$supplier) {
+        // }
+
+        $this->findSupplierInRayvarz($request->mobileNumber);
+
+        return 0;
+
         if (time() < $supplier->otp_expires_at) {
             throw new CustomException('کد تأیید قبلاً برای شما ارسال شده‌است. برای ارسال دوباره لطفاً منتظر بمانید.');
         }
@@ -135,5 +144,10 @@ class AuthController
             'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL(),
         ], 200);
+    }
+
+    private function findSupplierInRayvarz($mobileNumber)
+    {
+        $suppliers = $this->rayvarzService->fetchByFilters(['mobileNumber' => $mobileNumber]);
     }
 }

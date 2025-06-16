@@ -22,7 +22,7 @@ class SendOtpSmsJob implements ShouldQueue
         $this->otpCode = $otpCode;
         $this->mobileNumber = $mobileNumber;
 
-        $this->queue = 'sms';
+        $this->queue = 'otp_sms';
     }
 
     /**

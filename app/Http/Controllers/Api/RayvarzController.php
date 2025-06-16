@@ -12,4 +12,9 @@ class RayvarzController extends BaseController
     {
         return $this->manageResponse(RayvarzService::class, 'sync', $request);
     }
+
+    public function fetchSuppliers(Request $request)
+    {
+        return $this->manageResponse(RayvarzService::class, 'fetchSuppliers', $request);
+    }
 }

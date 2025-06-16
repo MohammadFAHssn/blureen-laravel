@@ -22,7 +22,7 @@ class LoginSupplierRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'mobileNumber' => 'required|string|regex:/^09[0-9]{9}$/|exists:suppliers,tel1',
+            'mobileNumber' => 'required|string|regex:/^09[0-9]{9}$/',
         ];
     }
 }
