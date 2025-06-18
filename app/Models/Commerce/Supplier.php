@@ -11,6 +11,7 @@ class Supplier extends Authenticatable implements JWTSubject
     use Notifiable;
 
     protected $fillable = [
+        'supplierId',
         'name',
         'tel1',
         'tel2',
