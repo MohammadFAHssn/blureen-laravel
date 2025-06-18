@@ -79,5 +79,3 @@ composer dump-autoload
 ```bash
 php artisan serve
 ```
-
-test5

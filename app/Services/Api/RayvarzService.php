@@ -19,29 +19,32 @@ class RayvarzService
 
     public function fetchByFilters($baseTableName, $filters)
     {
-        $suppliers = [];
+        $records = [];
 
         $index = 0;
         while (true) {
-            $suppliersPerSheet = Http::withHeaders([
+            $recordsPerSheet = Http::withHeaders([
                 'access_token' => $this->getAccessToken(),
                 'Content-Type' => 'application/json',
             ])->post(
-                    env('RAYVARZ_FETCH_SUPPLIERS'),
+                    env('RAYVARZ_FETCH') . $baseTableName . '/List',
                     [
-                        "Index" => $index
+                        "Index" => $index,
+                        // "WhereClause" => "tel1.equals(\"9137234176\")",
+                        ...$filters
                     ],
                 )->json();
 
-            if (count($suppliersPerSheet) === 0) {
+            if (count($recordsPerSheet) === 0) {
                 break;
             }
 
-            $suppliers = array_merge($suppliers, $suppliersPerSheet);
+            $records = array_merge($records, $recordsPerSheet);
 
             $index++;
         }
-        Log::info($suppliers);
+
+        return $records;
     }
 
     private function getAccessToken()

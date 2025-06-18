@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Log;
+
 
 class AuthController
 {
@@ -82,12 +84,13 @@ class AuthController
             []
         )->first();
 
-        // if (!$supplier) {
-        // }
-
-        $this->findSupplierInRayvarz($request->mobileNumber);
-
-        return 0;
+        if (!$supplier) {
+            $supplierInRayvarz = $this->findSupplierInRayvarz($request->mobileNumber);
+            Supplier::updateOrCreate(
+                ['supplierId' => $supplierInRayvarz['supplierId']],
+                $supplierInRayvarz
+            );
+        }
 
         if (time() < $supplier->otp_expires_at) {
             throw new CustomException('کد تأیید قبلاً برای شما ارسال شده‌است. برای ارسال دوباره لطفاً منتظر بمانید.');
@@ -101,7 +104,7 @@ class AuthController
 
         $supplier->save();
 
-        SendOtpSmsJob::dispatch($otpCode, $supplier->tel1);
+        // SendOtpSmsJob::dispatch($otpCode, $supplier->tel1);
 
         return ['otpExpiresAt' => $otpExpiresAt];
     }
@@ -148,6 +151,6 @@ class AuthController
 
     private function findSupplierInRayvarz($mobileNumber)
     {
-        $suppliers = $this->rayvarzService->fetchByFilters(['mobileNumber' => $mobileNumber]);
+        return $this->rayvarzService->fetchByFilters('supplier', ['WhereClause' => "tel1.equals(\"{$mobileNumber}\")"])[0];
     }
 }
