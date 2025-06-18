@@ -32,6 +32,7 @@ class SendOtpSmsJob implements ShouldQueue
     {
         $response = Http::withOptions(['verify' => false])->withHeaders([
             'Authorization' => env('SMS_PISHGAMRAYAN_TOKEN'),
+            'Accept' => 'application/json',
             'Content-Type' => 'application/json',
         ])->post(
                 'https://smsapi.pishgamrayan.com/Messages/SendOtp',

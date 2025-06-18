@@ -15,12 +15,11 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Illuminate\Support\Facades\Log;
-
 
 class AuthController
 {
-    protected $baseService, $rayvarzService;
+    protected $baseService;
+    protected $rayvarzService;
 
     public function __construct()
     {
@@ -86,7 +85,7 @@ class AuthController
 
         if (!$supplier) {
             $supplierInRayvarz = $this->findSupplierInRayvarz($request->mobileNumber);
-            Supplier::updateOrCreate(
+            $supplier = Supplier::updateOrCreate(
                 ['supplierId' => $supplierInRayvarz['supplierId']],
                 $supplierInRayvarz
             );
