@@ -2,16 +2,17 @@
 
 namespace App\Jobs;
 
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class SendOtpSmsJob implements ShouldQueue
 {
     use Queueable;
 
     protected int $otpCode;
+
     protected string $mobileNumber;
 
     /**
@@ -40,7 +41,7 @@ class SendOtpSmsJob implements ShouldQueue
                     'otpId' => 100276,
                     'parameters' => [$this->otpCode],
                     'senderNumber' => '500032568500',
-                    'recipientNumbers' => [$this->mobileNumber]
+                    'recipientNumbers' => [$this->mobileNumber],
                 ],
             );
 

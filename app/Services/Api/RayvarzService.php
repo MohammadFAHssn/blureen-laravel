@@ -2,10 +2,10 @@
 
 namespace App\Services\Api;
 
-use Illuminate\Support\Str;
 use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class RayvarzService
 {
@@ -30,8 +30,8 @@ class RayvarzService
                 ])->post(
                         env('RAYVARZ_FETCH') . $baseTableName . '/List',
                         [
-                            "Index" => $index,
-                            ...$filters
+                            'Index' => $index,
+                            ...$filters,
                         ],
                     )->json();
 
@@ -43,6 +43,7 @@ class RayvarzService
 
                 $index++;
             }
+
             return $records;
         } catch (\Exception $e) {
             Log::error('Error fetching records from Rayvarz', [
@@ -63,8 +64,8 @@ class RayvarzService
         ])->post(
                 env('RAYVARZ_GET_ACCESS_TOKEN'),
                 [
-                    "4430",
-                    "bfb0f696b1e315716e67e56e4862bfdaba6ed0d391d16985b0d00dbd49abaa87"
+                    '4430',
+                    'bfb0f696b1e315716e67e56e4862bfdaba6ed0d391d16985b0d00dbd49abaa87',
                 ],
             )->json();
     }
