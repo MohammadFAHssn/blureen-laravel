@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Exceptions\CustomException;
 use Closure;
 use Illuminate\Http\Request;
 use Spatie\Permission\Exceptions\UnauthorizedException;
@@ -26,18 +27,18 @@ class CheckPermission
 
         $url =
             substr($fullUrl['path'], 4) // remove /api
-            .'?'.$fullUrl['query'];
+            . '?' . $fullUrl['query'];
 
-        $permission = Permission::where('url', $url)->pluck('name')->first();
+        $permissionName = Permission::whereUrl($url)->pluck('name')->first();
 
-        if (! $permission) {
-            throw new \Exception('Error: no permission is defined for this URL.');
+        if (!$permissionName) {
+            throw new CustomException('خطا: هیچ مجوزی برای این مسیر تعریف نشده‌است.');
         }
 
         $user = $request->user();
 
-        if (! $user->can($permission)) {
-            throw UnauthorizedException::forPermissions([$permission]);
+        if (!$user->can($permissionName)) {
+            throw UnauthorizedException::forPermissions([$permissionName]);
         }
 
         return $next($request);

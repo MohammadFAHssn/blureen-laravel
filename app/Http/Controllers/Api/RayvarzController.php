@@ -2,14 +2,20 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Base\BaseController;
 use App\Services\Api\RayvarzService;
 use Illuminate\Http\Request;
 
-class RayvarzController extends BaseController
+class RayvarzController
 {
+    protected $rayvarzService;
+
+    public function __construct()
+    {
+        $this->rayvarzService = new RayvarzService();
+    }
+
     public function sync(Request $request)
     {
-        return $this->manageResponse(RayvarzService::class, 'sync', $request);
+        return response()->json(['data' => $this->rayvarzService->sync($request)], 200);
     }
 }

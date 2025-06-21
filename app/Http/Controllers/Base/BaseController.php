@@ -7,13 +7,15 @@ use Illuminate\Http\Request;
 
 class BaseController
 {
-    public function manageResponse($serviceName, $action, $request)
+    protected $baseService;
+
+    public function __construct()
     {
-        return response()->json(['data' => app($serviceName)->$action($request)], 200);
+        $this->baseService = new BaseService();
     }
 
     public function get(Request $request)
     {
-        return $this->manageResponse(BaseService::class, 'get', $request);
+        return response()->json(['data' => $this->baseService->get($request)], 200);
     }
 }

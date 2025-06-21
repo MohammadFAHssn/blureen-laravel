@@ -45,7 +45,7 @@ class AuthController
             return response()->json(['message' => 'Could not create token'], 500);
         }
 
-        $user = User::where('username', $request->username)->first();
+        $user = User::whereUsername($request->username)->first();
 
         if ($user->hasRole('Super Admin')) {
             $permissions = [['action' => 'manage', 'subject' => 'all']];
@@ -55,9 +55,7 @@ class AuthController
             if (count($allUserPermissions) === 0) {
                 $permissions = [['action' => 'fuck', 'subject' => 'every-body']];
             } else {
-                $permissions = $allUserPermissions->pluck('name')->map(function ($permission) {
-                    return ['action' => explode(' ', $permission)[0], 'subject' => explode(' ', $permission)[1]];
-                });
+                $permissions = $this->getUserAbilityRules($allUserPermissions);
             }
         }
 
@@ -77,14 +75,11 @@ class AuthController
 
     public function loginSupplier(LoginSupplierRequest $request)
     {
-        $supplier = $this->baseService->getByFiltersWithRelations(
-            Supplier::class,
-            [['tel1', '=', $request->mobileNumber]],
-            []
-        )->first();
+        $supplier = Supplier::whereTel1($request->mobileNumber)->first();
 
         if (!$supplier) {
             $supplierInRayvarz = $this->findSupplierInRayvarz($request->mobileNumber);
+            // TODO: شاید بعداً بتونی این رو reusable کنی
             $supplier = Supplier::updateOrCreate(
                 ['supplierId' => $supplierInRayvarz['supplierId']],
                 $supplierInRayvarz
@@ -110,11 +105,7 @@ class AuthController
 
     public function verifySupplierOtp(VerifyOtpRequest $request)
     {
-        $supplier = $this->baseService->getByFiltersWithRelations(
-            Supplier::class,
-            [['tel1', '=', $request->mobileNumber]],
-            []
-        )->first();
+        $supplier = Supplier::whereTel1($request->mobileNumber)->first();
 
         if ($supplier->otp_code != $request->otpCode) {
             return throw new CustomException('کد تأیید وارد شده اشتباه است.', 400);
@@ -130,10 +121,6 @@ class AuthController
             return response()->json(['message' => 'Could not create token'], 500);
         }
 
-        $userAbilityRules = Role::where('name', 'supplier')->first()->permissions->pluck('name')->map(function ($permission) {
-            return ['action' => explode(' ', $permission)[0], 'subject' => explode(' ', $permission)[1]];
-        });
-
         return response()->json([
             'accessToken' => $token,
             'userData' => [
@@ -142,10 +129,30 @@ class AuthController
                 'role' => ['supplier'],
                 'username' => $supplier->supplier_id,
             ],
-            'userAbilityRules' => $userAbilityRules,
+            'userAbilityRules' => $this->getUserAbilityRules(Role::whereName('supplier')->first()->permissions),
             'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL(),
         ], 200);
+    }
+
+    private function getUserAbilityRules($permissions)
+    {
+        // get userAbilityRules by this format:
+        /*
+        [
+            {
+                action: 'read',
+                subject: 'something'
+            },
+            {
+                action: 'write',
+                subject: 'something else'
+            }
+        ]
+        */
+        return $permissions->pluck('name')->map(function ($permission) {
+            return ['action' => explode(' ', $permission)[0], 'subject' => explode(' ', $permission)[1]];
+        });
     }
 
     private function findSupplierInRayvarz($mobileNumber)

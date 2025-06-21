@@ -23,9 +23,9 @@ class BaseService
         $modelName = Str::studly($explodedModel[1]);
 
         if ($modelDir === 'Base') {
-            $modelClass = 'App\\Models\\'.$modelName;
+            $modelClass = 'App\\Models\\' . $modelName;
         } else {
-            $modelClass = 'App\\Models\\'.$modelDir.'\\'.$modelName;
+            $modelClass = 'App\\Models\\' . $modelDir . '\\' . $modelName;
         }
 
         $filter = array_keys($request->query('filter', []));
@@ -40,7 +40,7 @@ class BaseService
         foreach ($relations as $relation) {
             $fieldsOfRelation = explode(',', $fields[$relation]);
             foreach ($fieldsOfRelation as $field) {
-                $allowedFields[] = $relation.'.'.$field;
+                $allowedFields[] = $relation . '.' . $field;
             }
         }
 
@@ -49,10 +49,5 @@ class BaseService
             ->allowedFields($allowedFields)
             ->allowedIncludes($arrayedInclude)
             ->get();
-    }
-
-    public function getByFiltersWithRelations($model, $filters, $with)
-    {
-        return $this->baseRepository->getByFiltersWithRelations($model, $filters, $with);
     }
 }
