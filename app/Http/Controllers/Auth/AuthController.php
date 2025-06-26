@@ -79,7 +79,7 @@ class AuthController
 
         if (!$supplier) {
             $supplierInRayvarz = $this->findSupplierInRayvarz($request->mobileNumber);
-            // TODO: شاید بعداً بتونی این رو reusable کنی
+            // TODO: maybe you can make this reusable later
             $supplier = Supplier::updateOrCreate(
                 ['supplierId' => $supplierInRayvarz['supplierId']],
                 $supplierInRayvarz
