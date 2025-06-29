@@ -28,7 +28,7 @@ class AuthController
         $this->rayvarzService = new RayvarzService;
     }
 
-    public function login(LoginRequest $request)
+    public function loin(LoginRequest $request)
     {
         $credentials = $request->only('username', 'password');
 
@@ -74,7 +74,7 @@ class AuthController
         ], 200);
     }
 
-    public function loginSupplier(LoginSupplierRequest $request)
+    public function loinSupplier(LoginSupplierRequest $request)
     {
         $supplier = Supplier::whereTel1($request->mobileNumber)->first();
 
