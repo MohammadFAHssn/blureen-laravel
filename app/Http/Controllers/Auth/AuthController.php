@@ -28,8 +28,10 @@ class AuthController
         $this->rayvarzService = new RayvarzService;
     }
 
-    public function loin(LoginRequest $request)
+    public function login(LoginRequest $request)
     {
+        throw new CustomException('شماره تلفن همراه شما در سیستم ثبت نشده است.', 404);
+
         $credentials = $request->only('username', 'password');
 
         try {
@@ -74,8 +76,10 @@ class AuthController
         ], 200);
     }
 
-    public function loinSupplier(LoginSupplierRequest $request)
+    public function loginSupplier(LoginSupplierRequest $request)
     {
+        throw new CustomException('شماره تلفن همراه شما در سیستم ثبت نشده است.', 404);
+
         $supplier = Supplier::whereTel1($request->mobileNumber)->first();
 
         if (!$supplier) {
