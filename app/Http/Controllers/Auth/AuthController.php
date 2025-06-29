@@ -30,7 +30,8 @@ class AuthController
 
     public function login(LoginRequest $request)
     {
-        throw new CustomException('شماره تلفن همراه شما در سیستم ثبت نشده است.', 404);
+        //  this is just for get an error
+        this is just for get an error
 
         $credentials = $request->only('username', 'password');
 

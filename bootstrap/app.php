@@ -14,9 +14,6 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // $middleware->prependToGroup('web', \App\Http\Middleware\EncryptCookies::class);
-        $middleware->prepend(\Illuminate\Http\Middleware\HandleCors::class);
-
         $middleware->api(prepend: [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
