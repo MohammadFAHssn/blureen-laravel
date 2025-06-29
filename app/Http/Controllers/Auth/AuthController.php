@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Exceptions\CustomException;
-use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\Auth\LoginSupplierRequest;
-use App\Http\Requests\Auth\VerifyOtpRequest;
+use App\Models\User;
 use App\Jobs\SendOtpSmsJob;
 use App\Models\Commerce\Supplier;
-use App\Models\User;
-use App\Services\Api\RayvarzService;
 use App\Services\Base\BaseService;
-use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
-use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Exceptions\CustomException;
+use Illuminate\Support\Facades\Log;
+use App\Services\Api\RayvarzService;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Auth\LoginRequest;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Http\Requests\Auth\VerifyOtpRequest;
+use App\Http\Requests\Auth\LoginSupplierRequest;
 
 class AuthController
 {
@@ -80,6 +81,9 @@ class AuthController
         if (!$supplier) {
             $supplierInRayvarz = $this->findSupplierInRayvarz($request->mobileNumber);
             // TODO: maybe you can make this reusable later
+            if (!$supplierInRayvarz) {
+                throw new CustomException('شماره تلفن همراه شما در سیستم ثبت نشده است.', 404);
+            }
             $supplier = Supplier::updateOrCreate(
                 ['supplierId' => $supplierInRayvarz['supplierId']],
                 $supplierInRayvarz
@@ -157,6 +161,6 @@ class AuthController
 
     private function findSupplierInRayvarz($mobileNumber)
     {
-        return $this->rayvarzService->fetchByFilters('supplier', ['WhereClause' => "tel1.equals(\"{$mobileNumber}\")"])[0];
+        return $this->rayvarzService->fetchByFilters('supplier', ['WhereClause' => "tel1.equals(\"{$mobileNumber}\")"]);
     }
 }
