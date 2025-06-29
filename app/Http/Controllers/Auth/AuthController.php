@@ -98,7 +98,7 @@ class AuthController
 
         $supplier->save();
 
-        // SendOtpSmsJob::dispatch($otpCode, $supplier->tel1);
+        SendOtpSmsJob::dispatch($otpCode, $supplier->tel1);
 
         return ['otpExpiresAt' => $otpExpiresAt];
     }
