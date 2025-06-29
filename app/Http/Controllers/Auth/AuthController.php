@@ -9,7 +9,6 @@ use App\Services\Base\BaseService;
 use Spatie\Permission\Models\Role;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Exceptions\CustomException;
-use Illuminate\Support\Facades\Log;
 use App\Services\Api\RayvarzService;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Auth\LoginRequest;
@@ -30,9 +29,6 @@ class AuthController
 
     public function login(LoginRequest $request)
     {
-        //  this is just for get an error
-        this is just for get an error
-
         $credentials = $request->only('username', 'password');
 
         try {
@@ -79,8 +75,6 @@ class AuthController
 
     public function loginSupplier(LoginSupplierRequest $request)
     {
-        throw new CustomException('شماره تلفن همراه شما در سیستم ثبت نشده است.', 404);
-
         $supplier = Supplier::whereTel1($request->mobileNumber)->first();
 
         if (!$supplier) {
