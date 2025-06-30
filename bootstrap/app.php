@@ -31,7 +31,22 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (\Throwable $e, $request) {
+            if ($request->is('api/*')) {
+                $response = response()->json([
+                    'message' => $e->getMessage(),
+                    'code' => method_exists($e, 'getCode') ? $e->getCode() : 500,
+                ], $e->getCode() ?: 500);
+
+                $response->headers->set('Access-Control-Allow-Origin', env('FRONTEND_URL', '*'));
+                $response->headers->set('Access-Control-Allow-Credentials', 'true');
+
+                return $response;
+            }
+
+            // سایر خطاها: بذار به handler پیش‌فرض بره
+            return null;
+        });
     })
     ->withSchedule(function (Schedule $schedule) {
         $schedule->job(new SyncWithRayvarz('supplier', 'supplierId'))
