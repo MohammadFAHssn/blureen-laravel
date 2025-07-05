@@ -44,7 +44,7 @@ class RayvarzService
                         ],
                     );
 
-                if (!$response->successful()) {
+                if ($response->failed()) {
                     Log::error('Error fetching records from Rayvarz', [
                         'modelName' => $modelName,
                         'filters' => $filters,
@@ -75,6 +75,35 @@ class RayvarzService
         }
     }
 
+    public function fetchUsers()
+    {
+        Log::info('Fetching users from Rayvarz');
+
+        try {
+            $response = Http::timeout(60)->withHeaders([
+                'access_token' => $this->getAccessToken(),
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+            ])->post(
+                    env('RAYVARZ_FETCH_USERS'),
+                );
+
+            if ($response->failed()) {
+                Log::error('Error fetching users from Rayvarz', [
+                    'response' => $response,
+                ]);
+                throw new CustomException('هنگام دریافت اطلاعات کاربران از رایورز خطایی رخ داده‌است.');
+            }
+
+            return $response->json();
+        } catch (\Exception $e) {
+            Log::error('Error fetching users from Rayvarz', [
+                'error' => $e->getMessage(),
+            ]);
+            throw new CustomException('هنگام دریافت اطلاعات کاربران از رایورز خطایی رخ داده‌است.');
+        }
+    }
+
     public function syncByFilters($modelName, $uniqueBy, $filters)
     {
         $records = $this->fetchByFilters($modelName, $filters);
@@ -84,11 +113,43 @@ class RayvarzService
         $chunkSize = 200;
         $columns = Schema::getColumnListing($tableName);
 
+        Log::info('Syncing records to database', [
+            'modelName' => $modelName,
+            'recordCount' => count($records),
+        ]);
+
         foreach (array_chunk($records, $chunkSize) as $chunk) {
             $filtered = array_map(function (array $record) use ($columns) {
                 return array_intersect_key($record, array_flip($columns));
             }, $chunk);
             DB::table($tableName)->upsert($filtered, [$uniqueBy]);
+        }
+    }
+
+    public function syncUsers()
+    {
+        $users = $this->fetchUsers();
+
+        Log::info('Syncing users to database', [
+            'userCount' => count($users),
+        ]);
+
+        foreach ($users as $user) {
+            $userData = [
+                'first_name' => $user['name'],
+                'last_name' => $user['family'],
+                'username' => $user['personnelId'],
+                'personnel_code' => $user['personnelId'],
+                'mobile_number' => $user['mobile'],
+                'active' => $user["quitDate"] ? false : true,
+                'profile_image' => $user['personnelId'] . 'jpg',
+                'updated_at' => now(),
+            ];
+
+            DB::table('users')->updateOrInsert(
+                ['personnel_code' => $user['personnelId']],
+                $userData
+            );
         }
     }
 
