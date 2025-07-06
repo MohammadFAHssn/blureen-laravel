@@ -87,8 +87,8 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Schedule $schedule) {
         $schedule->job(new SyncWithRayvarz('supplier', 'supplierId'))
-            ->everyThreeMinutes();
+            ->daily();
         $schedule->job(new SyncWithRayvarz('user', ''))
-            ->everyThreeMinutes();
+            ->daily();
     })
     ->create();
