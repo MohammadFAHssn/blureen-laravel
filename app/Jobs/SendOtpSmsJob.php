@@ -32,7 +32,7 @@ class SendOtpSmsJob implements ShouldQueue
     public function handle(): void
     {
         $response = Http::withOptions(['verify' => false])->withHeaders([
-            'Authorization' => env('SMS_PISHGAMRAYAN_TOKEN'),
+            'Authorization' => config('services.sms_pishgamrayan_token'),
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
         ])->post(

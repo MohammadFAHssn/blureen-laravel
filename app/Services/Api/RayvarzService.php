@@ -37,7 +37,7 @@ class RayvarzService
                     'Accept' => 'application/json',
                     'Content-Type' => 'application/json',
                 ])->post(
-                        env('RAYVARZ_FETCH') . $modelName . '/List',
+                        config('services.rayvarz.fetch.other_models') . $modelName . '/List',
                         [
                             'Index' => $index,
                             ...$filters,
@@ -85,7 +85,7 @@ class RayvarzService
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
             ])->post(
-                    env('RAYVARZ_FETCH_USERS'),
+                    config('services.rayvarz.fetch.users'),
                 );
 
             if ($response->failed()) {
@@ -160,7 +160,7 @@ class RayvarzService
             'Content-Type' => 'application/json',
 
         ])->post(
-                env('RAYVARZ_GET_ACCESS_TOKEN'),
+                config('services.rayvarz.get_access_token'),
                 [
                     '4430',
                     'bfb0f696b1e315716e67e56e4862bfdaba6ed0d391d16985b0d00dbd49abaa87',

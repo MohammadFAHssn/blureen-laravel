@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'rayvarz' => [
+        'get_access_token' => env('RAYVARZ_GET_ACCESS_TOKEN'),
+        'fetch' => [
+            'users' => env('RAYVARZ_FETCH_USERS'),
+            'other_models' => env('RAYVARZ_FETCH_OTHER_MODELS')
+        ]
+    ],
+
+    'sms_pishgamrayan_token' => env('SMS_PISHGAMRAYAN_TOKEN'),
 ];
