@@ -16,6 +16,7 @@ Route::middleware('throttle:60,1')->group(function () {
         });
 
         Route::controller(\App\Http\Controllers\Api\RayvarzController::class)->prefix('/rayvarz')->group(function () {
+            // TODO: add middleware
             Route::post('/sync', 'sync');
         });
     });
