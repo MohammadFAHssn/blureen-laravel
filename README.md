@@ -65,15 +65,11 @@ FRONTEND_URL="http://localhost:3000"
 -   run in terminal:
 
 ```bash
-php artisan permission:cache-reset
+composer dump-autoload
 php artisan optimize:clear
-php artisan config:clear
-php artisan optimize
-php artisan clear-compiled
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-composer dump-autoload
 ```
 
 ```bash
