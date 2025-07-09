@@ -32,13 +32,13 @@ class CheckPermission
         $permissionName = Permission::whereUrl($url)->pluck('name')->first();
 
         if (!$permissionName) {
-            throw new CustomException('خطا: هیچ مجوزی برای این مسیر تعریف نشده‌است.');
+            throw new CustomException('هیچ مجوزی برای این مسیر تعریف نشده‌است.', 403);
         }
 
         $user = $request->user();
 
         if (!$user->can($permissionName)) {
-            throw UnauthorizedException::forPermissions([$permissionName]);
+            throw new CustomException('دسترسی به این مسیر مجاز نمی‌باشد.', 403);
         }
 
         return $next($request);

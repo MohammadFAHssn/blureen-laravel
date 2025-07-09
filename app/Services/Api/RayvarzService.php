@@ -50,7 +50,7 @@ class RayvarzService
                         'filters' => $filters,
                         'response' => $response,
                     ]);
-                    throw new CustomException('هنگام دریافت رکورد‌های جدول پایه ' . $modelName . ' از رایورز خطایی رخ داده‌است.');
+                    throw new CustomException('هنگام دریافت رکورد‌های جدول پایه ' . $modelName . ' از رایورز خطایی رخ داده‌است.', 500);
                 }
 
                 $recordsPerSheet = $response->json();
@@ -71,7 +71,7 @@ class RayvarzService
                 'filters' => $filters,
                 'error' => $e->getMessage(),
             ]);
-            throw new CustomException('هنگام دریافت رکورد‌های جدول پایه ' . $modelName . ' از رایورز خطایی رخ داده‌است.');
+            throw new CustomException('هنگام دریافت رکورد‌های جدول پایه ' . $modelName . ' از رایورز خطایی رخ داده‌است.', 500);
         }
     }
 
@@ -92,7 +92,7 @@ class RayvarzService
                 Log::error('Error fetching users from Rayvarz', [
                     'response' => $response,
                 ]);
-                throw new CustomException('هنگام دریافت اطلاعات کاربران از رایورز خطایی رخ داده‌است.');
+                throw new CustomException('هنگام دریافت اطلاعات کاربران از رایورز خطایی رخ داده‌است.', 500);
             }
 
             return $response->json();
@@ -100,7 +100,7 @@ class RayvarzService
             Log::error('Error fetching users from Rayvarz', [
                 'error' => $e->getMessage(),
             ]);
-            throw new CustomException('هنگام دریافت اطلاعات کاربران از رایورز خطایی رخ داده‌است.');
+            throw new CustomException('هنگام دریافت اطلاعات کاربران از رایورز خطایی رخ داده‌است.', 500);
         }
     }
 

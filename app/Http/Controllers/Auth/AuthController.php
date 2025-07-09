@@ -90,7 +90,7 @@ class AuthController
         }
 
         if (time() < $supplier->otp_expires_at) {
-            throw new CustomException('کد تأیید قبلاً برای شما ارسال شده‌است. برای ارسال دوباره لطفاً منتظر بمانید.');
+            throw new CustomException('کد تأیید قبلاً برای شما ارسال شده‌است. برای ارسال دوباره لطفاً منتظر بمانید.', 429);
         }
 
         $otpCode = random_int(100000, 999999);
