@@ -2,11 +2,12 @@
 
 namespace App\Services\Api;
 
-use App\Exceptions\CustomException;
+use App\Models\User;
 use App\Jobs\SyncWithRayvarz;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Exceptions\CustomException;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 
 class RayvarzService
@@ -134,15 +135,22 @@ class RayvarzService
             'userCount' => count($users),
         ]);
 
+        $lastUpdatedAt = User::latest('updated_at')->first()->updated_at;
+
         foreach ($users as $user) {
+
+            if ($user["quitDate"]) {
+                User::wherePersonnelCode($user['personnelId'])->delete();
+                continue;
+            }
+
             $userData = [
                 'first_name' => $user['name'],
                 'last_name' => $user['family'],
                 'username' => $user['personnelId'],
                 'personnel_code' => $user['personnelId'],
                 'mobile_number' => $user['mobile'],
-                'active' => $user["quitDate"] ? false : true,
-                'profile_image' => $user['personnelId'] . 'jpg',
+                'profile_image' => $user['personnelId'] . '.jpg',
                 'updated_at' => now(),
             ];
 
@@ -151,6 +159,10 @@ class RayvarzService
                 $userData
             );
         }
+
+        User::where('updated_at', '<=', $lastUpdatedAt)
+            ->orWhereNull('updated_at')
+            ->delete();
     }
 
     private function getAccessToken()
