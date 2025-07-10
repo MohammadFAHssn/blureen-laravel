@@ -109,6 +109,8 @@ class RayvarzService
     {
         $records = $this->fetchByFilters($modelName, $filters);
 
+        $records = $this->arabicToPersian($records);
+
         $tableName = $modelName . 's';
 
         $chunkSize = 200;
@@ -130,6 +132,8 @@ class RayvarzService
     public function syncUsers()
     {
         $users = $this->fetchUsers();
+
+        $users = $this->arabicToPersian($users);
 
         Log::info('Syncing users to database', [
             'userCount' => count($users),
@@ -178,5 +182,21 @@ class RayvarzService
                     'bfb0f696b1e315716e67e56e4862bfdaba6ed0d391d16985b0d00dbd49abaa87',
                 ],
             )->json();
+    }
+
+    private function arabicToPersian(array $records): array
+    {
+        Log::info('Converting Arabic characters to Persian', [
+            'recordCount' => count($records),
+        ]);
+
+        $search = ['ي', 'ك'];
+        $replace = ['ی', 'ک'];
+
+        return array_map(function ($record) use ($search, $replace) {
+            return array_map(function ($value) use ($search, $replace) {
+                return is_string($value) ? str_replace($search, $replace, $value) : $value;
+            }, $record);
+        }, $records);
     }
 }
