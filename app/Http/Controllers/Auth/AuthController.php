@@ -130,7 +130,7 @@ class AuthController
                 'fullName' => $supplier->name,
                 'id' => $supplier->id,
                 'role' => ['supplier'],
-                'username' => $supplier->supplier_id,
+                'username' => $supplier->supplierId,
             ],
             'userAbilityRules' => $this->getUserAbilityRules(Role::whereName('supplier')->first()->permissions),
             'token_type' => 'bearer',

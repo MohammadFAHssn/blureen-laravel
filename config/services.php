@@ -44,4 +44,10 @@ return [
     ],
 
     'sms_pishgamrayan_token' => env('SMS_PISHGAMRAYAN_TOKEN'),
+
+    'legacy_integrated_system' => [
+        'get_tender_by_token' => env('LEGACY_INTEGRATED_SYSTEM_GET_TENDER_BY_TOKEN'),
+        'get_active_tenders' => env('LEGACY_INTEGRATED_SYSTEM_GET_ACTIVE_TENDERS'),
+        'submit_bid' => env('LEGACY_INTEGRATED_SYSTEM_SUBMIT_BID'),
+    ],
 ];
