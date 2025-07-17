@@ -5,12 +5,15 @@ namespace App\Http\Controllers\Commerce;
 use Illuminate\Http\Request;
 use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class TenderController
 {
     public function getByToken(Request $request)
     {
         $token = $request->query('token');
+
+        Log::info('Calling URL: ' . config('services.legacy_integrated_system.get_tender_by_token') . $token);
 
         $response = Http::withHeaders([
             'Accept' => 'application/json',
