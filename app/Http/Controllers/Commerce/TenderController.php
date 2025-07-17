@@ -15,7 +15,7 @@ class TenderController
 
         Log::info('Calling URL: ' . config('services.legacy_integrated_system.get_tender_by_token') . $token);
 
-        $response = Http::withHeaders([
+        $response = Http::withOptions(['allow_redirects' => false])->withHeaders([
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
         ])->get(
@@ -32,7 +32,7 @@ class TenderController
     {
         $supplierId = $request->query('supplier_id');
 
-        $response = Http::withHeaders([
+        $response = Http::withOptions(['allow_redirects' => false])->withHeaders([
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
         ])->get(
@@ -47,7 +47,7 @@ class TenderController
 
     public function submitBid(Request $request)
     {
-        $response = Http::withHeaders([
+        $response = Http::withOptions(['allow_redirects' => false])->withHeaders([
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
         ])->post(
