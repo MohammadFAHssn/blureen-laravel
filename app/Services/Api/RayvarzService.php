@@ -2,21 +2,27 @@
 
 namespace App\Services\Api;
 
-use App\Exceptions\CustomException;
+use App\Models\User;
 use App\Jobs\SyncWithRayvarz;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Exceptions\CustomException;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class RayvarzService
 {
     public function sync($request)
     {
-        $modelName = $request->query('model_name');
+        $params = $request->route()->parameters();
+
+        $module = Str::studly($params['module']);
+        $modelName = Str::studly($params['model_name']);
+
         $uniqueBy = $request->query('unique_by');
 
-        SyncWithRayvarz::dispatch($modelName, $uniqueBy);
+        SyncWithRayvarz::dispatch($module, $modelName, $uniqueBy);
     }
 
     public function fetchByFilters($modelName, $filters)
@@ -104,9 +110,11 @@ class RayvarzService
         }
     }
 
-    public function syncByFilters($modelName, $uniqueBy, $filters)
+    public function syncByFilters($module, $modelName, $uniqueBy, $filters)
     {
         $records = $this->fetchByFilters($modelName, $filters);
+
+        $records = $this->arabicToPersian($records);
 
         $tableName = $modelName . 's';
 
@@ -118,31 +126,50 @@ class RayvarzService
             'recordCount' => count($records),
         ]);
 
+        $modelClass = '\\App\\Models\\' . $module . '\\' . $modelName;
+
+        $lastUpdatedAt = $modelClass::query()->latest('updated_at')->value('updated_at');
+
         foreach (array_chunk($records, $chunkSize) as $chunk) {
             $filtered = array_map(function (array $record) use ($columns) {
-                return array_intersect_key($record, array_flip($columns));
+                $filteredRecord = array_intersect_key($record, array_flip($columns));
+                $filteredRecord['updated_at'] = now();
+                return $filteredRecord;
             }, $chunk);
             DB::table($tableName)->upsert($filtered, [$uniqueBy]);
         }
+
+        $modelClass::query()->where('updated_at', '<=', $lastUpdatedAt)
+            ->orWhereNull('updated_at')
+            ->delete();
     }
 
     public function syncUsers()
     {
         $users = $this->fetchUsers();
 
+        $users = $this->arabicToPersian($users);
+
         Log::info('Syncing users to database', [
             'userCount' => count($users),
         ]);
 
+        $lastUpdatedAt = User::latest('updated_at')->first()->updated_at;
+
         foreach ($users as $user) {
+
+            if ($user["quitDate"]) {
+                User::wherePersonnelCode($user['personnelId'])->delete();
+                continue;
+            }
+
             $userData = [
                 'first_name' => $user['name'],
                 'last_name' => $user['family'],
                 'username' => $user['personnelId'],
                 'personnel_code' => $user['personnelId'],
                 'mobile_number' => $user['mobile'],
-                'active' => $user["quitDate"] ? false : true,
-                'profile_image' => $user['personnelId'] . 'jpg',
+                'profile_image' => $user['personnelId'] . '.jpg',
                 'updated_at' => now(),
             ];
 
@@ -151,6 +178,10 @@ class RayvarzService
                 $userData
             );
         }
+
+        User::where('updated_at', '<=', $lastUpdatedAt)
+            ->orWhereNull('updated_at')
+            ->delete();
     }
 
     private function getAccessToken()
@@ -166,5 +197,21 @@ class RayvarzService
                     'bfb0f696b1e315716e67e56e4862bfdaba6ed0d391d16985b0d00dbd49abaa87',
                 ],
             )->json();
+    }
+
+    private function arabicToPersian(array $records): array
+    {
+        Log::info('Converting Arabic characters to Persian', [
+            'recordCount' => count($records),
+        ]);
+
+        $search = ['ي', 'ك'];
+        $replace = ['ی', 'ک'];
+
+        return array_map(function ($record) use ($search, $replace) {
+            return array_map(function ($value) use ($search, $replace) {
+                return is_string($value) ? str_replace($search, $replace, $value) : $value;
+            }, $record);
+        }, $records);
     }
 }

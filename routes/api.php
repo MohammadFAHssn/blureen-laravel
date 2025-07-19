@@ -17,12 +17,12 @@ Route::middleware('throttle:60,1')->group(function () {
     Route::middleware('JwtMiddleware')->group(function () {
 
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
-            Route::get('/get', 'get')->middleware('CheckPermission');
+            Route::get('/{module}/{model_name}', 'get')->middleware('CheckPermission');
         });
 
         Route::controller(\App\Http\Controllers\Api\RayvarzController::class)->prefix('/rayvarz')->group(function () {
             // TODO: add middleware
-            Route::post('/sync', 'sync');
+            Route::post('/sync/{module}/{model_name}', 'sync');
         });
 
         Route::controller(\App\Http\Controllers\Commerce\TenderController::class)->prefix('/commerce/tender')->group(function () {

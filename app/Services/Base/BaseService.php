@@ -17,15 +17,15 @@ class BaseService
 
     public function get($request)
     {
-        $model = $request->query('model');
-        $explodedModel = explode('.', $model);
-        $modelDir = Str::studly($explodedModel[0]);
-        $modelName = Str::studly($explodedModel[1]);
+        $params = $request->route()->parameters();
 
-        if ($modelDir === 'Base') {
+        $module = Str::studly($params['module']);
+        $modelName = Str::studly($params['model_name']);
+
+        if ($module === 'Base') {
             $modelClass = 'App\\Models\\' . $modelName;
         } else {
-            $modelClass = 'App\\Models\\' . $modelDir . '\\' . $modelName;
+            $modelClass = 'App\\Models\\' . $module . '\\' . $modelName;
         }
 
         $filter = array_keys($request->query('filter', []));
