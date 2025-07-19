@@ -9,15 +9,20 @@ use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class RayvarzService
 {
     public function sync($request)
     {
-        $modelName = $request->query('model_name');
+        $params = $request->route()->parameters();
+
+        $module = $params['module'] ?? null;
+        $modelName = $params['model_name'] ?? null;
+
         $uniqueBy = $request->query('unique_by');
 
-        SyncWithRayvarz::dispatch($modelName, $uniqueBy);
+        SyncWithRayvarz::dispatch($module, $modelName, $uniqueBy);
     }
 
     public function fetchByFilters($modelName, $filters)
@@ -105,7 +110,7 @@ class RayvarzService
         }
     }
 
-    public function syncByFilters($modelName, $uniqueBy, $filters)
+    public function syncByFilters($module, $modelName, $uniqueBy, $filters)
     {
         $records = $this->fetchByFilters($modelName, $filters);
 
@@ -121,12 +126,22 @@ class RayvarzService
             'recordCount' => count($records),
         ]);
 
+        $modelClass = '\\App\\Models\\' . Str::studly($module) . '\\' . Str::studly($modelName);
+
+        $lastUpdatedAt = $modelClass::query()->latest('updated_at')->value('updated_at');
+
         foreach (array_chunk($records, $chunkSize) as $chunk) {
             $filtered = array_map(function (array $record) use ($columns) {
-                return array_intersect_key($record, array_flip($columns));
+                $filteredRecord = array_intersect_key($record, array_flip($columns));
+                $filteredRecord['updated_at'] = now();
+                return $filteredRecord;
             }, $chunk);
             DB::table($tableName)->upsert($filtered, [$uniqueBy]);
         }
+
+        $modelClass::query()->where('updated_at', '<=', $lastUpdatedAt)
+            ->orWhereNull('updated_at')
+            ->delete();
     }
 
     public function syncUsers()

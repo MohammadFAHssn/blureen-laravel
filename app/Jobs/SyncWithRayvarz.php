@@ -12,16 +12,18 @@ class SyncWithRayvarz implements ShouldQueue
 
     protected $rayvarzService;
 
+    protected $module;
     protected $modelName;
     protected $uniqueBy;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($modelName, $uniqueBy)
+    public function __construct($module, $modelName, $uniqueBy)
     {
         $this->rayvarzService = new RayvarzService();
 
+        $this->module = $module;
         $this->modelName = $modelName;
         $this->uniqueBy = $uniqueBy;
 
@@ -34,7 +36,7 @@ class SyncWithRayvarz implements ShouldQueue
         if ($this->modelName === 'user') {
             $this->rayvarzService->syncUsers();
         } else {
-            $this->rayvarzService->syncByFilters($this->modelName, $this->uniqueBy, []);
+            $this->rayvarzService->syncByFilters($this->module, $this->modelName, $this->uniqueBy, []);
         }
     }
 }

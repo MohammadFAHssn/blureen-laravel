@@ -86,9 +86,9 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->job(new SyncWithRayvarz('supplier', 'supplierId'))
+        $schedule->job(new SyncWithRayvarz('commerce', 'supplier', 'supplierId'))
             ->daily();
-        $schedule->job(new SyncWithRayvarz('user', ''))
+        $schedule->job(new SyncWithRayvarz('base', 'user', ''))
             ->daily();
     })
     ->create();
