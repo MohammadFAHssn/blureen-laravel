@@ -17,8 +17,8 @@ class RayvarzService
     {
         $params = $request->route()->parameters();
 
-        $module = $params['module'] ?? null;
-        $modelName = $params['model_name'] ?? null;
+        $module = Str::studly($params['module']);
+        $modelName = Str::studly($params['model_name']);
 
         $uniqueBy = $request->query('unique_by');
 
@@ -126,7 +126,7 @@ class RayvarzService
             'recordCount' => count($records),
         ]);
 
-        $modelClass = '\\App\\Models\\' . Str::studly($module) . '\\' . Str::studly($modelName);
+        $modelClass = '\\App\\Models\\' . $module . '\\' . $modelName;
 
         $lastUpdatedAt = $modelClass::query()->latest('updated_at')->value('updated_at');
 
