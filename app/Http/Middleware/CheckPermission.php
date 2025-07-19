@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use App\Exceptions\CustomException;
 use Closure;
 use Illuminate\Http\Request;
-use Spatie\Permission\Exceptions\UnauthorizedException;
 use Spatie\Permission\Models\Permission;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,6 +17,12 @@ class CheckPermission
      */
     public function handle(Request $request, Closure $next): Response
     {
+
+        $user = $request->user();
+
+        if ($user->hasRole('Super Admin')) {
+            return $next($request);
+        }
 
         $fullUrl = parse_url(
             urldecode(
@@ -34,8 +39,6 @@ class CheckPermission
         if (!$permissionName) {
             throw new CustomException('هیچ مجوزی برای این مسیر تعریف نشده‌است.', 403);
         }
-
-        $user = $request->user();
 
         if (!$user->can($permissionName)) {
             throw new CustomException('دسترسی به این مسیر مجاز نمی‌باشد.', 403);
