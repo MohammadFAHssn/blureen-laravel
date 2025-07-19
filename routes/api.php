@@ -26,8 +26,7 @@ Route::middleware('throttle:60,1')->group(function () {
         });
 
         Route::controller(\App\Http\Controllers\Commerce\TenderController::class)->prefix('/commerce/tender')->group(function () {
-            // TODO: add middleware
-            Route::get('/get-actives', 'getActives');
+            Route::get('/get-actives', 'getActives')->middleware(['permission:read Active-Tenders']);
         });
     });
 
