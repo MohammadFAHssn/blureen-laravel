@@ -20,7 +20,7 @@ class TenderController
             );
 
         if ($response->failed()) {
-            throw new CustomException($response['errors']['token'][0], 403);
+            throw new CustomException($response['message'], 403);
         }
         return $response->json();
     }
