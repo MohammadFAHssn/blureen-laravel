@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Commerce;
 use Illuminate\Http\Request;
 use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class TenderController
 {
