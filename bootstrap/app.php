@@ -15,7 +15,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->api(prepend: [
-            // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
 
@@ -24,21 +23,15 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-
             'CheckPermission' => \App\Http\Middleware\CheckPermission::class,
         ]);
-
-        //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // Always return JSON for API routes
         $exceptions->shouldRenderJsonWhen(fn($request, $e) => $request->is('api/*'));
 
         $exceptions->render(function (Throwable $e, $request) {
-            // Report every exception
             report($e);
 
-            // Handle validation exceptions first
             if ($e instanceof \Illuminate\Validation\ValidationException) {
                 return response()->json([
                     'message' => $e->getMessage(),
@@ -46,49 +39,44 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], $e->status);
             }
 
-            // Determine appropriate HTTP status code
-            $statusCode = match (true) {
-                $e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface => $e->getStatusCode(),
-                property_exists($e, 'status') => $e->status,
-                $e->getCode() >= 100 && $e->getCode() < 600 => $e->getCode(),
-                default => 500,
-            };
+            if ($e instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
+                return response()->json([
+                    'message' => 'شما اجازه انجام این عملیات را ندارید.',
+                ], 403);
+            }
+
+            $statusCode = method_exists($e, 'getStatusCode') ? $e->getStatusCode()
+                : (property_exists($e, 'status') ? $e->status
+                    : (($e->getCode() >= 100 && $e->getCode() < 600) ? $e->getCode() : 500));
             $statusCode = max(100, min(599, $statusCode));
 
-            // Local / testing environment: verbose debug info
             if (app()->isLocal() || app()->environment('testing')) {
                 return response()->json([
                     'message' => $e->getMessage(),
                     'exception' => get_class($e),
                     'file' => $e->getFile(),
                     'line' => $e->getLine(),
-                    'trace' => collect($e->getTrace())->take(10)->all(),
+                    'trace' => collect($e->getTrace())->take(10),
                 ], $statusCode);
             }
 
-            // Production: user-friendly messages only
             $userMessage = match (true) {
-                $e instanceof \Illuminate\Auth\AuthenticationException => 'Unauthenticated.',
-                $e instanceof \Illuminate\Auth\Access\AuthorizationException => 'Unauthorized action.',
+                $e instanceof \Illuminate\Auth\AuthenticationException => 'احراز هویت انجام نشده است.',
+                $e instanceof \Illuminate\Auth\Access\AuthorizationException => 'شما به این عملیات دسترسی ندارید.',
                 $e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException,
-                $e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-                => 'Resource not found.',
-                $e instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException
-                => 'Method not allowed.',
-                $statusCode >= 500 => 'Server error.',
+                $e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException => 'منبع مورد نظر یافت نشد.',
+                $e instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException => 'روش HTTP نامعتبر است.',
+                $statusCode >= 500 => 'خطای سمت سرور.',
                 default => $e->getMessage(),
             };
 
-            return response()->json(
-                ['message' => $userMessage],
-                $statusCode
-            );
+            return response()->json([
+                'message' => $userMessage,
+            ], $statusCode);
         });
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->job(new SyncWithRayvarz('commerce', 'supplier', 'supplierId'))
-            ->daily();
-        $schedule->job(new SyncWithRayvarz('base', 'user', ''))
-            ->daily();
+        $schedule->job(new SyncWithRayvarz('commerce', 'supplier', 'supplierId'))->daily();
+        $schedule->job(new SyncWithRayvarz('base', 'user', ''))->daily();
     })
     ->create();
