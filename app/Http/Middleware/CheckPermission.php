@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Exceptions\CustomException;
 use Closure;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,7 +33,9 @@ class CheckPermission
 
         $url =
             substr($fullUrl['path'], 4) // remove /api
-            . '?' . $fullUrl['query'];
+            . (!empty($fullUrl['query']) ? ('?' . $fullUrl['query']) : '');
+
+        Log::info('Checking permission for URL: ' . $url);
 
         $permissionName = Permission::whereUrl($url)->pluck('name')->first();
 
