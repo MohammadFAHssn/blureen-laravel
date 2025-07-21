@@ -22,8 +22,8 @@ class BaseService
         $module = Str::studly($params['module']);
         $modelName = Str::studly($params['model_name']);
 
-        if ($module === 'Base') {
-            $modelClass = 'App\\Models\\' . $modelName;
+        if ($modelName === 'User') {
+            $modelClass = 'App\\Models\\User';
         } else {
             $modelClass = 'App\\Models\\' . $module . '\\' . $modelName;
         }
@@ -40,7 +40,11 @@ class BaseService
         foreach ($relations as $relation) {
             $fieldsOfRelation = explode(',', $fields[$relation]);
             foreach ($fieldsOfRelation as $field) {
-                $allowedFields[] = $relation . '.' . $field;
+                if ($relation === $params['model_name'] . 's') {
+                    $allowedFields[] = $field;
+                } else {
+                    $allowedFields[] = $relation . '.' . $field;
+                }
             }
         }
 
