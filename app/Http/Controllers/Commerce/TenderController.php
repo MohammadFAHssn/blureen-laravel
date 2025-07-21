@@ -37,7 +37,7 @@ class TenderController
             );
 
         if ($response->failed()) {
-            throw new CustomException('خطایی رخ داده‌است.', 500);
+            throw new CustomException($response['message'], 500);
         }
         return $response->json();
     }
@@ -53,7 +53,7 @@ class TenderController
             );
 
         if ($response->failed()) {
-            throw new CustomException('خطا در ارسال پیشنهاد.', 500);
+            throw new CustomException($response['message'], 500);
         }
         return $response->json();
     }
