@@ -75,7 +75,13 @@ class AuthController
 
     public function loginSupplier(LoginSupplierRequest $request)
     {
-        $supplier = Supplier::whereTel1($request->mobileNumber)->first();
+        $supplier = Supplier::whereIn(
+            'tel1',
+            [
+                $request->mobileNumber,
+                ltrim($request->mobileNumber, '0')
+            ]
+        )->first();
 
         if (!$supplier) {
             $supplierInRayvarz = $this->findSupplierInRayvarz($request->mobileNumber);
@@ -160,6 +166,7 @@ class AuthController
 
     private function findSupplierInRayvarz($mobileNumber)
     {
-        return $this->rayvarzService->fetchByFilters('supplier', ['WhereClause' => "tel1.equals(\"{$mobileNumber}\")"]);
+        $mobileNumberWithoutZero = ltrim($mobileNumber, '0');
+        return $this->rayvarzService->fetchByFilters('supplier', ['WhereClause' => "tel1.equals(\"{$mobileNumber}\") or tel1.equals(\"{$mobileNumberWithoutZero}\")"]);
     }
 }
