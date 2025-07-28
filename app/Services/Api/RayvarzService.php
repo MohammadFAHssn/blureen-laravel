@@ -117,7 +117,7 @@ class RayvarzService
 
         $records = $this->arabicToPersian($records);
 
-        $tableName = $modelName . 's';
+        $tableName = Str::snake($modelName) . 's';
 
         $chunkSize = 200;
         $columns = Schema::getColumnListing($tableName);
