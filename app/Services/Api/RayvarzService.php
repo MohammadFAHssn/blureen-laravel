@@ -148,6 +148,8 @@ class RayvarzService
         $modelClass::query()->where('updated_at', '<=', $lastUpdatedAt)
             ->orWhereNull('updated_at')
             ->delete();
+
+        Log::info('Sync completed');
     }
 
     public function syncUsers()
@@ -188,6 +190,9 @@ class RayvarzService
         User::where('updated_at', '<=', $lastUpdatedAt)
             ->orWhereNull('updated_at')
             ->delete();
+
+        Log::info('Sync completed');
+
     }
 
     private function getAccessToken()
