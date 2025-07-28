@@ -28,6 +28,10 @@ Route::middleware('throttle:60,1')->group(function () {
         Route::controller(\App\Http\Controllers\Commerce\TenderController::class)->prefix('/commerce/tender')->group(function () {
             Route::get('/get-actives', 'getActives')->middleware(['permission:read Active-Tenders']);
         });
+
+        Route::controller(\App\Http\Controllers\Base\UserRoleController::class)->prefix('/base/user-role')->group(function () {
+            Route::post('/update', 'update')->middleware('permission:edit User-Roles');
+        });
     });
 
     Route::get('/test', function () {
