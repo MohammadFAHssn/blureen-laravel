@@ -33,7 +33,7 @@ class SyncWithRayvarz implements ShouldQueue
 
     public function handle(): void
     {
-        if ($this->modelName === 'user') {
+        if ($this->modelName === 'User') {
             $this->rayvarzService->syncUsers();
         } else {
             $this->rayvarzService->syncByFilters($this->module, $this->modelName, $this->uniqueBy, []);
