@@ -110,7 +110,6 @@ class RayvarzService
         }
     }
 
-    // TODO: error in server for suppliers
     public function syncByFilters($module, $modelName, $uniqueBy, $filters)
     {
         $records = $this->fetchByFilters($modelName, $filters);
@@ -125,11 +124,6 @@ class RayvarzService
         Log::info('Syncing records to database', [
             'modelName' => $modelName,
             'recordCount' => count($records),
-        ]);
-
-        Log::info('Syncing records to database', [
-            'module' => $module,
-            'modelName' => $modelName,
         ]);
 
         $modelClass = '\\App\\Models\\' . $module . '\\' . $modelName;
