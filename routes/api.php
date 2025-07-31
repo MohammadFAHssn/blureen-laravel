@@ -32,6 +32,10 @@ Route::middleware('throttle:60,1')->group(function () {
         Route::controller(\App\Http\Controllers\Base\UserRoleController::class)->prefix('/base/user-role')->group(function () {
             Route::post('/update', 'update')->middleware('permission:edit User-Roles');
         });
+
+        Route::controller(\App\Http\Controllers\Payroll\PayrollBatchController::class)->prefix('/payroll/payroll-batch')->group(function () {
+            Route::post('/create', 'create')->middleware('permission:create Payroll-Batch');
+        });
     });
 
     Route::get('/test', function () {
