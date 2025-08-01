@@ -9,6 +9,7 @@ use App\Models\Payroll\PayrollSlip;
 use App\Models\Payroll\PayrollBatch;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 
 class PayrollBatchService
 {
@@ -36,33 +37,43 @@ class PayrollBatchService
             throw $e;
         }
 
-        $data = Excel::toArray([], $file); // all data in all sheets
-        $rows = $data[0]; // first sheet data
+        try {
+            $data = Excel::toArray([], $file); // all data in all sheets
+            $rows = $data[0]; // first sheet data
 
-        $headers = $rows[0];
+            $headers = $rows[0];
 
-        $personnelCodeIndex = array_search('پرسنلی', $headers);
+            $personnelCodeIndex = array_search('پرسنلی', $headers);
 
-        if (!$personnelCodeIndex) {
-            throw new CustomException('ستون "پرسنلی" در فایل اکسل بارگذاری شده وجود ندارد.', 400);
-        }
-
-        for ($i = 1; $i < count($rows); $i++) {
-
-            $userId = User::wherePersonnelCode($rows[$i][$personnelCodeIndex])->value('id');
-
-            $payrollSlip = PayrollSlip::create([
-                'user_id' => $userId,
-                'batch_id' => $payrollBatch->id
-            ]);
-
-            foreach ($headers as $index => $header) {
-                PayrollItem::create([
-                    'payroll_slip_id' => $payrollSlip->id,
-                    'item_title' => $header,
-                    'item_value' => $rows[$i][$index]
-                ]);
+            if (!$personnelCodeIndex) {
+                $payrollBatch->delete();
+                throw new CustomException('ستون "پرسنلی" در فایل اکسل بارگذاری شده وجود ندارد.', 400);
             }
+
+            for ($i = 1; $i < count($rows); $i++) {
+
+                $userId = User::wherePersonnelCode($rows[$i][$personnelCodeIndex])->value('id');
+
+                $payrollSlip = PayrollSlip::create([
+                    'user_id' => $userId,
+                    'batch_id' => $payrollBatch->id
+                ]);
+
+                foreach ($headers as $index => $header) {
+                    PayrollItem::create([
+                        'payroll_slip_id' => $payrollSlip->id,
+                        'item_title' => $header,
+                        'item_value' => $rows[$i][$index]
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::info('Error processing payroll batch', [
+                'error' => $e->getMessage(),
+            ]);
+            $payrollBatch->delete();
+            throw $e;
         }
     }
+
 }
