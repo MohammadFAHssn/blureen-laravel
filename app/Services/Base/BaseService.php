@@ -2,9 +2,11 @@
 
 namespace App\Services\Base;
 
-use App\Repositories\Base\BaseRepository;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
+use App\Repositories\Base\BaseRepository;
 
 class BaseService
 {
@@ -28,7 +30,11 @@ class BaseService
             $modelClass = 'App\\Models\\' . $module . '\\' . $modelName;
         }
 
-        $filter = array_keys($request->query('filter', []));
+        $filter = array_keys(
+            array_map(function ($item) {
+                return AllowedFilter::exact($item);
+            }, $request->query('filter', []))
+        );
 
         $include = $request->query('include', '');
         $arrayedInclude = explode(',', $include);
@@ -47,6 +53,12 @@ class BaseService
                 }
             }
         }
+
+        Log::info('Fetching data for model: ' . $modelClass, [
+            'filters' => $filter,
+            'includes' => $arrayedInclude,
+            'fields' => $allowedFields,
+        ]);
 
         return QueryBuilder::for($modelClass)
             ->allowedFilters($filter)

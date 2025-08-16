@@ -45,7 +45,7 @@ class PayrollBatchService
 
             $personnelCodeIndex = array_search('پرسنلی', $headers);
 
-            if (!$personnelCodeIndex) {
+            if ($personnelCodeIndex === false) {
                 $payrollBatch->delete();
                 throw new CustomException('ستون "پرسنلی" در فایل اکسل بارگذاری شده وجود ندارد.', 400);
             }
@@ -60,11 +60,13 @@ class PayrollBatchService
                 ]);
 
                 foreach ($headers as $index => $header) {
-                    PayrollItem::create([
-                        'payroll_slip_id' => $payrollSlip->id,
-                        'item_title' => $header,
-                        'item_value' => $rows[$i][$index]
-                    ]);
+                    if (!empty($rows[$i][$index])) {
+                        PayrollItem::create([
+                            'payroll_slip_id' => $payrollSlip->id,
+                            'item_title' => $header,
+                            'item_value' => $rows[$i][$index]
+                        ]);
+                    }
                 }
             }
         } catch (\Exception $e) {

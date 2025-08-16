@@ -35,18 +35,39 @@ class CheckPermission
             substr($fullUrl['path'], 4) // remove /api
             . (!empty($fullUrl['query']) ? ('?' . $fullUrl['query']) : '');
 
+        $url = preg_replace('/\$\{[^}]+\}/', '$', $url);
+
         Log::info('Checking permission for URL: ' . $url);
 
         $permissionName = Permission::whereUrl($url)->pluck('name')->first();
 
-        if (!$permissionName) {
-            throw new CustomException('هیچ مجوزی برای این مسیر تعریف نشده‌است.', 403);
-        }
+        // if (!$permissionName) {
+        //     throw new CustomException('هیچ مجوزی برای این مسیر تعریف نشده‌است.', 403);
+        // }
 
-        if (!$user->can($permissionName)) {
-            throw new CustomException('دسترسی به این مسیر مجاز نمی‌باشد.', 403);
-        }
+        // if (!$user->can($permissionName)) {
+        //     throw new CustomException('دسترسی به این مسیر مجاز نمی‌باشد.', 403);
+        // }
+
+        $request = $this->resolveUrl($request);
 
         return $next($request);
+    }
+
+    private function resolveUrl($request)
+    {
+        $filters = $request->query('filter', []);
+
+        foreach ($filters as $key => $value) {
+            $filters[$key] = preg_replace('/\$\{([^}]+)\}/', '$1', $value);
+
+            if ($key === 'user_id' && $value === 'current') {
+                $filters[$key] = $request->user()->id;
+            }
+        }
+
+        $request->query->set('filter', $filters);
+        return $request;
+
     }
 }

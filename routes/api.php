@@ -15,18 +15,13 @@ Route::middleware('throttle:60,1')->group(function () {
     });
 
     Route::middleware('JwtMiddleware')->group(function () {
-
-        Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
-            Route::get('/{module}/{model_name}', 'get')->middleware('CheckPermission');
-        });
-
         Route::controller(\App\Http\Controllers\Api\RayvarzController::class)->prefix('/rayvarz')->group(function () {
             // TODO: add middleware
             Route::post('/sync/{module}/{model_name}', 'sync');
         });
 
         Route::controller(\App\Http\Controllers\Commerce\TenderController::class)->prefix('/commerce/tender')->group(function () {
-            Route::get('/get-actives', 'getActives')->middleware(['permission:read Active-Tenders']);
+            Route::get('/get-actives', 'getActives')->middleware('permission:read Active-Tenders');
         });
 
         Route::controller(\App\Http\Controllers\Base\UserRoleController::class)->prefix('/base/user-role')->group(function () {
@@ -35,6 +30,10 @@ Route::middleware('throttle:60,1')->group(function () {
 
         Route::controller(\App\Http\Controllers\Payroll\PayrollBatchController::class)->prefix('/payroll/payroll-batch')->group(function () {
             Route::post('/create', 'create')->middleware('permission:create Payroll-Batch');
+        });
+
+        Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
+            Route::get('/{module}/{model_name}', 'get')->middleware('CheckPermission');
         });
     });
 
