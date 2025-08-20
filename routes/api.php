@@ -32,6 +32,10 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::post('/create', 'create')->middleware('permission:create Payroll-Batch');
         });
 
+        Route::controller(\App\Http\Controllers\Payroll\PayrollSlipController::class)->prefix('/payroll/payroll-slip')->group(function () {
+            Route::get('/get-the-last-few-months', 'getTheLastFewMonths')->middleware('permission:read Payroll-Slip');
+        });
+
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
             Route::get('/{module}/{model_name}', 'get')->middleware('CheckPermission');
         });

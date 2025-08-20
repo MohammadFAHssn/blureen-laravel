@@ -3,19 +3,10 @@
 namespace App\Services\Base;
 
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Repositories\Base\BaseRepository;
-
 class BaseService
 {
-    protected $baseRepository;
-
-    public function __construct()
-    {
-        $this->baseRepository = new BaseRepository;
-    }
 
     public function get($request)
     {
@@ -53,12 +44,6 @@ class BaseService
                 }
             }
         }
-
-        Log::info('Fetching data for model: ' . $modelClass, [
-            'filters' => $filter,
-            'includes' => $arrayedInclude,
-            'fields' => $allowedFields,
-        ]);
 
         return QueryBuilder::for($modelClass)
             ->allowedFilters($filter)

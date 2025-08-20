@@ -2,28 +2,21 @@
 
 namespace App\Http\Controllers\Payroll;
 
+use App\Services\Payroll\PayrollSlipService;
 use Illuminate\Http\Request;
-use App\Services\Base\BaseService;
 
 class PayrollSlipController
 {
 
-    protected $baseService;
+    protected $payrollSlipService;
 
     public function __construct()
     {
-        $this->baseService = new BaseService();
+        $this->payrollSlipService = new PayrollSlipService();
     }
 
-    public function get(Request $request)
+    public function getTheLastFewMonths(Request $request)
     {
-        $route = $request->route();
-
-        $route->setParameter('module', 'payroll');
-        $route->setParameter('model_name', 'payroll-slip');
-
-
-        return response()->json(['data' => $this->baseService->get($request)], 200);
-
+        return response()->json(['data' => $this->payrollSlipService->getTheLastFewMonths($request)], 200);
     }
 }

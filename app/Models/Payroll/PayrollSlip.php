@@ -2,6 +2,7 @@
 
 namespace App\Models\Payroll;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class PayrollSlip extends Model
@@ -21,4 +22,8 @@ class PayrollSlip extends Model
         return $this->hasMany(PayrollItem::class);
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
