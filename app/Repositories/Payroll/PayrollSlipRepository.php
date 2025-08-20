@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Payroll;
 
+use App\Exceptions\CustomException;
 use App\Models\Payroll\PayrollSlip;
 use Illuminate\Container\Attributes\Auth;
 
@@ -9,6 +10,15 @@ class PayrollSlipRepository
 {
     public function getTheLastFewMonths($month, $year, $last)
     {
+        $isPayrollSlipExists = PayrollSlip::whereHas('payrollBatch', function ($query) use ($month, $year) {
+            $query->where('month', $month)
+                ->where('year', $year);
+        })->exists();
+
+        if (!$isPayrollSlipExists) {
+            throw new CustomException('برای تاریخ انتخاب شده سندی یافت نشد.', 404);
+        }
+
         $periods = $this->getPeriods($month, $year, $last);
 
         $payrollSlips = PayrollSlip::whereUserId(auth()->user()->id)
@@ -25,6 +35,7 @@ class PayrollSlipRepository
             ->with([
                 'user:id,first_name,last_name,personnel_code',
                 'payrollItems:payroll_slip_id,item_title,item_value',
+                'payrollBatch:id,month,year'
             ])->get();
 
         return $payrollSlips->sortByDesc(function ($item) {
