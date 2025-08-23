@@ -20,25 +20,20 @@ class PayrollSlipRepository
 
         $periods = $this->getPeriods($month, $year, $last);
 
-        $payrollSlips = PayrollSlip::whereUserId(auth()->user()->id)
-            ->whereHas('payrollBatch', function ($query) use ($periods) {
-                $query->where(function ($query) use ($periods) {
-                    foreach ($periods as $period) {
-                        $query->orWhere(function ($subQuery) use ($period) {
-                            $subQuery->where('month', $period['month'])
-                                ->where('year', $period['year']);
-                        });
-                    }
-                });
-            })
-            ->with([
-                'payrollItems:payroll_slip_id,item_title,item_value',
-                'payrollBatch:id,month,year'
-            ])->get();
+        $payrollSlips = [];
+        foreach ($periods as $period) {
+            $payrollSlips[] = PayrollSlip::whereUserId(auth()->user()->id)
+                ->whereHas('payrollBatch', function ($query) use ($period) {
+                    $query->where('month', $period['month'])
+                        ->where('year', $period['year']);
+                })
+                ->with([
+                    'payrollItems:payroll_slip_id,item_title,item_value',
+                    'payrollBatch:id,month,year'
+                ])->first();
+        }
 
-        return $payrollSlips->sortByDesc(function ($item) {
-            return $item->payrollBatch->year * 100 + $item->payrollBatch->month;
-        })->values();
+        return $payrollSlips;
     }
 
     private function getPeriods($month, $year, $last)
