@@ -4,7 +4,6 @@ namespace App\Repositories\Payroll;
 
 use App\Exceptions\CustomException;
 use App\Models\Payroll\PayrollSlip;
-use Illuminate\Container\Attributes\Auth;
 
 class PayrollSlipRepository
 {
@@ -33,7 +32,6 @@ class PayrollSlipRepository
                 });
             })
             ->with([
-                'user:id,first_name,last_name,personnel_code',
                 'payrollItems:payroll_slip_id,item_title,item_value',
                 'payrollBatch:id,month,year'
             ])->get();
