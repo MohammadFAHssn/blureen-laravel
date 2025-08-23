@@ -52,6 +52,10 @@ class PayrollBatchService
 
             for ($i = 1; $i < count($rows); $i++) {
 
+                if (empty($rows[$i][$personnelCodeIndex])) {
+                    continue; // skip empty rows
+                }
+
                 $userId = User::wherePersonnelCode($rows[$i][$personnelCodeIndex])->value('id');
 
                 $payrollSlip = PayrollSlip::create([
