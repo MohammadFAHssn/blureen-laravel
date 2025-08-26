@@ -30,6 +30,7 @@ Route::middleware('throttle:60,1')->group(function () {
 
         Route::controller(\App\Http\Controllers\Payroll\PayrollBatchController::class)->prefix('/payroll/payroll-batch')->group(function () {
             Route::post('/create', 'create')->middleware('permission:create Payroll-Batch');
+            Route::delete('/', 'delete')->middleware('permission:delete Payroll-Batches');
         });
 
         Route::controller(\App\Http\Controllers\Payroll\PayrollSlipController::class)->prefix('/payroll/payroll-slip')->group(function () {

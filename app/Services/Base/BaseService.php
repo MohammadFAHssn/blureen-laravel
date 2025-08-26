@@ -51,4 +51,18 @@ class BaseService
             ->allowedIncludes($arrayedInclude)
             ->get();
     }
+
+    public function delete($request)
+    {
+        $segments = $request->segments();
+
+        $module = Str::studly($segments[count($segments) - 2]);
+        $modelName = Str::studly($segments[count($segments) - 1]);
+
+        $modelClass = 'App\\Models\\' . $module . '\\' . $modelName;
+
+        foreach ($request->ids as $id) {
+            $modelClass::find($id)->delete();
+        }
+    }
 }
