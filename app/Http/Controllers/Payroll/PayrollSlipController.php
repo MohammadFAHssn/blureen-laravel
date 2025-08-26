@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Payroll;
 
 use App\Services\Payroll\PayrollSlipService;
-use Illuminate\Http\Request;
+use App\Http\Requests\Payroll\GetTheLastFewMonthsPayrollSlipsRequest;
 
 class PayrollSlipController
 {
@@ -15,7 +15,7 @@ class PayrollSlipController
         $this->payrollSlipService = new PayrollSlipService();
     }
 
-    public function getTheLastFewMonths(Request $request)
+    public function getTheLastFewMonths(GetTheLastFewMonthsPayrollSlipsRequest $request)
     {
         return response()->json(['data' => $this->payrollSlipService->getTheLastFewMonths($request)], 200);
     }
