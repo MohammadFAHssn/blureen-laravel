@@ -52,11 +52,12 @@ class AuthController
         } else {
             $allUserPermissions = $user->getAllPermissions();
 
-            if (count($allUserPermissions) === 0) {
-                $permissions = [['action' => 'fuck', 'subject' => 'every-body']];
-            } else {
-                $permissions = $this->getUserAbilityRules($allUserPermissions);
+            if (!$user->hasRole('supplier')) {
+                $allUserPermissions[] = ['name' => 'use app'];
             }
+
+            $permissions = $this->getUserAbilityRules($allUserPermissions);
+
         }
 
         return response()->json([
