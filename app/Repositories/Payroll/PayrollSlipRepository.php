@@ -9,6 +9,15 @@ class PayrollSlipRepository
 {
     public function getTheLastFewMonths($month, $year, $last)
     {
+        if (!$month && !$year) {
+            $latestPayrollSlip = PayrollSlip::whereHas('payrollBatch', function ($query) {
+                $query->latest();
+            })->with(['payrollBatch:id,month,year'])->first();
+
+            $month = $latestPayrollSlip->payrollBatch->month;
+            $year = $latestPayrollSlip->payrollBatch->year;
+        }
+
         $isPayrollSlipExists = PayrollSlip::whereHas('payrollBatch', function ($query) use ($month, $year) {
             $query->where('month', $month)
                 ->where('year', $year);

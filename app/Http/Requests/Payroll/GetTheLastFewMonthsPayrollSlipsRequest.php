@@ -22,8 +22,8 @@ class GetTheLastFewMonthsPayrollSlipsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'month' => 'required|integer|between:1,12',
-            'year' => 'required|integer|between:1390,1430', // :)
+            'month' => 'integer|between:1,12',
+            'year' => 'integer|between:1390,1430', // :)
             'last' => 'required|integer|max:20',
         ];
     }
