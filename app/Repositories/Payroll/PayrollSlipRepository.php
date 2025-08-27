@@ -4,18 +4,19 @@ namespace App\Repositories\Payroll;
 
 use App\Exceptions\CustomException;
 use App\Models\Payroll\PayrollSlip;
+use App\Models\Payroll\PayrollBatch;
 
 class PayrollSlipRepository
 {
     public function getTheLastFewMonths($month, $year, $last)
     {
         if (!$month && !$year) {
-            $latestPayrollSlip = PayrollSlip::whereHas('payrollBatch', function ($query) {
-                $query->latest();
-            })->with(['payrollBatch:id,month,year'])->first();
+            $latestPayrollBatch = PayrollBatch::orderBy('year', 'desc')
+                ->orderBy('month', 'desc')
+                ->first();
 
-            $month = $latestPayrollSlip->payrollBatch->month;
-            $year = $latestPayrollSlip->payrollBatch->year;
+            $month = $latestPayrollBatch->month;
+            $year = $latestPayrollBatch->year;
         }
 
         $isPayrollSlipExists = PayrollSlip::whereHas('payrollBatch', function ($query) use ($month, $year) {
