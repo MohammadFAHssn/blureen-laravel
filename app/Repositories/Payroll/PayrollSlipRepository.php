@@ -15,8 +15,8 @@ class PayrollSlipRepository
                 ->orderBy('month', 'desc')
                 ->first();
 
-            $month = $latestPayrollBatch->month;
-            $year = $latestPayrollBatch->year;
+            $month = $latestPayrollBatch?->month;
+            $year = $latestPayrollBatch?->year;
         }
 
         $isPayrollSlipExists = PayrollSlip::whereHas('payrollBatch', function ($query) use ($month, $year) {
