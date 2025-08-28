@@ -34,7 +34,7 @@ Route::middleware('throttle:60,1')->group(function () {
         });
 
         Route::controller(\App\Http\Controllers\Payroll\PayrollSlipController::class)->prefix('/payroll/payroll-slip')->group(function () {
-            Route::get('/get-the-last-few-months', 'getTheLastFewMonths')->middleware('permission:read Payroll-Slip');
+            Route::get('/get-the-last-few-months', 'getTheLastFewMonths');
         });
 
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
