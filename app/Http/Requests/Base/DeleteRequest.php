@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Payroll;
+namespace App\Http\Requests\Base;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Constants\AppConstants;
 
-class CreatePayrollBatchRequest extends FormRequest
+class DeleteRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,9 +22,8 @@ class CreatePayrollBatchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => 'required|file|mimes:xlsx,xls|max:' . AppConstants::MAX_FILE_SIZE,
-            'month' => 'required|integer|between:1,12',
-            'year' => 'required|integer|between:1390,1430', // :)
+            'ids' => 'required|array|max:100',
+            'ids.*' => 'integer|exists:payroll_batches,id',
         ];
     }
 }

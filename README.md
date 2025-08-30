@@ -75,3 +75,7 @@ php artisan view:cache
 ```bash
 php artisan serve
 ```
+
+## add route to api
+
+if you want to add a route to api file, be careful that the "/{module}/{model_name}" route be the last one.

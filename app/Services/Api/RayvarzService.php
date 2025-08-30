@@ -181,6 +181,7 @@ class RayvarzService
             );
         }
 
+        // TODO: fix this
         User::where('updated_at', '<=', $lastUpdatedAt)
             ->orWhereNull('updated_at')
             ->delete();

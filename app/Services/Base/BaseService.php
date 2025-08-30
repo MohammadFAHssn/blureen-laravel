@@ -3,19 +3,10 @@
 namespace App\Services\Base;
 
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Repositories\Base\BaseRepository;
-
 class BaseService
 {
-    protected $baseRepository;
-
-    public function __construct()
-    {
-        $this->baseRepository = new BaseRepository;
-    }
 
     public function get($request)
     {
@@ -54,16 +45,24 @@ class BaseService
             }
         }
 
-        Log::info('Fetching data for model: ' . $modelClass, [
-            'filters' => $filter,
-            'includes' => $arrayedInclude,
-            'fields' => $allowedFields,
-        ]);
-
         return QueryBuilder::for($modelClass)
             ->allowedFilters($filter)
             ->allowedFields($allowedFields)
             ->allowedIncludes($arrayedInclude)
             ->get();
+    }
+
+    public function delete($request)
+    {
+        $segments = $request->segments();
+
+        $module = Str::studly($segments[count($segments) - 2]);
+        $modelName = Str::studly($segments[count($segments) - 1]);
+
+        $modelClass = 'App\\Models\\' . $module . '\\' . $modelName;
+
+        foreach ($request->ids as $id) {
+            $modelClass::find($id)->delete();
+        }
     }
 }
