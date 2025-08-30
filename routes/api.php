@@ -32,9 +32,15 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::post('/create', 'create')->middleware('permission:create Payroll-Batch');
         });
 
+
+        Route::controller(\App\Http\Controllers\PersonnelRecords\PersonnelRecordsController::class)->prefix('/personnel-records')->group(function (){
+            Route::get('/get-by-personnel_code','getPersonnelRecords');
+        });
+
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
             Route::get('/{module}/{model_name}', 'get')->middleware('CheckPermission');
         });
+
     });
 
     Route::get('/test', function () {
