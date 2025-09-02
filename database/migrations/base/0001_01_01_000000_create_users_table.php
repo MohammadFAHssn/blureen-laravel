@@ -23,7 +23,6 @@ return new class extends Migration {
             // $table->string('national_code')->unique();
             $table->string('mobile_number')->nullable();
             $table->boolean('active')->default(false);
-            $table->string('profile_image')->nullable();
             // $table->string('barcode')->nullable();
             // $table->string('qr_code')->nullable();
             $table->timestamps();

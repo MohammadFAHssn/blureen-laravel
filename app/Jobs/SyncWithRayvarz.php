@@ -27,7 +27,7 @@ class SyncWithRayvarz implements ShouldQueue
         $this->modelName = $modelName;
         $this->uniqueBy = $uniqueBy;
 
-        $this->queue = 'rayvarz_sync';
+        $this->queue = 'sync';
     }
 
 

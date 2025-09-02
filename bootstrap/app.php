@@ -1,10 +1,11 @@
 <?php
 
+use App\Jobs\SyncWithKasra;
+use App\Jobs\SyncWithRayvarz;
 use Illuminate\Foundation\Application;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Console\Scheduling\Schedule;
-use App\Jobs\SyncWithRayvarz;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -77,6 +78,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Schedule $schedule) {
         $schedule->job(new SyncWithRayvarz('Commerce', 'Supplier', 'supplierId'))->daily();
+        $schedule->job(new SyncWithKasra())->daily();
         $schedule->job(new SyncWithRayvarz('Base', 'User', ''))->daily();
     })
     ->create();

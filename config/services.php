@@ -43,6 +43,12 @@ return [
         ]
     ],
 
+    'kasra' => [
+        'fetch' => [
+            'users' => env('KASRA_FETCH_USERS'),
+        ]
+    ],
+
     'sms_pishgamrayan_token' => env('SMS_PISHGAMRAYAN_TOKEN'),
 
     'legacy_integrated_system' => [

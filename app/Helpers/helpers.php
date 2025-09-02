@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Log;
+
 if (!function_exists('getJalaliMonthNameByIndex')) {
     function getJalaliMonthNameByIndex($index)
     {
@@ -19,5 +21,21 @@ if (!function_exists('getJalaliMonthNameByIndex')) {
         ];
 
         return $jalaliMonthNames[$index] ?? null;
+    }
+
+    function arabicToPersian(array $records): array
+    {
+        Log::info('Converting Arabic characters to Persian', [
+            'recordCount' => count($records),
+        ]);
+
+        $search = ['ي', 'ك'];
+        $replace = ['ی', 'ک'];
+
+        return array_map(function ($record) use ($search, $replace) {
+            return array_map(function ($value) use ($search, $replace) {
+                return is_string($value) ? str_replace($search, $replace, $value) : $value;
+            }, $record);
+        }, $records);
     }
 }
