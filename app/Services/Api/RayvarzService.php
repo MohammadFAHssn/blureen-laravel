@@ -2,7 +2,7 @@
 
 namespace App\Services\Api;
 
-use App\Jobs\SyncWithRayvarz;
+use App\Jobs\SyncWithRayvarzJob;
 use Illuminate\Support\Facades\DB;
 use App\Exceptions\CustomException;
 use App\Models\Base\RetiredUsers;
@@ -22,7 +22,7 @@ class RayvarzService
 
         $uniqueBy = $request->query('unique_by');
 
-        SyncWithRayvarz::dispatch($module, $modelName, $uniqueBy);
+        SyncWithRayvarzJob::dispatch($module, $modelName, $uniqueBy);
     }
 
     public function fetchByFilters($modelName, $filters)

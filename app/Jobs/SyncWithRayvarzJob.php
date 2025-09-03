@@ -6,7 +6,7 @@ use App\Services\Api\RayvarzService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class SyncWithRayvarz implements ShouldQueue
+class SyncWithRayvarzJob implements ShouldQueue
 {
     use Queueable;
 

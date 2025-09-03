@@ -6,7 +6,7 @@ use App\Services\Api\KasraService;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SyncWithKasra implements ShouldQueue
+class SyncWithKasraJob implements ShouldQueue
 {
     use Queueable;
 

@@ -2,7 +2,7 @@
 
 namespace App\Services\Api;
 
-use App\Jobs\SyncWithKasra;
+use App\Jobs\SyncWithKasraJob;
 use Illuminate\Support\Facades\DB;
 use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Log;
@@ -12,7 +12,7 @@ class KasraService
 {
     public function sync()
     {
-        SyncWithKasra::dispatch();
+        SyncWithKasraJob::dispatch();
     }
 
     public function fetchUsers()
