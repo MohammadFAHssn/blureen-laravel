@@ -2,10 +2,10 @@
 
 namespace App\Services\Api;
 
-use App\Models\User;
-use App\Jobs\SyncWithRayvarz;
+use App\Jobs\SyncWithRayvarzJob;
 use Illuminate\Support\Facades\DB;
 use App\Exceptions\CustomException;
+use App\Models\Base\RetiredUsers;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
@@ -22,7 +22,7 @@ class RayvarzService
 
         $uniqueBy = $request->query('unique_by');
 
-        SyncWithRayvarz::dispatch($module, $modelName, $uniqueBy);
+        SyncWithRayvarzJob::dispatch($module, $modelName, $uniqueBy);
     }
 
     public function fetchByFilters($modelName, $filters)
@@ -114,7 +114,7 @@ class RayvarzService
     {
         $records = $this->fetchByFilters($modelName, $filters);
 
-        $records = $this->arabicToPersian($records);
+        $records = arabicToPersian($records);
 
         $tableName = Str::snake($modelName) . 's';
 
@@ -150,44 +150,33 @@ class RayvarzService
     {
         $users = $this->fetchUsers();
 
-        $users = $this->arabicToPersian($users);
+        $users = arabicToPersian($users);
 
         Log::info('Syncing users to database', [
             'userCount' => count($users),
         ]);
 
-        $lastUpdatedAt = User::latest('updated_at')->first()->updated_at;
-
+        $userData = [];
         foreach ($users as $user) {
+            $hasUserEmployeeAsRetired = RetiredUsers::where('personnelId', $user['personnelId'])
+                ->whereNull('quitDate')
+                ->exists();
 
-            if ($user["quitDate"]) {
-                User::wherePersonnelCode($user['personnelId'])->delete();
-                continue;
-            }
-
-            $userData = [
+            $userData[] = [
                 'first_name' => $user['name'],
                 'last_name' => $user['family'],
                 'username' => $user['personnelId'],
                 'personnel_code' => $user['personnelId'],
-                'mobile_number' => $user['mobile'],
-                'profile_image' => $user['personnelId'] . '.jpg',
+                'active' => ($user["quitDate"] && !$hasUserEmployeeAsRetired) ? false : true,
                 'updated_at' => now(),
             ];
-
-            DB::table('users')->updateOrInsert(
-                ['personnel_code' => $user['personnelId']],
-                $userData
-            );
         }
 
-        // TODO: fix this
-        User::where('updated_at', '<=', $lastUpdatedAt)
-            ->orWhereNull('updated_at')
-            ->delete();
+        foreach (array_chunk($userData, 200) as $chunk) {
+            DB::table('users')->upsert($chunk, ['personnel_code']);
+        }
 
         Log::info('Sync completed');
-
     }
 
     private function getAccessToken()
@@ -203,22 +192,5 @@ class RayvarzService
                     'bfb0f696b1e315716e67e56e4862bfdaba6ed0d391d16985b0d00dbd49abaa87',
                 ],
             )->json();
-    }
-
-    // TODO: use helper function
-    private function arabicToPersian(array $records): array
-    {
-        Log::info('Converting Arabic characters to Persian', [
-            'recordCount' => count($records),
-        ]);
-
-        $search = ['ي', 'ك'];
-        $replace = ['ی', 'ک'];
-
-        return array_map(function ($record) use ($search, $replace) {
-            return array_map(function ($value) use ($search, $replace) {
-                return is_string($value) ? str_replace($search, $replace, $value) : $value;
-            }, $record);
-        }, $records);
     }
 }

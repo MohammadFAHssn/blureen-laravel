@@ -6,7 +6,7 @@ use App\Services\Api\RayvarzService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class SyncWithRayvarz implements ShouldQueue
+class SyncWithRayvarzJob implements ShouldQueue
 {
     use Queueable;
 
@@ -27,7 +27,7 @@ class SyncWithRayvarz implements ShouldQueue
         $this->modelName = $modelName;
         $this->uniqueBy = $uniqueBy;
 
-        $this->queue = 'rayvarz_sync';
+        $this->queue = 'sync';
     }
 
 
