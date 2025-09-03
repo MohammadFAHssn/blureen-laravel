@@ -80,15 +80,18 @@ class CreatePayrollBatchJob implements ShouldQueue
                     'batch_id' => $payrollBatch->id,
                 ]);
 
+                $payrollSlipItems = [];
                 foreach ($headers as $index => $header) {
                     if (!empty($rows[$i][$index])) {
-                        PayrollItem::create([
+                        $payrollSlipItems[] = [
                             'payroll_slip_id' => $payrollSlip->id,
                             'item_title' => $header,
                             'item_value' => $rows[$i][$index],
-                        ]);
+                        ];
                     }
                 }
+
+                PayrollItem::insert($payrollSlipItems);
             }
         } catch (\Exception $e) {
             info('Error processing payroll batch', [
