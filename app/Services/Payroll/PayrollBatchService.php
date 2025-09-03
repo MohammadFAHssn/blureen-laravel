@@ -53,7 +53,7 @@ class PayrollBatchService
             for ($i = 1; $i < count($rows); $i++) {
 
                 if (empty($rows[$i][$personnelCodeIndex])) {
-                    continue; // skip empty rows
+                    break;
                 }
 
                 $userId = User::wherePersonnelCode($rows[$i][$personnelCodeIndex])->value('id');
