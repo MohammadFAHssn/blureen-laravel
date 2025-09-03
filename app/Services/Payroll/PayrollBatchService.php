@@ -18,6 +18,7 @@ class PayrollBatchService
 
         $uploadedBy = auth()->user()->id;
 
+        info('Dispatching CreatePayrollBatchJob...');
         CreatePayrollBatchJob::dispatch(
             $month,
             $year,
