@@ -1,14 +1,15 @@
 <?php
 namespace App\Jobs;
 
+use App\Models\User;
 use App\Exceptions\CustomException;
-use App\Models\Payroll\PayrollBatch;
 use App\Models\Payroll\PayrollItem;
 use App\Models\Payroll\PayrollSlip;
-use App\Models\User;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Models\Payroll\PayrollBatch;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class CreatePayrollBatchJob implements ShouldQueue
 {
@@ -86,7 +87,7 @@ class CreatePayrollBatchJob implements ShouldQueue
                         $payrollSlipItems[] = [
                             'payroll_slip_id' => $payrollSlip->id,
                             'item_title' => $header,
-                            'item_value' => $rows[$i][$index],
+                            'item_value' => Crypt::encryptString((string) $rows[$i][$index]),
                         ];
                     }
                 }
