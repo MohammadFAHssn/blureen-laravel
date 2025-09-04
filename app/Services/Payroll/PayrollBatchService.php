@@ -9,13 +9,15 @@ class PayrollBatchService
 {
     public function create($request)
     {
+        info('Starting payroll batch creation...');
+        info($request);
+
         $month = $request['month'];
         $year = $request['year'];
         $file = $request['file'];
 
-        $filename = $file->getClientOriginalName();
-
         try {
+            $filename = $file->getClientOriginalName();
             $data = Excel::toArray([], $file); // all data in all sheets
         } catch (\Exception $e) {
             info('Error reading payroll file: ' . $e->getMessage());
