@@ -18,6 +18,7 @@ class PayrollBatchService
 
         try {
             $filename = $file->getClientOriginalName();
+            info('Reading payroll file: ' . $filename);
             $data = Excel::toArray([], $file); // all data in all sheets
         } catch (\Exception $e) {
             info('Error reading payroll file: ' . $e->getMessage());
