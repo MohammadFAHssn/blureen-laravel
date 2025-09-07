@@ -2,14 +2,15 @@
 
 namespace App\Services\Api;
 
+use App\Models\User;
+use Illuminate\Support\Str;
 use App\Jobs\SyncWithRayvarzJob;
+use App\Models\Base\RetiredUsers;
 use Illuminate\Support\Facades\DB;
 use App\Exceptions\CustomException;
-use App\Models\Base\RetiredUsers;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
 
 class RayvarzService
 {
@@ -158,22 +159,27 @@ class RayvarzService
 
         $userData = [];
         foreach ($users as $user) {
-            $hasUserEmployeeAsRetired = RetiredUsers::where('personnelId', $user['personnelId'])
-                ->whereNull('quitDate')
-                ->exists();
 
             $userData[] = [
                 'first_name' => $user['name'],
                 'last_name' => $user['family'],
                 'username' => $user['personnelId'],
                 'personnel_code' => $user['personnelId'],
-                'active' => ($user["quitDate"] && !$hasUserEmployeeAsRetired) ? false : true,
+                'active' => $user["quitDate"] ? false : true,
                 'updated_at' => now(),
             ];
         }
 
         foreach (array_chunk($userData, 200) as $chunk) {
             DB::table('users')->upsert($chunk, ['personnel_code']);
+        }
+
+        $retiredUsers = RetiredUsers::all();
+        foreach ($retiredUsers as $retiredUser) {
+            User::where('personnel_code', $retiredUser->personnel_code)->update([
+                'active' => true,
+                'updated_at' => now(),
+            ]);
         }
 
         Log::info('Sync completed');

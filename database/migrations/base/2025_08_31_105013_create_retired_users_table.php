@@ -13,8 +13,7 @@ return new class extends Migration {
         Schema::create('retired_users', function (Blueprint $table) {
             $table->id();
 
-            $table->string('personnelId')->unique();
-            $table->string('quitDate')->nullable();
+            $table->string('personnel_code')->unique();
 
             $table->timestamps();
         });

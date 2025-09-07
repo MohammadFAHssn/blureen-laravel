@@ -65,8 +65,7 @@ class KasraService
                 'last_name' => $user['LName'],
                 'username' => $user['Code'],
                 'personnel_code' => $user['Code'],
-                'mobile_number' => $user['MobileNO'],
-                'active' => true,
+                'active' => false,
                 'updated_at' => now(),
             ];
         }
