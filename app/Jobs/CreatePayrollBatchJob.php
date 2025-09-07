@@ -3,13 +3,11 @@ namespace App\Jobs;
 
 use App\Models\User;
 use App\Exceptions\CustomException;
-use App\Models\Payroll\PayrollItem;
-use App\Models\Payroll\PayrollSlip;
 use App\Models\Payroll\PayrollBatch;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\DB;
 
 class CreatePayrollBatchJob implements ShouldQueue
 {
@@ -41,19 +39,20 @@ class CreatePayrollBatchJob implements ShouldQueue
 
         info('Creating payroll batch...');
 
-        try {
-            $payrollBatch = PayrollBatch::create([
-                'month' => $this->month,
-                'year' => $this->year,
-                'uploaded_by' => $this->uploadedBy,
-                'filename' => $this->filename,
-            ]);
-        } catch (QueryException $e) {
-            if ($e->getCode() == 23000) {
-                throw new CustomException('قبلاً برای این دوره، فیش حقوقی بارگذاری شده است.', 400);
-            }
-            throw $e;
+        $hasPayrollBatch = PayrollBatch::where('month', $this->month)
+            ->where('year', $this->year)
+            ->exists();
+
+        if ($hasPayrollBatch) {
+            throw new CustomException('قبلاً برای این دوره، فیش حقوقی بارگذاری شده است.', 400);
         }
+
+        $payrollBatch = PayrollBatch::create([
+            'month' => $this->month,
+            'year' => $this->year,
+            'uploaded_by' => $this->uploadedBy,
+            'filename' => $this->filename,
+        ]);
 
         try {
 
@@ -61,38 +60,69 @@ class CreatePayrollBatchJob implements ShouldQueue
 
             $headers = $rows[0];
 
-            $personnelCodeIndex = array_search('پرسنلی', $headers);
+            $personnelCodeIndex = array_search('پرسنلی', $headers, true);
 
             if ($personnelCodeIndex === false) {
                 $payrollBatch->delete();
                 throw new CustomException('ستون "پرسنلی" در فایل اکسل بارگذاری شده وجود ندارد.', 400);
             }
 
+            $personnelCodes = [];
+            for ($i = 1; $i < count($rows); $i++) {
+                $code = $rows[$i][$personnelCodeIndex] ?? null;
+                if ($code === null || $code === '') {
+                    continue;
+                }
+                $personnelCodes[] = $code;
+            }
+
+            $usersMap = User::whereIn('personnel_code', $personnelCodes)
+                ->pluck('id', 'personnel_code');
+
+            $missing = array_diff($personnelCodes, array_keys($usersMap->toArray()));
+            if (!empty($missing)) {
+                throw new CustomException('کدهای پرسنلی نامعتبر: ' . implode(', ', $missing), 404);
+            }
+
+            $payrollSlips = [];
+            $payrollItems = [];
             for ($i = 1; $i < count($rows); $i++) {
 
-                if (empty($rows[$i][$personnelCodeIndex])) {
-                    break;
+                $personnelCode = $rows[$i][$personnelCodeIndex] ?? null;
+                if ($personnelCode === null || $personnelCode === '') {
+                    continue;
                 }
 
-                $userId = User::wherePersonnelCode($rows[$i][$personnelCodeIndex])->value('id');
+                $userId = $usersMap[$personnelCode];
 
-                $payrollSlip = PayrollSlip::create([
+                $payrollSlip = [
+                    'id' => (int) $this->year . $this->month . $i,
                     'user_id' => $userId,
                     'batch_id' => $payrollBatch->id,
-                ]);
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+                $payrollSlips[] = $payrollSlip;
 
-                $payrollSlipItems = [];
                 foreach ($headers as $index => $header) {
                     if (!empty($rows[$i][$index])) {
-                        $payrollSlipItems[] = [
-                            'payroll_slip_id' => $payrollSlip->id,
+                        $payrollItems[] = [
+                            'payroll_slip_id' => $payrollSlip['id'],
                             'item_title' => $header,
                             'item_value' => Crypt::encryptString((string) $rows[$i][$index]),
+                            'created_at' => now(),
+                            'updated_at' => now(),
                         ];
                     }
                 }
 
-                PayrollItem::insert($payrollSlipItems);
+            }
+            foreach (array_chunk($payrollSlips, 500) as $chunk) {
+                DB::table('payroll_slips')->insert($chunk);
+            }
+
+            foreach (array_chunk($payrollItems, 5000) as $chunk) {
+                DB::table('payroll_items')->insert($chunk);
             }
         } catch (\Exception $e) {
             info('Error processing payroll batch', [
