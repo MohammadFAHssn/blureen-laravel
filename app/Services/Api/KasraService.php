@@ -65,13 +65,12 @@ class KasraService
                 'last_name' => $user['LName'],
                 'username' => $user['Code'],
                 'personnel_code' => $user['Code'],
-                'mobile_number' => $user['MobileNO'],
-                'active' => true,
+                'active' => false,
                 'updated_at' => now(),
             ];
         }
 
-        foreach (array_chunk($userData, 200) as $chunk) {
+        foreach (array_chunk($userData, 500) as $chunk) {
             DB::table('users')->upsert($chunk, ['personnel_code']);
         }
 

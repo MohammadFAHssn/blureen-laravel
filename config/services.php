@@ -36,10 +36,16 @@ return [
     ],
 
     'rayvarz' => [
+        'username' => env('RAYVARZ_USERNAME'),
+        'password' => env('RAYVARZ_PASSWORD'),
+        'client_id' => env('RAYVARZ_CLIENT_ID'),
+        'client_secret' => env('RAYVARZ_CLIENT_SECRET'),
         'get_access_token' => env('RAYVARZ_GET_ACCESS_TOKEN'),
+        'get_access_token_for_reports' => env('RAYVARZ_GET_ACCESS_TOKEN_FOR_REPORTS'),
         'fetch' => [
             'users' => env('RAYVARZ_FETCH_USERS'),
-            'other_models' => env('RAYVARZ_FETCH_OTHER_MODELS')
+            'other_models' => env('RAYVARZ_FETCH_OTHER_MODELS'),
+            'reports' => env('RAYVARZ_FETCH_REPORTS'),
         ]
     ],
 

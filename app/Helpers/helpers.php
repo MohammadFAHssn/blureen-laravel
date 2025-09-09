@@ -1,5 +1,6 @@
 <?php
 
+use Morilog\Jalali\Jalalian;
 use Illuminate\Support\Facades\Log;
 
 if (!function_exists('getJalaliMonthNameByIndex')) {
@@ -37,5 +38,21 @@ if (!function_exists('getJalaliMonthNameByIndex')) {
                 return is_string($value) ? str_replace($search, $replace, $value) : $value;
             }, $record);
         }, $records);
+    }
+
+    function jalalianYmdDateToCarbon($jalalianYmdDate)
+    {
+        if (empty($jalalianYmdDate)) {
+            return null;
+        }
+        try {
+            return Jalalian::fromFormat('Ymd', $jalalianYmdDate)->toCarbon();
+        } catch (\Throwable $e) {
+            Log::error('Error converting Jalalian Ymd Date to Carbon', [
+                'jalalianYmdDate' => $jalalianYmdDate,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
     }
 }

@@ -6,7 +6,6 @@ use App\Http\Requests\Base\DeleteRequest;
 use App\Services\Base\BaseService;
 use App\Services\Payroll\PayrollBatchService;
 use App\Http\Requests\Payroll\CreatePayrollBatchRequest;
-use Illuminate\Http\Request;
 
 
 class PayrollBatchController
