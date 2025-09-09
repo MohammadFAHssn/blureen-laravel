@@ -79,6 +79,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withSchedule(function (Schedule $schedule) {
         $schedule->job(new SyncWithRayvarzJob('Commerce', 'Supplier', 'supplierId'))->daily();
         $schedule->job(new SyncWithKasraJob())->daily();
-        $schedule->job(new SyncWithRayvarzJob('Base', 'User', ''))->daily();
+        $schedule->job(new SyncWithRayvarzJob('Base', 'User'))->daily();
+
+        $schedule->job(new SyncWithRayvarzJob('Base', 'JobPosition'))->daily();
+        $schedule->job(new SyncWithRayvarzJob('Base', 'Workplace'))->daily();
+        $schedule->job(new SyncWithRayvarzJob('Base', 'EducationLevel'))->daily();
+        $schedule->job(new SyncWithRayvarzJob('Base', 'WorkArea'))->daily();
+        $schedule->job(new SyncWithRayvarzJob('Base', 'CostCenter'))->daily();
     })
     ->create();

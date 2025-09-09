@@ -11,6 +11,8 @@ use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
+use App\Enums\Rayvarz as RayvarzEnums;
+use App\Models\Base\UserProfile;
 
 class RayvarzService
 {
@@ -153,11 +155,16 @@ class RayvarzService
 
         $users = arabicToPersian($users);
 
-        Log::info('Syncing users to database', [
+        $rayvarzCities = $this->fetchReports(4434);
+
+        info('Syncing users to database', [
             'userCount' => count($users),
         ]);
 
+        $usersMap = User::pluck('id', 'personnel_code');
+
         $userData = [];
+        $userProfile = [];
         foreach ($users as $user) {
 
             $userData[] = [
@@ -168,10 +175,33 @@ class RayvarzService
                 'active' => $user["quitDate"] ? false : true,
                 'updated_at' => now(),
             ];
+
+            $userProfile[] = [
+                'user_id' => $usersMap[$user['personnelId']],
+                'national_code' => $user['nationalCode'],
+                'gender' => $user['genderId'] === 1 ? 'مرد' : 'زن',
+                'father_name' => $user['fatherName'],
+                'birth_place' => $rayvarzCities->firstWhere('rayvarz_id', $user['birthPlaceId'])['name'] ?? null,
+                'birth_date' => jalalianYmdDateToCarbon($user['birthDate']),
+                'mobile_number' => $user['mobile'],
+                'marital_status' => $this->getMaritalStatusById($user['mariageStatusId']),
+                'employment_date' => jalalianYmdDateToCarbon($user['employmentDate']),
+                'start_date' => jalalianYmdDateToCarbon($user['assignmentStartDate']),
+                'education_level_id' => $user['currentEducationId'],
+                'workplace_id' => $user['currentLocation'],
+                'work_area_id' => $user['crnZoneID'],
+                'cost_center_id' => $user['currentCenterId'],
+                'job_position_id' => $user['currentPostId'],
+                'updated_at' => now(),
+            ];
         }
 
-        foreach (array_chunk($userData, 200) as $chunk) {
+        foreach (array_chunk($userData, 500) as $chunk) {
             DB::table('users')->upsert($chunk, ['personnel_code']);
+        }
+
+        foreach (array_chunk($userProfile, 500) as $chunk) {
+            UserProfile::upsert($chunk, ['user_id']);
         }
 
         $retiredUsers = RetiredUsers::all();
@@ -182,7 +212,101 @@ class RayvarzService
             ]);
         }
 
-        Log::info('Sync completed');
+        info('Sync completed');
+    }
+
+    public function fetchReports($reportNumber)
+    {
+        $reports = RayvarzEnums::REPORTS;
+
+        info('Fetching report from Rayvarz', [
+            'reportNumber' => $reportNumber,
+            'reportName' => $reports[$reportNumber] ?? 'undefined',
+        ]);
+
+        try {
+            $response = Http::timeout(60)->withHeaders([
+                'AccessToken' => $this->getAccessTokenForReports()
+            ])
+                ->get(
+                    config('services.rayvarz.fetch.reports'),
+                    [
+                        'systemId' => 'rayemp',
+                        'groupId' => '17',
+                        'reportNo' => (string) $reportNumber,
+                        'Level' => '1',
+                        'parametersString' => '',
+                        'filterData' => '',
+                        'Language' => '0',
+                    ],
+                );
+
+            if ($response->failed()) {
+                Log::error('Rayvarz fetch failed', [
+                    'report' => $reports[$reportNumber] ?? $reportNumber,
+                    'status' => $response->status(),
+                    'url' => optional($response->transferStats)->getEffectiveUri()?->__toString(),
+                    'body' => Str::limit($response->body(), 2000),
+                ]);
+                throw new CustomException('هنگام دریافت ' . ($reports[$reportNumber] ?? '"گزارشی که تعریف نشده‌است"') . ' از رایورز خطایی رخ داده‌است.', 500);
+            }
+
+            $decoded = html_entity_decode($response->body(), ENT_QUOTES, 'UTF-8');
+            $xml = simplexml_load_string($decoded, 'SimpleXMLElement', LIBXML_NOCDATA);
+            $xml->registerXPathNamespace('t', 'http://tempuri.org/');
+            $rows = $xml->xpath('/t:string/t:DocumentElement/t:GetReportFilterDataAsXml');
+            $result = collect($rows)->map(function ($item) {
+                return [
+                    'rayvarz_id' => (int) $item->a1,
+                    'name' => trim((string) $item->a2),
+                ];
+            })->values();
+
+
+            return collect($result);
+
+        } catch (\Exception $e) {
+            Log::error('Rayvarz fetch failed', [
+                'report' => $reports[$reportNumber] ?? $reportNumber,
+                'status' => $response->status(),
+                'url' => optional($response->transferStats)->getEffectiveUri()?->__toString(),
+                'body' => Str::limit($response->body(), 2000),
+            ]);
+            throw new CustomException('هنگام دریافت ' . ($reports[$reportNumber] ?? '"گزارشی که تعریف نشده‌است"') . ' از رایورز خطایی رخ داده‌است.', 500);
+        }
+    }
+
+    public function syncReports($reportNumber)
+    {
+        $reports = RayvarzEnums::REPORTS;
+
+        $report = $this->fetchReports($reportNumber)->toArray();
+
+        $tableName = $reports[$reportNumber];
+
+        info('Syncing report to database', [
+            'reportNumber' => $reportNumber,
+            'reportName' => $tableName,
+            'recordCount' => count($report),
+        ]);
+
+        $chunkSize = 200;
+        $columns = Schema::getColumnListing($tableName);
+
+        foreach (array_chunk($report, $chunkSize) as $chunk) {
+            $filtered = array_map(function (array $record) use ($columns) {
+                $filteredRecord = array_intersect_key($record, array_flip($columns));
+                $filteredRecord['updated_at'] = now();
+                return $filteredRecord;
+            }, $chunk);
+            DB::table($tableName)->upsert($filtered, ['rayvarz_id']);
+        }
+
+        info('Sync completed for report', [
+            'reportNumber' => $reportNumber,
+            'reportName' => $tableName,
+        ]);
+
     }
 
     private function getAccessToken()
@@ -194,9 +318,34 @@ class RayvarzService
         ])->post(
                 config('services.rayvarz.get_access_token'),
                 [
-                    '4430',
+                    config('services.rayvarz.username'),
                     'bfb0f696b1e315716e67e56e4862bfdaba6ed0d391d16985b0d00dbd49abaa87',
                 ],
             )->json();
+    }
+
+    private function getAccessTokenForReports()
+    {
+        return Http::asForm()->post(
+            config('services.rayvarz.get_access_token_for_reports'),
+            [
+                'grant_type' => 'password',
+                'username' => config('services.rayvarz.username'),
+                'password' => config('services.rayvarz.password'),
+                'client_id' => config('services.rayvarz.client_id'),
+                'client_secret' => config('services.rayvarz.client_secret'),
+            ],
+        )->json()['access_token'];
+    }
+
+    private function getMaritalStatusById($id)
+    {
+        $statuses = [
+            1 => 'مجرد',
+            2 => 'متاهل',
+            3 => 'معیل',
+        ];
+
+        return $statuses[$id] ?? null;
     }
 }

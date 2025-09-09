@@ -70,7 +70,7 @@ class KasraService
             ];
         }
 
-        foreach (array_chunk($userData, 200) as $chunk) {
+        foreach (array_chunk($userData, 500) as $chunk) {
             DB::table('users')->upsert($chunk, ['personnel_code']);
         }
 
