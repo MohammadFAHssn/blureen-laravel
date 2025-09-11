@@ -62,7 +62,6 @@ return [
         'get_active_tenders' => env('LEGACY_INTEGRATED_SYSTEM_GET_ACTIVE_TENDERS'),
         'submit_bid' => env('LEGACY_INTEGRATED_SYSTEM_SUBMIT_BID'),
         'get_completed_onboarding_courses' => env('LEGACY_INTEGRATED_SYSTEM_GET_COMPLETED_ONBOARDING_COURSES'),
-        'get_introductionToUnit_data' => env('LEGACY_INTEGRATED_SYSTEM_GET_INTRODUCTION_TO_UNIT_DATA'),
         'get_reassignment_data' => env('LEGACY_INTEGRATED_SYSTEM_GET_REASSIGNMENT_DATA'),
     ],
 

@@ -14,7 +14,8 @@ class CheckPermission
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param Closure(Request): (Response) $next
+     * @throws CustomException
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -35,9 +36,9 @@ class CheckPermission
             substr($fullUrl['path'], 4) // remove /api
             . (!empty($fullUrl['query']) ? ('?' . $fullUrl['query']) : '');
 
-        $url = preg_replace('/\$\{[^}]+\}/', '$', $url);
+        $url = preg_replace('/\$\{[^}]+}/', '$', $url);
 
-        Log::info('Checking permission for URL: ' . $url);
+        //Log::info('Checking permission for URL: ' . $url);
 
         $permissionName = Permission::whereUrl($url)->pluck('name')->first();
 
@@ -59,7 +60,7 @@ class CheckPermission
         $filters = $request->query('filter', []);
 
         foreach ($filters as $key => $value) {
-            $filters[$key] = preg_replace('/\$\{([^}]+)\}/', '$1', $value);
+            $filters[$key] = preg_replace('/\$\{([^}]+)}/', '$1', $value);
 
             if ($key === 'user_id' && $value === 'current') {
                 $filters[$key] = $request->user()->id;
