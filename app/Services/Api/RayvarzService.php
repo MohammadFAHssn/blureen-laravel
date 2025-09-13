@@ -280,7 +280,7 @@ class RayvarzService
     {
         $reports = RayvarzEnums::REPORTS;
 
-        $report = $this->fetchReports($reportNumber)->toArray();
+        $report = arabicToPersian($this->fetchReports($reportNumber)->toArray());
 
         $tableName = $reports[$reportNumber];
 
