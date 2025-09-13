@@ -24,7 +24,7 @@ class PersonnelRecordsService
                 'profile','profile.costCenter','profile.jobPosition','profile.educationLevel'
             ])->first();
         if(is_null($user))
-            throw new CustomException('پرسنل یافت نشد.');
+            throw new CustomException('پرسنل یافت نشد.',404);
 
         $personnel_records = [];
         //profile
