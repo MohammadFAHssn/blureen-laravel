@@ -44,7 +44,7 @@ Route::middleware('throttle:60,1')->group(function () {
 
 
         Route::controller(\App\Http\Controllers\PersonnelRecords\PersonnelRecordsController::class)->prefix('/personnel-records')->group(function (){
-            Route::get('/get-by-personnel_code','getPersonnelRecords');
+            Route::get('/get-by-personnel_code','getPersonnelRecords')->middleware('permission:read Personnel-Records');
         });
 
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
