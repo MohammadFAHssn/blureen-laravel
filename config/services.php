@@ -61,5 +61,25 @@ return [
         'get_tender_by_token' => env('LEGACY_INTEGRATED_SYSTEM_GET_TENDER_BY_TOKEN'),
         'get_active_tenders' => env('LEGACY_INTEGRATED_SYSTEM_GET_ACTIVE_TENDERS'),
         'submit_bid' => env('LEGACY_INTEGRATED_SYSTEM_SUBMIT_BID'),
+        'get_completed_onboarding_courses' => env('LEGACY_INTEGRATED_SYSTEM_GET_COMPLETED_ONBOARDING_COURSES'),
+        'get_reassignment_data' => env('LEGACY_INTEGRATED_SYSTEM_GET_REASSIGNMENT_DATA'),
     ],
+
+    'productivity_system' =>[
+        'get_reward_and_fines_data' => env('PRODUCTIVITY_SYSTEM_GET_REWARD_AND_FINES_DATA'),
+    ],
+
+    'payroll_system' => [
+        'get_assessment_data'   => env('PAYROLL_SYSTEM_GET_ASSESSMENT_DATA'),
+        'get_payroll_data'   => env('PAYROLL_SYSTEM_GET_SALARY_DATA'),
+        'get_birthday_gift_data'   => env('PAYROLL_SYSTEM_GET_BIRTHDAY_GIFT_DATA'),
+    ],
+
+    'food_reservation_system' => [
+        'get_food_reservation_data' => env('FOOD_RESERVATION_SYSTEM_GET_RESERVE_DATA')
+    ]
+
+
+
+
 ];
