@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Base\ApprovalFlow;
 use App\Models\Base\UserProfile;
-use Spatie\Permission\Traits\HasRoles;
-use Tymon\JWTAuth\Contracts\JWTSubject;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -59,8 +60,18 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('active', true);
+    }
+
     public function profile()
     {
         return $this->hasOne(UserProfile::class);
+    }
+
+    public function approvalFlowsAsRequester()
+    {
+        return $this->hasMany(ApprovalFlow::class, 'requester_user_id');
     }
 }

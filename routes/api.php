@@ -43,14 +43,23 @@ Route::middleware('throttle:60,1')->group(function () {
         });
 
 
-        Route::controller(\App\Http\Controllers\PersonnelRecords\PersonnelRecordsController::class)->prefix('/personnel-records')->group(function (){
-            Route::get('/get-by-personnel_code','getPersonnelRecords')->middleware('permission:read Personnel-Records');
+        Route::controller(\App\Http\Controllers\PersonnelRecords\PersonnelRecordsController::class)->prefix('/personnel-records')->group(function () {
+            Route::get('/get-by-personnel_code', 'getPersonnelRecords')->middleware('permission:read Personnel-Records');
+        });
+
+        // TODO: add middleware
+        Route::controller(\App\Http\Controllers\Base\UserController::class)->prefix('/base/user')->group(function () {
+            Route::get('/approval-flows-as-requester', 'getApprovalFlowsAsRequester');
+        });
+
+        // TODO: add middleware
+        Route::controller(\App\Http\Controllers\Base\JobPositionController::class)->prefix('/base/job-position')->group(function () {
+            Route::get('/approval-flows-as-requester', 'getApprovalFlowsAsRequester');
         });
 
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
             Route::get('/{module}/{model_name}', 'get')->middleware('CheckPermission');
         });
-
     });
 
     Route::get('/test', function () {

@@ -40,6 +40,8 @@ return new class extends Migration
 
             $table->unsignedTinyInteger('priority')->default(1);
 
+            $table->foreignId('request_type_id')->constrained()->onDelete('restrict');
+
             $table->timestamps();
         });
     }

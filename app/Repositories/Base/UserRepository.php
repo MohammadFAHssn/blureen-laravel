@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Repositories\Base;
+
+use App\Models\User;
+
+class UserRepository
+{
+    public function getApprovalFlowsAsRequester($requestTypeId)
+    {
+        return User::active()->select('id', 'first_name', 'last_name', 'personnel_code')->with([
+            'profile:user_id,workplace_id,work_area_id,cost_center_id,job_position_id',
+            'profile.workplace:rayvarz_id,name',
+            'profile.workArea:rayvarz_id,name',
+            'profile.costCenter:rayvarz_id,name',
+            'profile.jobPosition:rayvarz_id,name',
+            'approvalFlowsAsRequester' => function ($query) use ($requestTypeId) {
+                $query->where('request_type_id', $requestTypeId)->orderBy('priority');
+            },
+            'approvalFlowsAsRequester.approverUser:id,first_name,last_name,personnel_code',
+            'approvalFlowsAsRequester.approverPosition:rayvarz_id,name',
+        ])->get();
+    }
+}
