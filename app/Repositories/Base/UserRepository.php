@@ -8,7 +8,7 @@ class UserRepository
 {
     public function getApprovalFlowsAsRequester($requestTypeId)
     {
-        return User::active()->select('id', 'first_name', 'last_name', 'personnel_code')->with([
+        return User::select('id', 'first_name', 'last_name', 'personnel_code', 'active')->with([
             'profile:user_id,workplace_id,work_area_id,cost_center_id,job_position_id',
             'profile.workplace:rayvarz_id,name',
             'profile.workArea:rayvarz_id,name',
