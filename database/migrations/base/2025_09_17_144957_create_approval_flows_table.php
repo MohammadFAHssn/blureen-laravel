@@ -26,6 +26,12 @@ return new class extends Migration
                 ->on('job_positions')
                 ->restrictOnDelete();
 
+            $table->unsignedBigInteger('requester_center_id')->nullable();
+            $table->foreign('requester_center_id')
+                ->references('rayvarz_id')
+                ->on('cost_centers')
+                ->restrictOnDelete();
+
             $table->unsignedBigInteger('approver_user_id')->nullable();
             $table->foreign('approver_user_id')
                 ->references('id')
@@ -36,6 +42,12 @@ return new class extends Migration
             $table->foreign('approver_position_id')
                 ->references('rayvarz_id')
                 ->on('job_positions')
+                ->restrictOnDelete();
+
+            $table->unsignedBigInteger('approver_center_id')->nullable();
+            $table->foreign('approver_center_id')
+                ->references('rayvarz_id')
+                ->on('cost_centers')
                 ->restrictOnDelete();
 
             $table->unsignedTinyInteger('priority')->default(1);
