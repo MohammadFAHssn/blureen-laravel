@@ -12,11 +12,4 @@ class JobPositionService
     {
         $this->jobPositionRepository = new JobPositionRepository();
     }
-
-    public function getApprovalFlowsAsRequester($request)
-    {
-        $requestTypeId = $request['requestTypeId'];
-
-        return $this->jobPositionRepository->getApprovalFlowsAsRequester($requestTypeId);
-    }
 }
