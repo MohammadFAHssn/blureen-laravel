@@ -51,6 +51,11 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::get('/approval-flows-as-requester', 'getApprovalFlowsAsRequester');
         });
 
+        // TODO: add middleware
+        Route::controller(\App\Http\Controllers\Base\ApprovalFlowController::class)->prefix('/base/approval-flow')->group(function () {
+            Route::post('/update', 'update'); //->middleware('permission:Edit Approval-Flows');
+        });
+
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
             Route::get('/{module}/{model_name}', 'get')->middleware('CheckPermission');
         });
