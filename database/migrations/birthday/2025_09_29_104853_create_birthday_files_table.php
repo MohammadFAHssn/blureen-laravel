@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('birthday_files', function (Blueprint $table) {
             $table->id();
-            $table->string('filename');
-            $table->string('year');
+            $table->string('file_name');
             $table->string('month');
+            $table->string('year');
             $table->boolean('status');
-            $table->unsignedInteger('created_by');
-            $table->unsignedInteger('edited_by');
+            $table->unsignedInteger('uploaded_by');
+            $table->unsignedInteger('edited_by')->nullable();
             $table->timestamps();
         });
     }
