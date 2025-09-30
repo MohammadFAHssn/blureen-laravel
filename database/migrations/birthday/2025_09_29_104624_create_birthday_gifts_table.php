@@ -19,7 +19,7 @@ return new class extends Migration
             $table->boolean('status')->default(true);
             $table->unsignedInteger('amount')->default(1);
             $table->unsignedInteger('created_by');
-            $table->unsignedInteger('edited_by');
+            $table->unsignedInteger('edited_by')->nullable();
             $table->timestamps();
         });
     }
