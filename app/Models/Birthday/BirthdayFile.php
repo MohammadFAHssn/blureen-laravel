@@ -25,4 +25,9 @@ class BirthdayFile extends Model
     {
         return $this->belongsTo(User::class, 'edited_by');
     }
+
+    public function users()
+    {
+        return $this->hasMany(BirthdayFileUser::class, 'birthday_file_id');
+    }
 }
