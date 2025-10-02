@@ -47,6 +47,16 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::get('/get-by-personnel_code','getPersonnelRecords')->middleware('permission:read Personnel-Records');
         });
 
+        //Birthday Routes
+        Route::prefix('birthday')->group(function () {
+            Route::controller(\App\Http\Controllers\Birthday\BirthdayGiftController::class)->prefix('gift')->group(function () {
+                Route::post('/', 'store');
+                Route::get('/', 'index');
+                Route::post('/{id}', 'update');
+                Route::delete('/{id}', 'delete');
+            });
+        });
+
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
             Route::get('/{module}/{model_name}', 'get')->middleware('CheckPermission');
         });
