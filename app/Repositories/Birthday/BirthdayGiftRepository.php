@@ -21,6 +21,11 @@ class BirthdayGiftRepository
         return BirthdayGift::create($data);
     }
 
+    /**
+     * Get all BirthdayGifts
+     *
+     * @return array
+     */
     public function getAll()
     {
         return BirthdayGift::with('createdBy', 'editedBy')->get();
