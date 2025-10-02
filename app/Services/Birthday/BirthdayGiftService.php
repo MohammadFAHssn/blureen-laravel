@@ -9,8 +9,16 @@ use Illuminate\Validation\ValidationException;
 
 class BirthdayGiftService
 {
+    /**
+     * @var BirthdayGiftRepository
+     */
     protected $birthdayGiftRepository;
 
+    /**
+     * BirthdayGiftService constructor
+     *
+     * @param BirthdayGiftRepository $birthdayGiftRepository
+     */
     public function __construct(BirthdayGiftRepository $birthdayGiftRepository)
     {
         $this->birthdayGiftRepository = $birthdayGiftRepository;
