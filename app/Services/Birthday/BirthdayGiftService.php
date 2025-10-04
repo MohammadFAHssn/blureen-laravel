@@ -96,7 +96,7 @@ class BirthdayGiftService
             ] : null,
             'editedBy' => $birthdayGift->editedBy ? [
                 'id' => $birthdayGift->editedBy->id,
-                'fullName' => $birthdayGift->createdBy->first_name . ' ' . $birthdayGift->createdBy->last_name,
+                'fullName' => $birthdayGift->editedBy->first_name . ' ' . $birthdayGift->editedBy->last_name,
                 'username' => $birthdayGift->editedBy->username,
             ] : null,
             'createdAt' => $birthdayGift->created_at,

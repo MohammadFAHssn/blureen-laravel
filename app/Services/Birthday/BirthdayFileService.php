@@ -134,14 +134,12 @@ class BirthdayFileService
             'status' => $birthdayFile->status,
             'uploadedBy' => $birthdayFile->uploadedBy ? [
                 'id' => $birthdayFile->uploadedBy->id,
-                'firstName' => $birthdayFile->uploadedBy->first_name,
-                'lastName' => $birthdayFile->uploadedBy->last_name,
+                'fullName' => $birthdayFile->uploadedBy->first_name . ' ' . $birthdayFile->uploadedBy->last_name,
                 'username' => $birthdayFile->uploadedBy->username,
             ] : null,
             'editedBy' => $birthdayFile->editedBy ? [
                 'id' => $birthdayFile->editedBy->id,
-                'firstName' => $birthdayFile->editedBy->first_name,
-                'lastName' => $birthdayFile->editedBy->last_name,
+                'fullName' => $birthdayFile->editedBy->first_name . ' ' . $birthdayFile->editedBy->last_name,
                 'username' => $birthdayFile->editedBy->username,
             ] : null,
             'users' => $birthdayFile->users->map(function ($bfUser) {
@@ -164,7 +162,7 @@ class BirthdayFileService
                     ] : null,
                     'editedBy' => $bfUser->editedBy ? [
                         'id' => $bfUser->editedBy->id,
-                        'fullName' => $bfUser->createdBy->first_name . ' ' . $bfUser->createdBy->last_name,
+                        'fullName' => $bfUser->editedBy->first_name . ' ' . $bfUser->editedBy->last_name,
                         'username' => $bfUser->editedBy->username,
                     ] : null,
                 ];
