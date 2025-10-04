@@ -23,7 +23,7 @@ class CreateSurveyRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:255',
-            'porslineId' => 'required|string|max:20',
+            'porsline_id' => 'required|string|max:20',
         ];
     }
 }
