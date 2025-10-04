@@ -27,7 +27,7 @@ class BirthdayFileRepository
      */
     public function getAll()
     {
-        return BirthdayFile::with('uploadedBy', 'editedBy')->get();
+        return BirthdayFile::with('uploadedBy', 'editedBy', 'users.user', 'users.gift',)->get();
     }
 
     /**
