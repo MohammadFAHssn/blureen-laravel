@@ -25,7 +25,12 @@ class BirthdayFileUser extends Model
         return $this->belongsTo(BirthdayFile::class, 'birthday_file_id');
     }
 
-    public function birthdayGift()
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function gift()
     {
         return $this->belongsTo(BirthdayGift::class, 'birthday_gift_id');
     }
