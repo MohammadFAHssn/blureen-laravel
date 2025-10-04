@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('birthday_files_users', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('birthday_file_id');
-            $table->text('user_id');
+            $table->unsignedInteger('user_id');
             $table->unsignedBigInteger('birthday_gift_id')->default(0);
             $table->boolean('status')->default(true);
             $table->unsignedInteger('created_by')->default(0);
