@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Base;
+namespace App\Http\Requests\Payroll;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class DeleteRequest extends FormRequest
+class DeletePayrollBatchesRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
