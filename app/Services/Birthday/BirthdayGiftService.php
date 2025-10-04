@@ -91,14 +91,12 @@ class BirthdayGiftService
             'amount' => $birthdayGift->amount,
             'createdBy' => $birthdayGift->createdBy ? [
                 'id' => $birthdayGift->createdBy->id,
-                'firstName' => $birthdayGift->createdBy->first_name,
-                'lastName' => $birthdayGift->createdBy->last_name,
+                'fullName' => $birthdayGift->createdBy->first_name . ' ' . $birthdayGift->createdBy->last_name,
                 'username' => $birthdayGift->createdBy->username,
             ] : null,
             'editedBy' => $birthdayGift->editedBy ? [
                 'id' => $birthdayGift->editedBy->id,
-                'firstName' => $birthdayGift->editedBy->first_name,
-                'lastName' => $birthdayGift->editedBy->last_name,
+                'fullName' => $birthdayGift->createdBy->first_name . ' ' . $birthdayGift->createdBy->last_name,
                 'username' => $birthdayGift->editedBy->username,
             ] : null,
             'createdAt' => $birthdayGift->created_at,
