@@ -6,6 +6,7 @@ use App\Services\Survey\SurveyService;
 use App\Http\Requests\Survey\CreateSurveyRequest;
 use App\Http\Requests\Survey\UpdateSurveyRequest;
 use App\Http\Requests\Survey\DeleteSurveysRequest;
+use App\Http\Requests\Survey\ParticipateInSurveyRequest;
 
 class SurveyController
 {
@@ -18,7 +19,7 @@ class SurveyController
 
     public function create(CreateSurveyRequest $request)
     {
-        return response()->json(['data' => $this->surveyService->create($request)], 200);
+        return response()->json(['data' => $this->surveyService->create($request->validated())], 200);
     }
 
     public function update(UpdateSurveyRequest $request)
@@ -29,5 +30,10 @@ class SurveyController
     public function delete(DeleteSurveysRequest $request)
     {
         return response()->json(['data' => $this->surveyService->delete($request)], 200);
+    }
+
+    public function participate(ParticipateInSurveyRequest $request)
+    {
+        return response()->json(['data' => $this->surveyService->participate($request)], 200);
     }
 }

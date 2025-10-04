@@ -61,6 +61,7 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::post('/create', 'create');
             Route::post('/update', 'update');
             Route::delete('/', 'delete');
+            Route::post('/participate', 'participate');
         });
 
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {

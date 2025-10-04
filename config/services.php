@@ -57,7 +57,7 @@ return [
 
     'porsline' => [
         'authorization' => env('PORSLINE_AUTHORIZATION'),
-        'create_new_variables' => env('PORSLINE_CREATE_NEW_VARIABLES'),
+        'base_url' => env('PORSLINE_BASE_URL'),
     ],
 
     'sms_pishgamrayan_token' => env('SMS_PISHGAMRAYAN_TOKEN'),
