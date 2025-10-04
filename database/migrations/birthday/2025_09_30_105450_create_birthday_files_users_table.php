@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('birthday_file_id');
             $table->text('user_id');
             $table->unsignedBigInteger('birthday_gift_id')->default(0);
+            $table->boolean('status')->default(true);
             $table->unsignedInteger('created_by')->default(0);
             $table->unsignedInteger('edited_by')->default(0);
             $table->timestamps();
