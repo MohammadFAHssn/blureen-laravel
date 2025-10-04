@@ -2,14 +2,13 @@
 
 namespace App\Services\Birthday;
 
+use App\Imports\Birthday\BirthDayFileUserImport;
+use App\Models\Birthday\BirthdayFile;
+use App\Repositories\Birthday\BirthdayFileRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Models\Birthday\BirthdayFile;
 use Illuminate\Validation\ValidationException;
-use App\Imports\Birthday\BirthDayFileUserImport;
-use App\Repositories\Birthday\BirthdayFileRepository;
-
+use Maatwebsite\Excel\Facades\Excel;
 
 class BirthdayFileService
 {
@@ -66,9 +65,9 @@ class BirthdayFileService
         }
 
         $file = $request->file('file');
-        
+
         DB::beginTransaction();
-        
+
         try {
             $birthdayFile = $this->birthdayFileRepository->create($validatedRequest);
             Excel::import(new BirthdayFileUserImport($birthdayFile->id), $file);
@@ -145,6 +144,31 @@ class BirthdayFileService
                 'lastName' => $birthdayFile->editedBy->last_name,
                 'username' => $birthdayFile->editedBy->username,
             ] : null,
+            'users' => $birthdayFile->users->map(function ($bfUser) {
+                return [
+                    'user' => $bfUser->user ? [
+                        'id' => $bfUser->user->id,
+                        'fullName' => $bfUser->user->first_name . ' ' . $bfUser->user->last_name,
+                        'username' => $bfUser->user->username,
+                    ] : null,
+                    'gift' => $bfUser->gift ? [
+                        'id' => $bfUser->gift->id,
+                        'name' => $bfUser->gift->name,
+                        'code' => $bfUser->gift->code,
+                    ] : null,
+                    'status' => $bfUser->status,
+                    'createdBy' => $bfUser->createdBy ? [
+                        'id' => $bfUser->createdBy->id,
+                        'fullName' => $bfUser->createdBy->first_name . ' ' . $bfUser->createdBy->last_name,
+                        'username' => $bfUser->createdBy->username,
+                    ] : null,
+                    'editedBy' => $bfUser->editedBy ? [
+                        'id' => $bfUser->editedBy->id,
+                        'fullName' => $bfUser->createdBy->first_name . ' ' . $bfUser->createdBy->last_name,
+                        'username' => $bfUser->editedBy->username,
+                    ] : null,
+                ];
+            })->toArray(),
             'createdAt' => $birthdayFile->created_at,
             'updatedAt' => $birthdayFile->updated_at,
         ];
@@ -159,7 +183,7 @@ class BirthdayFileService
     protected function formatBirthdayFilesListPayload($birthdayFiles): array
     {
         return [
-            'birthdayGifts' => $birthdayFiles->map(function ($birthdayFile) {
+            'birthdayFiles' => $birthdayFiles->map(function ($birthdayFile) {
                 return $this->formatBirthdayFilePayload($birthdayFile);
             })->toArray(),
             'metadata' => [
