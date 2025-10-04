@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class BirthdayFileUser extends Model
 {
+    protected $table = 'birthday_files_users';
+
     protected $fillable = [
         'birthday_file_id',
         'user_id',
