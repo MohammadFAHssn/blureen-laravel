@@ -14,6 +14,12 @@ class SurveyService
         ]);
     }
 
+    public function update($data)
+    {
+        $survey = Survey::find($data['id']);
+        $survey->update($data);
+    }
+
     public function delete($request)
     {
         Survey::whereIn('id', $request['ids'])->delete();

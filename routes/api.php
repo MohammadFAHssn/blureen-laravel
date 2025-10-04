@@ -59,6 +59,7 @@ Route::middleware('throttle:60,1')->group(function () {
         // TODO: add middleware
         Route::controller(\App\Http\Controllers\Survey\SurveyController::class)->prefix('/survey/survey')->group(function () {
             Route::post('/create', 'create');
+            Route::post('/update', 'update');
             Route::delete('/', 'delete');
         });
 
