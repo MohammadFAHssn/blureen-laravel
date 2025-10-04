@@ -62,6 +62,13 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::post('/{id}', 'update');
                 Route::delete('/{id}', 'delete');
             });
+
+            Route::controller(\App\Http\Controllers\Birthday\BirthdayUserController::class)->prefix('user')->group(function () {
+                Route::post('/', 'store');
+                Route::get('/', 'index');
+                Route::post('/{id}', 'update');
+                Route::delete('/{id}', 'delete');
+            });
         });
 
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
