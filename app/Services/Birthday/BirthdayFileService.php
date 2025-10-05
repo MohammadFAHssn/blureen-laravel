@@ -144,6 +144,7 @@ class BirthdayFileService
             ] : null,
             'users' => $birthdayFile->users->map(function ($bfUser) {
                 return [
+                    'id' => $bfUser->id,
                     'user' => $bfUser->user ? [
                         'id' => $bfUser->user->id,
                         'fullName' => $bfUser->user->first_name . ' ' . $bfUser->user->last_name,
