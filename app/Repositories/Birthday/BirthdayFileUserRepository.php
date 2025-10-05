@@ -44,6 +44,8 @@ class BirthdayFileUserRepository
     public function delete(int $id)
     {
         $birthdayFileUser = $this->findById($id);
+        if (!$birthdayFileUser)
+            return null;
         return $birthdayFileUser->delete();
     }
 
@@ -54,9 +56,9 @@ class BirthdayFileUserRepository
      * @return BirthdayFileUser
      * @throws ModelNotFoundException
      */
-    public function findById(int $id): BirthdayFileUser
+    public function findById(int $id): ?BirthdayFileUser
     {
-        return BirthdayFileUser::findOrFail($id);
+        return BirthdayFileUser::find($id);
     }
 
     /**
@@ -68,5 +70,24 @@ class BirthdayFileUserRepository
     public function UserExist(array $data)
     {
         return BirthdayFileUser::where('birthday_file_id', $data['birthday_file_id'])->where('user_id', $data['user_id'])->exists();
+    }
+
+    /**
+     * Change Status of BirthdayFileUser
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function status(int $id)
+    {
+        $birthdayFileUser = $this->findById($id);
+        if (!$birthdayFileUser) {
+            return null;
+        }
+
+        $birthdayFileUser->status = !$birthdayFileUser->status;
+        $birthdayFileUser->save();
+
+        return $birthdayFileUser;
     }
 }
