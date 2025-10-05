@@ -4,6 +4,7 @@ namespace App\Services\Survey;
 
 use App\Exceptions\CustomException;
 use App\Models\Survey\Survey;
+use App\Models\Survey\SurveyUrl;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -108,46 +109,63 @@ class SurveyService
 
         $user = auth()->user();
 
-        try {
-            $response = Http::withoutVerifying()->withHeaders([
-                'Authorization' => config('services.porsline.authorization'),
-            ])
-                ->post(
-                    config('services.porsline.base_url') . $request['porslineId'] . '/variables/hashes/',
-                    [
-                        'values' => [
-                            [
-                                "personnel_code" => $user->personnel_code,
-                                "first_name" => $user->first_name,
-                                "last_name" => $user->last_name,
-                                "gender" => $user->profile->gender,
-                                "education" => $user->profile->educationLevel->name,
-                                "workplace" => $user->profile->workplace->name,
-                                "work_area" => $user->profile->workArea->name,
-                                "cost_center" => $user->profile->costCenter->name,
-                                "job_position" => $user->profile->jobPosition->name,
-                                "is_unique" => true,
+        $surveyInProgress = SurveyUrl::where('porsline_id', $request['porslineId'])
+            ->where('user_id', $user->id)
+            ->first()['url'] ?? null;
+
+        if ($surveyInProgress) {
+            return $surveyInProgress;
+        } else {
+            try {
+                $response = Http::withoutVerifying()->withHeaders([
+                    'Authorization' => config('services.porsline.authorization'),
+                ])
+                    ->post(
+                        config('services.porsline.base_url') . $request['porslineId'] . '/variables/hashes/',
+                        [
+                            'values' => [
+                                [
+                                    "personnel_code" => $user->personnel_code,
+                                    "first_name" => $user->first_name,
+                                    "last_name" => $user->last_name,
+                                    "gender" => $user->profile->gender,
+                                    "education" => $user->profile->educationLevel->name,
+                                    "workplace" => $user->profile->workplace->name,
+                                    "work_area" => $user->profile->workArea->name,
+                                    "cost_center" => $user->profile->costCenter->name,
+                                    "job_position" => $user->profile->jobPosition->name,
+                                    "is_unique" => true,
+                                ],
                             ],
                         ],
-                    ],
-                );
+                    );
 
-            if ($response->failed()) {
+                if ($response->failed()) {
+                    Log::error('Porsline create url failed', [
+                        'status' => $response->status(),
+                        'body' => Str::limit($response->body(), 2000),
+                    ]);
+                    throw new CustomException('هنگام ایجاد url در Porsline خطایی رخ داده‌است.', 500);
+                }
+
+                $url = $response->json()['urls'][0];
+
+                SurveyUrl::create([
+                    'porsline_id' => $request['porslineId'],
+                    'user_id' => $user->id,
+                    'url' => $url,
+                ]);
+
+                return $url;
+            } catch (\Exception $e) {
                 Log::error('Porsline create url failed', [
+                    'error' => $e->getMessage(),
                     'status' => $response->status(),
                     'body' => Str::limit($response->body(), 2000),
                 ]);
                 throw new CustomException('هنگام ایجاد url در Porsline خطایی رخ داده‌است.', 500);
             }
 
-            return $response->json()['urls'][0];
-        } catch (\Exception $e) {
-            Log::error('Porsline create url failed', [
-                'error' => $e->getMessage(),
-                'status' => $response->status(),
-                'body' => Str::limit($response->body(), 2000),
-            ]);
-            throw new CustomException('هنگام ایجاد url در Porsline خطایی رخ داده‌است.', 500);
         }
     }
 }
