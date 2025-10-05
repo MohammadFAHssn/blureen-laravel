@@ -63,7 +63,7 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::delete('/{id}', 'delete');
             });
 
-            Route::controller(\App\Http\Controllers\Birthday\BirthdayUserController::class)->prefix('user')->group(function () {
+            Route::controller(\App\Http\Controllers\Birthday\BirthdayFileUserController::class)->prefix('user')->group(function () {
                 Route::post('/', 'store');
                 Route::get('/', 'index');
                 Route::delete('/delete', 'delete');
