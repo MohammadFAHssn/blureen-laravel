@@ -56,9 +56,9 @@ Route::middleware('throttle:60,1')->group(function () {
 
         // TODO: add middleware
         Route::controller(\App\Http\Controllers\Survey\SurveyController::class)->prefix('/survey/survey')->group(function () {
-            Route::post('/create', 'create');
-            Route::post('/update', 'update');
-            Route::delete('/', 'delete');
+            Route::post('/create', 'create')->middleware('permission:read Surveys');
+            Route::post('/update', 'update')->middleware('permission:read Surveys');
+            Route::delete('/', 'delete')->middleware('permission:read Surveys');
             Route::post('/participate', 'participate')->middleware('role:Super Admin|employee');
         });
 
