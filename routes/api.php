@@ -15,15 +15,13 @@ Route::middleware('throttle:60,1')->group(function () {
     });
 
     Route::middleware('JwtMiddleware')->group(function () {
-        Route::controller(\App\Http\Controllers\Api\RayvarzController::class)->prefix('/rayvarz')->group(function () {
-            // TODO: add middleware
-            Route::post('/sync/{module}/{model_name}', 'sync');
-        });
+        // Route::controller(\App\Http\Controllers\Api\RayvarzController::class)->prefix('/rayvarz')->group(function () {
+        //     Route::post('/sync/{module}/{model_name}', 'sync');
+        // });
 
-        Route::controller(\App\Http\Controllers\Api\KasraController::class)->prefix('/kasra')->group(function () {
-            // TODO: add middleware
-            Route::post('/sync', 'sync');
-        });
+        // Route::controller(\App\Http\Controllers\Api\KasraController::class)->prefix('/kasra')->group(function () {
+        //     Route::post('/sync', 'sync');
+        // });
 
         Route::controller(\App\Http\Controllers\Commerce\TenderController::class)->prefix('/commerce/tender')->group(function () {
             Route::get('/get-actives', 'getActives')->middleware('permission:read Active-Tenders');
@@ -39,7 +37,7 @@ Route::middleware('throttle:60,1')->group(function () {
         });
 
         Route::controller(\App\Http\Controllers\Payroll\PayrollSlipController::class)->prefix('/payroll/payroll-slip')->group(function () {
-            Route::get('/get-the-last-few-months', 'getTheLastFewMonths');
+            Route::get('/get-the-last-few-months', 'getTheLastFewMonths')->middleware('role:Super Admin|employee');
         });
 
         Route::controller(\App\Http\Controllers\PersonnelRecords\PersonnelRecordsController::class)->prefix('/personnel-records')->group(function () {
@@ -61,7 +59,7 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::post('/create', 'create');
             Route::post('/update', 'update');
             Route::delete('/', 'delete');
-            Route::post('/participate', 'participate');
+            Route::post('/participate', 'participate')->middleware('role:Super Admin|employee');
         });
 
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
