@@ -27,7 +27,8 @@ class UpdateBirthdayGiftRequest extends FormRequest
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255',
             'amount' => 'required|integer|min:1',
-            'image' => 'image|max:2048',
+            'image' => 'sometimes|nullable|image|max:2048',
+            'status' => 'nullable|integer|min:0|max:1'
         ];
     }
 
@@ -50,6 +51,8 @@ class UpdateBirthdayGiftRequest extends FormRequest
             'amount.min' => 'مقدار هدیه نباید کمتر از 1 باشد.',
             'image.image' => 'فایل باید یک تصویر معتبر باشد.',
             'image.max' => 'حجم تصویر نباید بیشتر از ۲ مگابایت باشد.',
+            'status.integer' => 'وضعیت هدیه باید به صورت عدد صحیح باشد.',
+            'status.min' => 'وضعیت هدیه نباید کمتر از 0 و بیشتر از 1 باشد.',
         ];
     }
 
