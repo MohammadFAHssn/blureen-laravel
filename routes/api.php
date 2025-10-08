@@ -61,6 +61,7 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::get('/', 'index');
                 Route::post('/{id}', 'update');
                 Route::delete('/{id}', 'delete');
+                Route::get('/statistics', 'statistics');
             });
 
             Route::controller(\App\Http\Controllers\Birthday\BirthdayFileUserController::class)->prefix('user')->group(function () {
