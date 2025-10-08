@@ -15,7 +15,9 @@ class ApprovalFlowService
 
             if (isset($approval['requester_user_id'])) {
 
-                ApprovalFlow::where('requester_user_id', $approval['requester_user_id'])->delete();
+                ApprovalFlow::where('requester_user_id', $approval['requester_user_id'])
+                    ->where('request_type_id', $approval['request_type_id'])
+                    ->delete();
 
                 if ($approvalDeleted) {
                     continue;
@@ -26,6 +28,7 @@ class ApprovalFlowService
 
                 ApprovalFlow::where('requester_position_id', $approval['requester_position_id'])
                     ->where('requester_center_id', $approval['requester_center_id'])
+                    ->where('request_type_id', $approval['request_type_id'])
                     ->delete();
 
                 if ($approvalDeleted) {
