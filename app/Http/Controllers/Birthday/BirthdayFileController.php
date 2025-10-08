@@ -182,4 +182,23 @@ class BirthdayFileController
             return response()->json($payload, $payload['status']);
         }
     }
+
+    /**
+     * Get birthday file statistics (Excel download)
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function statistics(Request $request)
+    {
+        try {
+            // Directly return the Excel file
+            return $this->birthdayFileService->getStatistics($request);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ], 500);
+        }
+    }
 }
