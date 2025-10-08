@@ -4,6 +4,9 @@ namespace App\Repositories\Birthday;
 
 use App\Models\Birthday\BirthdayFile;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Birthday\BirthdayFileUser;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\Birthday\BirthdayFileUserExport;
 
 class BirthdayFileRepository
 {
@@ -55,6 +58,19 @@ class BirthdayFileRepository
     {
         $birthdayFile = $this->findById($id);
         return $birthdayFile->delete();
+    }
+
+    /**
+     * Get birthday file statistics
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function statistics($request)
+    {
+        $data = BirthdayFileUser::with('user', 'gift')->where('birthday_file_id', $request->id)->get()->toArray();
+        info($data);
+        return Excel::download(new BirthdayFileUserExport($data), 'birthday_file_statistics.xlsx');
     }
 
     /**
