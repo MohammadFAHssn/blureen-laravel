@@ -119,6 +119,16 @@ class BirthdayFileService
     }
 
     /**
+     * Get birthday file statistics
+     *
+     * @return array
+     */
+    public function getStatistics($request)
+    {
+        return $this->birthdayFileRepository->statistics($request);
+    }
+
+    /**
      * Format single Birthday File payload
      *
      * @param BirthdayFile $birthdayFile
