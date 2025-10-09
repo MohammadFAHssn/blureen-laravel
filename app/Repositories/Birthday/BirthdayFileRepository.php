@@ -69,7 +69,6 @@ class BirthdayFileRepository
     public function statistics($request)
     {
         $data = BirthdayFileUser::with('user', 'gift')->where('birthday_file_id', $request->id)->get()->toArray();
-        info($data);
         return Excel::download(new BirthdayFileUserExport($data), 'birthday_file_statistics.xlsx');
     }
 
