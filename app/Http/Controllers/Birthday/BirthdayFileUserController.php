@@ -214,4 +214,34 @@ class BirthdayFileUserController
             ], 500);
         }
     }
+
+    /**
+     * Check if the current BirthdayFileUser can see gifts.
+     *
+     * @return JsonResponse
+     */
+    public function checkAccess()
+    {
+        try {
+            $data = $this->birthdayFileUserService->checkGiftAccess();
+
+            return response()->json([
+                'data' => $data,
+                'message' => 'دسترسی بررسی شد',
+                'status' => 200,
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'errors' => $e->errors(),
+                'message' => 'اطلاعات وارد شده معتبر نیست.',
+                'status' => 422,
+                'code' => 'VALIDATION_ERROR',
+            ], 422);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ], 500);
+        }
+    }
 }
