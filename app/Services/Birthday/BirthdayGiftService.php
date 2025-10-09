@@ -50,6 +50,17 @@ class BirthdayGiftService
     }
 
     /**
+     * Get all active BirthdayGifts
+     *
+     * @return array
+     */
+    public function getAllActiveBirthdayGifts()
+    {
+        $birthdayGifts = $this->birthdayGiftRepository->getAllActive();
+        return $this->formatBirthdayGiftsListPayload($birthdayGifts);
+    }
+
+    /**
      * Update BirthdayGift
      *
      * @param int $id
