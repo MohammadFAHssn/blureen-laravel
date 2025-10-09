@@ -73,10 +73,10 @@ class BirthdayFileUserRepository
     }
 
     /**
-     * Change Status of BirthdayFileUser
+     * Toggle Status of BirthdayFileUser
      *
      * @param int $id
-     * @return bool
+     * @return \App\Models\BirthdayFileUser|null
      */
     public function status(int $id)
     {
@@ -86,6 +86,32 @@ class BirthdayFileUserRepository
         }
 
         $birthdayFileUser->status = !$birthdayFileUser->status;
+        $birthdayFileUser->save();
+
+        return $birthdayFileUser;
+    }
+
+    /**
+     * Let BirthdayFileUser choose a gift.
+     *
+     * @param int $id
+     * @return \App\Models\BirthdayFileUser
+     * @throws \RuntimeException|\InvalidArgumentException
+     */
+    public function chooseBirthdayGift(int $id)
+    {
+        $userId = Auth::id();
+
+        $birthdayFileUser = BirthdayFileUser::where('user_id', $userId)
+            ->where('status', true)
+            ->whereHas('birthdayFile', fn($q) => $q->where('status', true))
+            ->first();
+
+        if (!$birthdayFileUser) {
+            throw new \RuntimeException('کاربر در هیچ فایل فعالی عضو نیست.');
+        }
+
+        $birthdayFileUser->birthday_gift_id = $id;
         $birthdayFileUser->save();
 
         return $birthdayFileUser;
