@@ -3,6 +3,7 @@
 namespace App\Repositories\Birthday;
 
 use App\Models\Birthday\BirthdayFileUser;
+use App\Models\Birthday\BirthdayGift;
 use Illuminate\Support\Facades\Auth;
 
 class BirthdayFileUserRepository
@@ -111,6 +112,23 @@ class BirthdayFileUserRepository
             throw new \RuntimeException('کاربر در هیچ فایل فعالی عضو نیست.');
         }
 
+        $newGift = BirthdayGift::find($id);
+        if (!$newGift) {
+            throw new \InvalidArgumentException('هدیه انتخابی وجود ندارد.');
+        }
+
+        if ($newGift->amount <= 0) {
+            throw new \RuntimeException('موجودی هدیه انتخابی به اتمام رسید.');
+        }
+
+        if ($birthdayFileUser->birthday_gift_id) {
+            $oldGift = BirthdayGift::find($birthdayFileUser->birthday_gift_id);
+            if ($oldGift) {
+                $oldGift->increment('amount');
+            }
+        }
+
+        $newGift->decrement('amount');
         $birthdayFileUser->birthday_gift_id = $id;
         $birthdayFileUser->save();
 
