@@ -4,6 +4,7 @@ namespace App\Services\Birthday;
 
 use App\Models\Birthday\BirthdayFileUser;
 use App\Models\User;
+use App\Repositories\Birthday\BirthdayFileRepository;
 use App\Repositories\Birthday\BirthdayFileUserRepository;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
@@ -12,17 +13,22 @@ class BirthdayFileUserService
 {
     /**
      * @var BirthdayFileUserRepository
+     * @var BirthdayFileRepository
      */
-    protected $birthdayFileUserRepository;
+    protected BirthdayFileUserRepository $birthdayFileUserRepository;
+
+    protected BirthdayFileRepository $birthdayFileRepository;
 
     /**
      * BirthdayFileUserService constructor
      *
      * @param BirthdayFileUserRepository $birthdayFileUserRepository
+     * @param BirthdayFileRepository $birthdayFileRepository
      */
-    public function __construct(BirthdayFileUserRepository $birthdayFileUserRepository)
+    public function __construct(BirthdayFileUserRepository $birthdayFileUserRepository, BirthdayFileRepository $birthdayFileRepository)
     {
         $this->birthdayFileUserRepository = $birthdayFileUserRepository;
+        $this->birthdayFileRepository = $birthdayFileRepository;
     }
 
     public function createBirthdayFileUser($request)
@@ -85,6 +91,22 @@ class BirthdayFileUserService
     public function chooseBirthdayGift(int $id)
     {
         return $this->birthdayFileUserRepository->chooseBirthdayGift($id);
+    }
+
+    /**
+     * Check if the current BirthdayFileUser can see gifts.
+     *
+     * @return int|null
+     */
+    public function checkGiftAccess()
+    {
+        $birthdayFile = $this->birthdayFileRepository->getActive();
+
+        if (!$birthdayFile) {
+            return null;  // no active file
+        }
+
+        return $this->birthdayFileUserRepository->hasGiftAccess($birthdayFile->id);
     }
 
     /**
