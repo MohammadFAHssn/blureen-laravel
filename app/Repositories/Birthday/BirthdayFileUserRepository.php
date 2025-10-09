@@ -116,4 +116,25 @@ class BirthdayFileUserRepository
 
         return $birthdayFileUser;
     }
+
+    /**
+     * Get the birthday_gift_id for the authenticated user
+     * in the given BirthdayFile — if they have access.
+     *
+     * @param  int  $birthdayFileId
+     * @return int|null  The birthday_gift_id if accessible, null if no access.
+     */
+    public function hasGiftAccess(int $birthdayFileId): ?int
+    {
+        $record = BirthdayFileUser::where('user_id', Auth::id())
+            ->where('status', true)
+            ->where('birthday_file_id', $birthdayFileId)
+            ->first(['birthday_gift_id']);
+
+        if (!$record) {
+            return null;  // no access
+        }
+
+        return $record->birthday_gift_id ?: 0;  // 0 means access exists but no gift chosen
+    }
 }
