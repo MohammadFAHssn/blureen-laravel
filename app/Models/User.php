@@ -1,8 +1,8 @@
 <?php
-
 namespace App\Models;
 
 use App\Models\Base\ApprovalFlow;
+use App\Models\Base\LiaisonCostCenter;
 use App\Models\Base\UserProfile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -73,5 +73,10 @@ class User extends Authenticatable implements JWTSubject
     public function approvalFlowsAsRequester()
     {
         return $this->hasMany(ApprovalFlow::class, 'requester_user_id');
+    }
+
+    public function costCentersAsLiaison()
+    {
+        return $this->belongsTo(LiaisonCostCenter::class, 'id', 'user_id');
     }
 }
