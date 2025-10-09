@@ -102,6 +102,33 @@ class BirthdayGiftController
     }
 
     /**
+     * Get all active birthday gifts
+     *
+     * @return JsonResponse
+     */
+    public function getActives()
+    {
+        try {
+            $data = $this->birthdayGiftService->getAllActiveBirthdayGifts();
+
+            $payload = [
+                'data' => $data,
+                'message' => 'لیست هدایا با موفقیت دریافت شد.',
+                'status' => 200,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        } catch (Throwable $e) {
+            $payload = [
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        }
+    }
+
+    /**
      * Update a specific birthday gift
      *
      * @param UpdateBirthdayGiftRequest $request
