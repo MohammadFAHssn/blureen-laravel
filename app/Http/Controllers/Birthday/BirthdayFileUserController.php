@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Throwable;
+use Exception;
 
 /**
  * Class BirthdayFileUserController
@@ -176,6 +177,41 @@ class BirthdayFileUserController
             ];
 
             return response()->json($payload, $payload['status']);
+        }
+    }
+
+    /**
+     * Let the current BirthdayFileUser choose a gift.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function chooseBirthdayGift(Request $request)
+    {
+        $request->validate([
+            'id' => ['required', 'integer', 'exists:birthday_gifts,id'],
+        ]);
+
+        try {
+            $this->birthdayFileUserService->chooseBirthdayGift($request->id);
+
+            return response()->json([
+                'data' => null,
+                'message' => 'هدیه با موفقیت انتخاب شد',
+                'status' => 200,
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'errors' => $e->errors(),
+                'message' => 'اطلاعات وارد شده معتبر نیست.',
+                'status' => 422,
+                'code' => 'VALIDATION_ERROR',
+            ], 422);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ], 500);
         }
     }
 }
