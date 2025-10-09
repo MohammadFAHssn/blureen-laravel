@@ -44,17 +44,14 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::get('/get-by-personnel_code', 'getPersonnelRecords')->middleware('permission:read Personnel-Records');
         });
 
-        // TODO: add middleware
         Route::controller(\App\Http\Controllers\Base\UserController::class)->prefix('/base/user')->group(function () {
-            Route::get('/approval-flows-as-requester', 'getApprovalFlowsAsRequester');
+            Route::get('/approval-flows-as-requester', 'getApprovalFlowsAsRequester')->middleware('permission:read Approval-Flows');
         });
 
-        // TODO: add middleware
         Route::controller(\App\Http\Controllers\Base\ApprovalFlowController::class)->prefix('/base/approval-flow')->group(function () {
-            Route::post('/update', 'update'); //->middleware('permission:Edit Approval-Flows');
+            Route::post('/update', 'update')->middleware('permission:edit Approval-Flows');
         });
 
-        // TODO: add middleware
         Route::controller(\App\Http\Controllers\Survey\SurveyController::class)->prefix('/survey/survey')->group(function () {
             Route::post('/create', 'create')->middleware('permission:read Surveys');
             Route::post('/update', 'update')->middleware('permission:read Surveys');
