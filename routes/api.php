@@ -71,6 +71,7 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::delete('/delete', 'delete');
                 Route::post('/status', 'changeStatus');
                 Route::post('/choose', 'chooseBirthdayGift');
+                Route::get('/check', 'checkAccess');
             });
         });
 
