@@ -52,6 +52,7 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::controller(\App\Http\Controllers\Birthday\BirthdayGiftController::class)->prefix('gift')->group(function () {
                 Route::post('/', 'store');
                 Route::get('/', 'index');
+                Route::get('/get-actives', 'getActives');
                 Route::post('/{id}', 'update');
                 Route::delete('/{id}', 'delete');
             });
@@ -69,6 +70,7 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::get('/', 'index');
                 Route::delete('/delete', 'delete');
                 Route::post('/status', 'changeStatus');
+                Route::post('/choose', 'chooseBirthdayGift');
             });
         });
 
