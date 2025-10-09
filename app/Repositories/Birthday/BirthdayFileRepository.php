@@ -30,7 +30,22 @@ class BirthdayFileRepository
      */
     public function getAll()
     {
-        return BirthdayFile::with('uploadedBy', 'editedBy', 'users.user', 'users.gift',)->get();
+        return BirthdayFile::with(
+            'uploadedBy',
+            'editedBy',
+            'users.user',
+            'users.gift',
+        )->get();
+    }
+
+    /**
+     * Get active BirthdayFile
+     *
+     * @return \App\Models\Birthday\BirthdayFile|null
+     */
+    public function getActive()
+    {
+        return BirthdayFile::where('status', 1)->first();
     }
 
     /**
