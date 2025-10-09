@@ -32,6 +32,16 @@ class BirthdayGiftRepository
     }
 
     /**
+     * Get all active BirthdayGifts
+     *
+     * @return array
+     */
+    public function getAllActive()
+    {
+        return BirthdayGift::with('createdBy', 'editedBy')->where('status', 1)->get();
+    }
+
+    /**
      * Update BirthdayGift
      *
      * @param int $id
