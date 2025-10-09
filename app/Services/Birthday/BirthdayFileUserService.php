@@ -69,11 +69,22 @@ class BirthdayFileUserService
      * Change Status of BirthdayFileUser
      *
      * @param int $id
-     * @return bool
+     * @return \App\Models\BirthdayFileUser|null
      */
-    public function changeStatus($id)
+    public function changeStatus(int $id)
     {
         return $this->birthdayFileUserRepository->status($id);
+    }
+
+    /**
+     * Choose a birthday gift for the current user.
+     *
+     * @param int $id
+     * @return \App\Models\BirthdayFileUser
+     */
+    public function chooseBirthdayGift(int $id)
+    {
+        return $this->birthdayFileUserRepository->chooseBirthdayGift($id);
     }
 
     /**
