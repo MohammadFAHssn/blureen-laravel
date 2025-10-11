@@ -24,10 +24,11 @@ class UpdateBirthdayFileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file_name' => 'required|string|max:255',
-            'month' => 'required|string|max:255',
-            'year' => 'required|string|max:255',
-            'status' => 'boolean',
+            'file_name' => 'string|max:255',
+            'month' => 'string|max:255',
+            'year' => 'string|max:255',
+            'file' => 'file|mimes:xls,xlsx',
+            'status' => 'required|integer',
         ];
     }
 
@@ -39,16 +40,16 @@ class UpdateBirthdayFileRequest extends FormRequest
     public function messages()
     {
         return [
-            'file_name.required' => 'نام فایل الزامی است.',
             'file_name.string' => 'نام فایل باید به صورت متن باشد.',
             'file_name.max' => 'نام فایل نباید بیشتر از 255 کاراکتر باشد.',
-            'month.required' => 'ماه الزامی باشد.',
             'month.string' => 'ماه باید به صورت متن باشد.',
             'month.max' => 'ماه نباید بیشتر از 255 کاراکتر باشد.',
-            'year.required' => 'سال الزامی باشد.',
             'year.string' => 'سال باید به صورت متن باشد.',
             'year.max' => 'سال نباید بیشتر از 255 کاراکتر باشد.',
-            'status.boolean' => 'وضعیت باید صحیح یا غلط باشد.',
+            'file.file' => 'فایل باید معتبر باشد.',
+            'file.mimes' => 'فقط فایل‌های اکسل (xls یا xlsx) مورد قبول می‌باشد.',
+            'status.required' => 'وضعیت الزامی است.',
+            'status.integer' => 'وضعیت باید فعال یا غیرفعال باشد.',
         ];
     }
 
