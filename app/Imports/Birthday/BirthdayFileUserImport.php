@@ -38,6 +38,12 @@ class BirthdayFileUserImport implements ToModel, WithChunkReading, WithBatchInse
             return null;
         }
 
+        if (BirthdayFileUser::where('birthday_file_id', $this->birthdayFileId)
+                ->where('user_id', $user->id)
+                ->exists()) {
+            return null;
+        }
+
         return new BirthdayFileUser([
             'birthday_file_id' => $this->birthdayFileId,
             'user_id' => $user->id,
