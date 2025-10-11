@@ -111,7 +111,7 @@ class BirthdayFileController
     public function update(UpdateBirthdayFileRequest $request, int $id)
     {
         try {
-            $data = $this->birthdayFileService->updateBirthdayFile($id, $request->validated());
+            $data = $this->birthdayFileService->updateBirthdayFile($id, $request);
 
             $payload = [
                 'data' => $data,
