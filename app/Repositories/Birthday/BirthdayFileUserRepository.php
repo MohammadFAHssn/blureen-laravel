@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Birthday;
 
+use App\Models\Birthday\BirthdayFile;
 use App\Models\Birthday\BirthdayFileUser;
 use App\Models\Birthday\BirthdayGift;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,8 @@ class BirthdayFileUserRepository
     {
         $data['created_by'] = Auth::id();
         $data['status'] = true;
+        BirthdayFile::where('id', $data['birthday_file_id'])
+            ->update(['edited_by' => Auth::id()]);
         return BirthdayFileUser::create($data);
     }
 
