@@ -18,8 +18,11 @@ class BirthdayFileRepository
      */
     public function create(array $data)
     {
-        $data['uploaded_by'] = Auth::id();
-        $data['status'] = true;
+        BirthdayFile::query()->update(['status' => 0]);
+        $data = array_merge($data, [
+            'uploaded_by' => Auth::id(),
+            'status' => 1,
+        ]);
         return BirthdayFile::create($data);
     }
 
@@ -59,6 +62,9 @@ class BirthdayFileRepository
     {
         $birthdayFile = $this->findById($id);
         $data['edited_by'] = Auth::id();
+        if (isset($data['status']) && $data['status'] == 1) {
+            BirthdayFile::query()->update(['status' => 0]);
+        }
         $birthdayFile->update($data);
         return $birthdayFile;
     }
