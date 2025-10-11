@@ -43,20 +43,19 @@ class BirthdayFileService
             ]);
         }
 
-        $requiredHeaders = ['شماره پرسنلي'];
-        $rows = Excel::toArray(null, $request->file('file'))[0] ?? [];
-
         // Empty file
+        $rows = Excel::toArray(null, $request->file('file'))[0] ?? [];
         if (empty($rows) || count($rows) <= 1) {
             throw ValidationException::withMessages([
                 'file' => 'فایل اکسل خالی است یا هیچ سطری برای پردازش ندارد.'
             ]);
         }
-
+        
+        
         // Check headers
+        $requiredHeaders = ['شماره پرسنلي'];
         $uploadedHeaders = array_map('trim', $rows[0]);
         $diff = array_diff($requiredHeaders, $uploadedHeaders);
-
         if (!empty($diff)) {
             throw ValidationException::withMessages([
                 'headers' => 'ستون‌های فایل اکسل نادرست هستند.',
@@ -101,8 +100,52 @@ class BirthdayFileService
      * @return array
      * @throws ValidationException
      */
-    public function updateBirthdayFile(int $id, array $data)
+    public function updateBirthdayFile(int $id, $request)
     {
+        $validatedRequest = $request->validated();
+
+        // If no new file uploaded, just update basic info
+        if (!$request->hasFile('file')) {
+            $birthdayFile = $this->birthdayFileRepository->update($id, $validatedRequest);
+            return $this->formatBirthdayFilePayload($birthdayFile);
+        }
+
+        // Empty file
+        $rows = Excel::toArray(null, $request->file('file'))[0] ?? [];
+        if (empty($rows) || count($rows) <= 1) {
+            throw ValidationException::withMessages([
+                'file' => 'فایل اکسل خالی است یا هیچ سطری برای پردازش ندارد.'
+            ]);
+        }
+        
+        // Check headers
+        $requiredHeaders = ['شماره پرسنلي'];
+        $uploadedHeaders = array_map('trim', $rows[0]);
+        $diff = array_diff($requiredHeaders, $uploadedHeaders);
+        if (!empty($diff)) {
+            throw ValidationException::withMessages([
+                'headers' => 'ستون‌های فایل اکسل نادرست هستند.',
+                'missing_headers' => $diff,
+            ]);
+        }
+
+        $file = $request->file('file');
+
+        DB::beginTransaction();
+
+        try {
+            $birthdayFile = $this->birthdayFileRepository->update($id, $validatedRequest);
+            Excel::import(new BirthdayFileUserImport($birthdayFile->id), $file);
+
+            DB::commit();
+            return $this->formatBirthdayFilePayload($birthdayFile);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'file_import' => 'خطا در هنگام پردازش فایل اکسل: ' . $e->getMessage()
+            ]);
+        }
+
         $birthdayGift = $this->birthdayFileRepository->update($id, $data);
         return $this->formatBirthdayFilePayload($birthdayGift);
     }
