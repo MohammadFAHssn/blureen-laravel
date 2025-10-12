@@ -35,6 +35,13 @@ return [
         ],
     ],
 
+    'pdf' => [
+        'chrome_path' => env('LARAVEL_PDF_CHROME_PATH'),
+        'chrome_user_data_dir' => env('CHROME_USER_DATA_DIR'),
+        'node_path' => env('LARAVEL_PDF_NODE_BINARY'),
+        'npm_path' => env('LARAVEL_PDF_NPM_BINARY')
+    ],
+
     'rayvarz' => [
         'username' => env('RAYVARZ_USERNAME'),
         'password' => env('RAYVARZ_PASSWORD'),

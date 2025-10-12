@@ -46,12 +46,12 @@ class AppServiceProvider extends ServiceProvider
 
         //
         Pdf::default()->withBrowsershot(function (Browsershot $b) {
-            if ($chrome = env('LARAVEL_PDF_CHROME_PATH')) {
+            if ($chrome = config('services.pdf.chrome_path')) {
                 $b->setChromePath($chrome);
             }
 
             if (App::environment('production')) {
-                $userDataDir = env('CHROME_USER_DATA_DIR');
+                $userDataDir = config('services.pdf.chrome_user_data_dir');
 
                 $b->addChromiumArguments([
                     '--no-sandbox',
