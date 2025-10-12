@@ -54,9 +54,9 @@ class AppServiceProvider extends ServiceProvider
                 $userDataDir = config('services.pdf.chrome_user_data_dir');
 
                 $b->addChromiumArguments([
-                    '--no-sandbox',
-                    '--disable-dev-shm-usage',
-                    "--user-data-dir={$userDataDir}",
+                    'no-sandbox',
+                    'disable-dev-shm-usage',
+                    "user-data-dir={$userDataDir}",
                 ]);
             }
         });
