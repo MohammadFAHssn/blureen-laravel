@@ -10,9 +10,13 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // TODO: transfer to another table
-        Schema::table('permissions', function (Blueprint $table) {
-            $table->string('url')->nullable()->after('name');
+        Schema::create('permissions_urls', function (Blueprint $table) {
+            $table->id();
+
+            $table->foreignId('permission_id')->constrained()->restrictOnDelete();
+            $table->string('url')->nullable();
+
+            $table->timestamps();
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table('permissions', function (Blueprint $table) {
-            $table->dropColumn('url');
-        });
+        Schema::dropIfExists('permissions_urls');
     }
 };

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Payroll;
 
-use App\Http\Requests\Base\DeleteRequest;
+use App\Http\Requests\Payroll\DeletePayrollBatchesRequest;
 use App\Services\Base\BaseService;
 use App\Services\Payroll\PayrollBatchService;
 use App\Http\Requests\Payroll\CreatePayrollBatchRequest;
@@ -24,7 +24,7 @@ class PayrollBatchController
         return response()->json(['data' => $this->payrollBatchService->create($request)], 200);
     }
 
-    public function delete(DeleteRequest $request)
+    public function delete(DeletePayrollBatchesRequest $request)
     {
         return response()->json(['data' => $this->baseService->delete($request)], 200);
     }

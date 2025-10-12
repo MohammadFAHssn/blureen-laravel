@@ -67,13 +67,11 @@ FRONTEND_URL="http://localhost:3000"
 ```bash
 composer dump-autoload
 php artisan optimize:clear
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+php artisan queue:restart
 ```
 
 ```bash
-php artisan serve
+php artisan serve --host=your-ip --port=8080
 ```
 
 ## add route to api

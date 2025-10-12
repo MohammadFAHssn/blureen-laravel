@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 Route::middleware('throttle:60,1')->group(function () {
     Route::post('/login', [\App\Http\Controllers\Auth\AuthController::class, 'login']);
@@ -15,15 +16,13 @@ Route::middleware('throttle:60,1')->group(function () {
     });
 
     Route::middleware('JwtMiddleware')->group(function () {
-        Route::controller(\App\Http\Controllers\Api\RayvarzController::class)->prefix('/rayvarz')->group(function () {
-            // TODO: add middleware
-            Route::post('/sync/{module}/{model_name}', 'sync');
-        });
+        // Route::controller(\App\Http\Controllers\Api\RayvarzController::class)->prefix('/rayvarz')->group(function () {
+        //     Route::post('/sync/{module}/{model_name}', 'sync');
+        // });
 
-        Route::controller(\App\Http\Controllers\Api\KasraController::class)->prefix('/kasra')->group(function () {
-            // TODO: add middleware
-            Route::post('/sync', 'sync');
-        });
+        // Route::controller(\App\Http\Controllers\Api\KasraController::class)->prefix('/kasra')->group(function () {
+        //     Route::post('/sync', 'sync');
+        // });
 
         Route::controller(\App\Http\Controllers\Commerce\TenderController::class)->prefix('/commerce/tender')->group(function () {
             Route::get('/get-actives', 'getActives')->middleware('permission:read Active-Tenders');
@@ -39,12 +38,41 @@ Route::middleware('throttle:60,1')->group(function () {
         });
 
         Route::controller(\App\Http\Controllers\Payroll\PayrollSlipController::class)->prefix('/payroll/payroll-slip')->group(function () {
-            Route::get('/get-the-last-few-months', 'getTheLastFewMonths');
+            Route::get('/get-the-last-few-months', 'getTheLastFewMonths')->middleware('role:Super Admin|employee');
+            // Route::get('print', 'print')->middleware('role:Super Admin|employee');
+
+
+            Route::get('/print/{id}', function (int $id) {
+                $invoice = [
+                    'id' => $id,
+                    'customer' => 'علی رضایی',
+                    'amount' => 1250000,
+                ];
+
+                // دانلود فایل
+                return Pdf::view('pdfs.invoice', ['invoice' => $invoice])
+                    ->format('a4')      // اندازه صفحه
+                    ->name("invoice-{$id}.pdf"); // نام فایل خروجی
+            });
         });
 
+        Route::controller(\App\Http\Controllers\PersonnelRecords\PersonnelRecordsController::class)->prefix('/personnel-records')->group(function () {
+            Route::get('/get-by-personnel_code', 'getPersonnelRecords')->middleware('permission:read Personnel-Records');
+        });
 
-        Route::controller(\App\Http\Controllers\PersonnelRecords\PersonnelRecordsController::class)->prefix('/personnel-records')->group(function (){
-            Route::get('/get-by-personnel_code','getPersonnelRecords')->middleware('permission:read Personnel-Records');
+        Route::controller(\App\Http\Controllers\Base\UserController::class)->prefix('/base/user')->group(function () {
+            Route::get('/approval-flows-as-requester', 'getApprovalFlowsAsRequester')->middleware('permission:read Approval-Flows');
+        });
+
+        Route::controller(\App\Http\Controllers\Base\ApprovalFlowController::class)->prefix('/base/approval-flow')->group(function () {
+            Route::post('/update', 'update')->middleware('permission:edit Approval-Flows');
+        });
+
+        Route::controller(\App\Http\Controllers\Survey\SurveyController::class)->prefix('/survey/survey')->group(function () {
+            Route::post('/create', 'create')->middleware('permission:read Surveys');
+            Route::post('/update', 'update')->middleware('permission:read Surveys');
+            Route::delete('/', 'delete')->middleware('permission:read Surveys');
+            Route::post('/participate', 'participate')->middleware('role:Super Admin|employee');
         });
 
         //Birthday Routes
@@ -78,7 +106,6 @@ Route::middleware('throttle:60,1')->group(function () {
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
             Route::get('/{module}/{model_name}', 'get')->middleware('CheckPermission');
         });
-
     });
 
     Route::get('/test', function () {

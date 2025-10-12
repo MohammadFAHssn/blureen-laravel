@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Base;
+namespace App\Http\Requests\Survey;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class DeleteRequest extends FormRequest
+class DeleteSurveysRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +23,7 @@ class DeleteRequest extends FormRequest
     {
         return [
             'ids' => 'required|array|max:100',
-            'ids.*' => 'integer|exists:payroll_batches,id',
+            'ids.*' => 'integer|exists:surveys,id',
         ];
     }
 }

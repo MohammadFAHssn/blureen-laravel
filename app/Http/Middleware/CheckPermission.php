@@ -3,10 +3,9 @@
 namespace App\Http\Middleware;
 
 use App\Exceptions\CustomException;
+use App\Models\Base\PermissionUrl;
 use Closure;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Permission;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckPermission
@@ -14,7 +13,8 @@ class CheckPermission
     /**
      * Handle an incoming request.
      *
-     * @param Closure(Request): (Response) $next
+     * @param  Closure(Request): (Response)  $next
+     *
      * @throws CustomException
      */
     public function handle(Request $request, Closure $next): Response
@@ -38,9 +38,9 @@ class CheckPermission
 
         $url = preg_replace('/\$\{[^}]+}/', '$', $url);
 
-        //Log::info('Checking permission for URL: ' . $url);
+        // info('Checking permission for URL: ' . $url);
 
-        $permissionName = Permission::whereUrl($url)->pluck('name')->first();
+        $permissionName = PermissionUrl::whereUrl($url)->first()?->permission->name;
 
         if (!$permissionName) {
             throw new CustomException('هیچ مجوزی برای این مسیر تعریف نشده‌است.', 403);
@@ -68,7 +68,7 @@ class CheckPermission
         }
 
         $request->query->set('filter', $filters);
-        return $request;
 
+        return $request;
     }
 }
