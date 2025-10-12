@@ -60,11 +60,11 @@ class BirthdayFileRepository
      */
     public function update(int $id, array $data)
     {
-        $birthdayFile = $this->findById($id);
         $data['edited_by'] = Auth::id();
         if (isset($data['status']) && $data['status'] == 1) {
             BirthdayFile::query()->update(['status' => 0]);
         }
+        $birthdayFile = $this->findById($id);
         $birthdayFile->update($data);
         return $birthdayFile;
     }
