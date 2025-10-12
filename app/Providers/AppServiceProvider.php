@@ -57,6 +57,8 @@ class AppServiceProvider extends ServiceProvider
                     'no-sandbox',
                     'disable-dev-shm-usage',
                     "user-data-dir={$userDataDir}",
+                    'disable-crash-reporter',
+                    'no-first-run',
                 ]);
             }
         });
