@@ -45,22 +45,22 @@ class AppServiceProvider extends ServiceProvider
         // end loadMigrationsFrom
 
         //
-        Pdf::default()->withBrowsershot(function (Browsershot $b) {
-            if ($chrome = config('services.pdf.chrome_path')) {
-                $b->setChromePath($chrome);
-            }
+        // Pdf::default()->withBrowsershot(function (Browsershot $b) {
+        //     if ($chrome = config('services.pdf.chrome_path')) {
+        //         $b->setChromePath($chrome);
+        //     }
 
-            if (App::environment('production')) {
-                $userDataDir = config('services.pdf.chrome_user_data_dir');
+        //     if (App::environment('production')) {
+        //         $userDataDir = config('services.pdf.chrome_user_data_dir');
 
-                $b->addChromiumArguments([
-                    'no-sandbox',
-                    'disable-dev-shm-usage',
-                    "user-data-dir={$userDataDir}",
-                    'disable-crash-reporter',
-                    'no-first-run',
-                ]);
-            }
-        });
+        //         $b->addChromiumArguments([
+        //             'no-sandbox',
+        //             'disable-dev-shm-usage',
+        //             "user-data-dir={$userDataDir}",
+        //             'disable-crash-reporter',
+        //             'no-first-run',
+        //         ]);
+        //     }
+        // });
     }
 }
