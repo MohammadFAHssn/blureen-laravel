@@ -2,7 +2,7 @@
 
 namespace App\Services\Birthday;
 
-use App\Imports\Birthday\BirthDayFileUserImport;
+use App\Imports\Birthday\BirthdayFileUserImport;
 use App\Models\Birthday\BirthdayFile;
 use App\Repositories\Birthday\BirthdayFileRepository;
 use Carbon\Carbon;
