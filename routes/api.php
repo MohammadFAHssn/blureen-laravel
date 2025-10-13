@@ -75,6 +75,34 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::post('/participate', 'participate')->middleware('role:Super Admin|employee');
         });
 
+        //Birthday Routes
+        Route::prefix('birthday')->group(function () {
+            Route::controller(\App\Http\Controllers\Birthday\BirthdayGiftController::class)->prefix('gift')->group(function () {
+                Route::post('/', 'store')->middleware('permission:read Birthdays');
+                Route::get('/', 'index')->middleware('permission:read Birthdays');
+                Route::get('/get-actives', 'getActives')->middleware('role:Super Admin|employee');
+                Route::post('/{id}', 'update')->middleware('permission:read Birthdays');
+                Route::delete('/{id}', 'delete')->middleware('permission:read Birthdays');
+            });
+
+            Route::controller(\App\Http\Controllers\Birthday\BirthdayFileController::class)->prefix('file')->group(function () {
+                Route::post('/', 'store')->middleware('permission:read Birthdays');
+                Route::get('/', 'index')->middleware('permission:read Birthdays');
+                Route::post('/{id}', 'update')->middleware('permission:read Birthdays');
+                Route::delete('/{id}', 'delete')->middleware('permission:read Birthdays');
+                Route::get('/statistics', 'statistics')->middleware('permission:read Birthdays');
+            });
+
+            Route::controller(\App\Http\Controllers\Birthday\BirthdayFileUserController::class)->prefix('user')->group(function () {
+                Route::post('/', 'store')->middleware('permission:read Birthdays');
+                Route::get('/', 'index')->middleware('permission:read Birthdays');
+                Route::delete('/delete', 'delete')->middleware('permission:read Birthdays');
+                Route::post('/status', 'changeStatus')->middleware('permission:read Birthdays');
+                Route::post('/choose', 'chooseBirthdayGift')->middleware('role:Super Admin|employee');
+                Route::get('/check', 'checkAccess')->middleware('role:Super Admin|employee');
+            });
+        });
+
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
             Route::get('/{module}/{model_name}', 'get')->middleware('CheckPermission');
         });
