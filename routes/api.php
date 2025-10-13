@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Spatie\LaravelPdf\Facades\Pdf;
 
 Route::middleware('throttle:60,1')->group(function () {
     Route::post('/login', [\App\Http\Controllers\Auth\AuthController::class, 'login']);
@@ -40,20 +39,6 @@ Route::middleware('throttle:60,1')->group(function () {
         Route::controller(\App\Http\Controllers\Payroll\PayrollSlipController::class)->prefix('/payroll/payroll-slip')->group(function () {
             Route::get('/get-the-last-few-months', 'getTheLastFewMonths')->middleware('role:Super Admin|employee');
             // Route::get('print', 'print')->middleware('role:Super Admin|employee');
-
-
-            Route::get('/print/{id}', function (int $id) {
-                $invoice = [
-                    'id' => $id,
-                    'customer' => 'علی رضایی',
-                    'amount' => 1250000,
-                ];
-
-                // دانلود فایل
-                return Pdf::view('pdfs.invoice', ['invoice' => $invoice])
-                    ->format('a4')      // اندازه صفحه
-                    ->name("invoice-{$id}.pdf"); // نام فایل خروجی
-            });
         });
 
         Route::controller(\App\Http\Controllers\PersonnelRecords\PersonnelRecordsController::class)->prefix('/personnel-records')->group(function () {
