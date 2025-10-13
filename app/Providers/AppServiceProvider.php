@@ -6,9 +6,6 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
-use Illuminate\Support\Facades\App;
-use Spatie\Browsershot\Browsershot;
-use Spatie\LaravelPdf\Facades\Pdf;
 class AppServiceProvider extends ServiceProvider
 {
     /**
