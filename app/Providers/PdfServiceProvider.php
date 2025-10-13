@@ -25,7 +25,7 @@ class PdfServiceProvider extends ServiceProvider
         $base = storage_path('chrome');
 
         Pdf::default()->withBrowsershot(function (Browsershot $b) use ($base) {
-            $b->setChromePath(env('LARAVEL_PDF_CHROME_PATH'));
+            $b->setChromePath(config('services.pdf.chrome_path'));
 
             $b->addChromiumArguments([
                 'headless=new',
