@@ -78,28 +78,28 @@ Route::middleware('throttle:60,1')->group(function () {
         //Birthday Routes
         Route::prefix('birthday')->group(function () {
             Route::controller(\App\Http\Controllers\Birthday\BirthdayGiftController::class)->prefix('gift')->group(function () {
-                Route::post('/', 'store');
-                Route::get('/', 'index');
-                Route::get('/get-actives', 'getActives');
-                Route::post('/{id}', 'update');
-                Route::delete('/{id}', 'delete');
+                Route::post('/', 'store')->middleware('permission:read Birthdays');
+                Route::get('/', 'index')->middleware('permission:read Birthdays');
+                Route::get('/get-actives', 'getActives')->middleware('role:Super Admin|employee');
+                Route::post('/{id}', 'update')->middleware('permission:read Birthdays');
+                Route::delete('/{id}', 'delete')->middleware('permission:read Birthdays');
             });
 
             Route::controller(\App\Http\Controllers\Birthday\BirthdayFileController::class)->prefix('file')->group(function () {
-                Route::post('/', 'store');
-                Route::get('/', 'index');
-                Route::post('/{id}', 'update');
-                Route::delete('/{id}', 'delete');
-                Route::get('/statistics', 'statistics');
+                Route::post('/', 'store')->middleware('permission:read Birthdays');
+                Route::get('/', 'index')->middleware('permission:read Birthdays');
+                Route::post('/{id}', 'update')->middleware('permission:read Birthdays');
+                Route::delete('/{id}', 'delete')->middleware('permission:read Birthdays');
+                Route::get('/statistics', 'statistics')->middleware('permission:read Birthdays');
             });
 
             Route::controller(\App\Http\Controllers\Birthday\BirthdayFileUserController::class)->prefix('user')->group(function () {
-                Route::post('/', 'store');
-                Route::get('/', 'index');
-                Route::delete('/delete', 'delete');
-                Route::post('/status', 'changeStatus');
-                Route::post('/choose', 'chooseBirthdayGift');
-                Route::get('/check', 'checkAccess');
+                Route::post('/', 'store')->middleware('permission:read Birthdays');
+                Route::get('/', 'index')->middleware('permission:read Birthdays');
+                Route::delete('/delete', 'delete')->middleware('permission:read Birthdays');
+                Route::post('/status', 'changeStatus')->middleware('permission:read Birthdays');
+                Route::post('/choose', 'chooseBirthdayGift')->middleware('role:Super Admin|employee');
+                Route::get('/check', 'checkAccess')->middleware('role:Super Admin|employee');
             });
         });
 
