@@ -122,4 +122,9 @@ class PayrollBatchService
 
         info('Payroll batch created successfully.');
     }
+
+    public function getReports()
+    {
+        return 1;
+    }
 }

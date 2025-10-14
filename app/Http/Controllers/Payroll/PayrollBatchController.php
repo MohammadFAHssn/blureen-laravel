@@ -28,4 +28,9 @@ class PayrollBatchController
     {
         return response()->json(['data' => $this->baseService->delete($request)], 200);
     }
+
+    public function getReports()
+    {
+        return response()->json(['data' => $this->payrollBatchService->getReports()], 200);
+    }
 }
