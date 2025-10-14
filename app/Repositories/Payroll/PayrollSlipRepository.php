@@ -44,6 +44,14 @@ class PayrollSlipRepository
                 ])->first();
         }
 
+        if ($last == 2) {
+            PayrollSlip::whereUserId($userId)
+                ->whereHas('payrollBatch', function ($query) use ($month, $year) {
+                    $query->where('month', $month)
+                        ->where('year', $year);
+                })->update(['is_viewed' => true]);
+        }
+
         return $payrollSlips;
     }
 
