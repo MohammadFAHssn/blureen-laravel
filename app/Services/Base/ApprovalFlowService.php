@@ -3,10 +3,12 @@
 namespace App\Services\Base;
 
 use App\Models\Base\ApprovalFlow;
+use App\Models\Base\UserProfile;
+use Illuminate\Database\Eloquent\Collection;
 
 class ApprovalFlowService
 {
-    public function update($request)
+    public function update($request): void
     {
         $approvalFlows = [];
         foreach ($request['approvalFlows'] as $approval) {
@@ -39,5 +41,28 @@ class ApprovalFlowService
         foreach ($approvalFlows as $approval) {
             ApprovalFlow::create($approval);
         }
+    }
+
+    public function getUserApprovalFlow(int $userId, int $requestTypeId): Collection
+    {
+        $flows = ApprovalFlow::where([
+            'requester_user_id' => $userId,
+            'request_type_id'   => $requestTypeId,
+        ])->get();
+
+        if ($flows->isNotEmpty()) {
+            return $flows;
+        }
+
+        $positionId = UserProfile::where('user_id', $userId)->value('job_position_id');
+
+        if ($positionId) {
+            return ApprovalFlow::where([
+                'requester_position_id' => $positionId,
+                'request_type_id'       => $requestTypeId,
+            ])->get();
+        }
+
+        return new Collection();
     }
 }

@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers\Commerce;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Http;
 
 class TenderController
 {
+    /**
+     * @throws CustomException
+     * @throws ConnectionException
+     */
     public function getByToken(Request $request)
     {
         $token = $request->query('token');
@@ -25,6 +30,10 @@ class TenderController
         return $response->json();
     }
 
+    /**
+     * @throws CustomException
+     * @throws ConnectionException
+     */
     public function getActives(Request $request)
     {
         $supplierId = $request->query('supplier_id');
@@ -42,6 +51,10 @@ class TenderController
         return $response->json();
     }
 
+    /**
+     * @throws CustomException
+     * @throws ConnectionException
+     */
     public function submitBid(Request $request)
     {
         $response = Http::withoutVerifying()->withHeaders([

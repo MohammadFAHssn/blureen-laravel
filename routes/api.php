@@ -64,6 +64,14 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::post('/participate', 'participate');
         });
 
+        // TODO: add middleware
+        Route::controller(\App\Http\Controllers\HrRequest\HrRequestController::class)->prefix('/hr-request')->group(function (){
+           Route::post('/create','create');
+        });
+        Route::controller(\App\Http\Controllers\HrRequest\HrRequestController::class)->prefix('/hr-request')->group(function (){
+            Route::get('/requests/get-by-approver','getApprovalRequestsByApprover');
+        });
+
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
             Route::get('/{module}/{model_name}', 'get')->middleware('CheckPermission');
         });
