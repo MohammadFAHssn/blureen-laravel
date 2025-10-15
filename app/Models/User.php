@@ -1,8 +1,8 @@
 <?php
-
 namespace App\Models;
 
 use App\Models\Base\ApprovalFlow;
+use App\Models\Base\LiaisonCostCenter;
 use App\Models\Base\UserProfile;
 use App\Models\HrRequest\HrRequest;
 use Database\Factories\UserFactory;
@@ -82,5 +82,10 @@ class User extends Authenticatable implements JWTSubject
     public function hrRequests(): HasMany
     {
         return $this->hasMany(HrRequest::class);
+    }
+
+    public function costCentersAsLiaison()
+    {
+        return $this->belongsTo(LiaisonCostCenter::class, 'id', 'user_id');
     }
 }

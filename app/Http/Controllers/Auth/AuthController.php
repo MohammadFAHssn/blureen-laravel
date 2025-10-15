@@ -52,12 +52,7 @@ class AuthController
         } else {
             $allUserPermissions = $user->getAllPermissions();
 
-            if (!$user->hasRole('supplier')) {
-                $allUserPermissions[] = ['name' => 'use app'];
-            }
-
             $permissions = $this->getUserAbilityRules($allUserPermissions);
-
         }
 
         return response()->json([
