@@ -18,7 +18,7 @@ class HealthCertificate extends Model
 
     public function users()
     {
-        return $this->hasMany(HealthCertificate::class, 'health_certificate_id');
+        return $this->hasMany(HealthCertificateUser::class, 'health_certificate_id');
     }
 
     public function uploadedBy()
