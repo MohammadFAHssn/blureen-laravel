@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Auth\LoginRequest;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Http\Requests\Auth\VerifyOtpRequest;
-use App\Http\Requests\Auth\LoginSupplierRequest;
+use App\Http\Requests\Auth\PhoneNumberRequest;
 
 class AuthController
 {
@@ -69,7 +69,7 @@ class AuthController
         ], 200);
     }
 
-    public function loginSupplier(LoginSupplierRequest $request)
+    public function loginSupplier(PhoneNumberRequest $request)
     {
         $supplier = Supplier::whereIn(
             'tel1',
@@ -138,6 +138,30 @@ class AuthController
             'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL(),
         ], 200);
+    }
+
+    public function getOtpCode(PhoneNumberRequest $request)
+    {
+        $user = User::whereHas('profile', function ($query) use ($request) {
+            $query->where('mobile_number', $request->mobileNumber)
+                ->orWhere('mobile_number', ltrim($request->mobileNumber, '0'));
+        })->first();
+
+        if (!$user) {
+            throw new CustomException('شماره تلفن همراه شما در سیستم ثبت نشده است.', 404);
+        }
+
+        if (time() < $user->otp_expires_at) {
+            throw new CustomException('کد تأیید قبلاً برای شما ارسال شده‌است. برای ارسال دوباره لطفاً منتظر بمانید.', 429);
+        }
+
+        $otpCode = random_int(100000, 999999);
+        $otpExpiresAt = time() + 120;
+        $user->otp_code = $otpCode;
+        $user->otp_expires_at = $otpExpiresAt;
+        $user->save();
+        SendOtpSmsJob::dispatch($otpCode, $user->profile->mobile_number);
+        return ['otpExpiresAt' => $otpExpiresAt];
     }
 
     private function getUserAbilityRules($permissions)
