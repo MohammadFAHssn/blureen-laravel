@@ -4,7 +4,7 @@ namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class VerifyOtpRequest extends FormRequest
+class VerifyUserOtpRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,7 @@ class VerifyOtpRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'mobileNumber' => 'required|string|regex:/^09[0-9]{9}$/|exists:suppliers,tel1',
+            'mobileNumber' => 'required|string|regex:/^09[0-9]{9}$/',
             'otpCode' => 'required|numeric|digits:6',
         ];
     }

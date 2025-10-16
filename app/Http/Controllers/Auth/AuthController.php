@@ -13,8 +13,9 @@ use App\Services\Api\RayvarzService;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Auth\LoginRequest;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use App\Http\Requests\Auth\VerifyOtpRequest;
+use App\Http\Requests\Auth\VerifyUserOtpRequest;
 use App\Http\Requests\Auth\PhoneNumberRequest;
+use App\Http\Requests\Auth\VerifySupplierOtpRequest;
 
 class AuthController
 {
@@ -47,26 +48,7 @@ class AuthController
 
         $user = User::whereUsername($request->username)->first();
 
-        if ($user->hasRole('Super Admin')) {
-            $permissions = [['action' => 'manage', 'subject' => 'all']];
-        } else {
-            $allUserPermissions = $user->getAllPermissions();
-
-            $permissions = $this->getUserAbilityRules($allUserPermissions);
-        }
-
-        return response()->json([
-            'accessToken' => $token,
-            'userData' => [
-                'fullName' => $user->first_name . ' ' . $user->last_name,
-                'id' => $user->id,
-                'role' => $user->getRoleNames(),
-                'username' => $user->username,
-            ],
-            'userAbilityRules' => $permissions,
-            'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL(),
-        ], 200);
+        return $this->prepareUserForLogin($user, $token);
     }
 
     public function loginSupplier(PhoneNumberRequest $request)
@@ -108,7 +90,7 @@ class AuthController
         return ['otpExpiresAt' => $otpExpiresAt];
     }
 
-    public function verifySupplierOtp(VerifyOtpRequest $request)
+    public function verifySupplierOtp(VerifySupplierOtpRequest $request)
     {
         $supplier = Supplier::whereTel1($request->mobileNumber)->first();
 
@@ -164,6 +146,34 @@ class AuthController
         return ['otpExpiresAt' => $otpExpiresAt];
     }
 
+    public function verifyUserOtp(VerifyUserOtpRequest $request)
+    {
+        $user = User::whereHas('profile', function ($query) use ($request) {
+            $query->where('mobile_number', $request->mobileNumber)
+                ->orWhere('mobile_number', ltrim($request->mobileNumber, '0'));
+        })->first();
+
+        if (!$user) {
+            throw new CustomException('شماره تلفن همراه شما در سیستم ثبت نشده است.', 404);
+        }
+
+        if ($user->otp_code != $request->otpCode) {
+            return throw new CustomException('کد تأیید وارد شده اشتباه است.', 400);
+        }
+
+        if (time() > $user->otp_expires_at) {
+            throw new CustomException('کد تأیید منقضی شده است. لطفاً دوباره درخواست ارسال کنید.', 400);
+        }
+
+        try {
+            $token = Auth::guard('user')->login($user);
+        } catch (JWTException $e) {
+            return response()->json(['message' => 'Could not create token'], 500);
+        }
+
+        return $this->prepareUserForLogin($user, $token);
+    }
+
     private function getUserAbilityRules($permissions)
     {
         // get userAbilityRules by this format:
@@ -188,5 +198,29 @@ class AuthController
     {
         $mobileNumberWithoutZero = ltrim($mobileNumber, '0');
         return $this->rayvarzService->fetchByFilters('supplier', ['WhereClause' => "tel1.equals(\"{$mobileNumber}\") or tel1.equals(\"{$mobileNumberWithoutZero}\")"]);
+    }
+
+    private function prepareUserForLogin($user, $token)
+    {
+        if ($user->hasRole('Super Admin')) {
+            $permissions = [['action' => 'manage', 'subject' => 'all']];
+        } else {
+            $allUserPermissions = $user->getAllPermissions();
+
+            $permissions = $this->getUserAbilityRules($allUserPermissions);
+        }
+
+        return response()->json([
+            'accessToken' => $token,
+            'userData' => [
+                'fullName' => $user->first_name . ' ' . $user->last_name,
+                'id' => $user->id,
+                'role' => $user->getRoleNames(),
+                'username' => $user->username,
+            ],
+            'userAbilityRules' => $permissions,
+            'token_type' => 'bearer',
+            'expires_in' => auth('api')->factory()->getTTL(),
+        ], 200);
     }
 }

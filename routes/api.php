@@ -11,6 +11,8 @@ Route::middleware('throttle:60,1')->group(function () {
 
     Route::post('/get-otp-code', [\App\Http\Controllers\Auth\AuthController::class, 'getOtpCode']);
 
+    Route::post('/verify-user-otp', [\App\Http\Controllers\Auth\AuthController::class, 'verifyUserOtp']);
+
     Route::controller(\App\Http\Controllers\Commerce\TenderController::class)->prefix('/commerce/tender')->group(function () {
         Route::get('/get-by-token', 'getByToken');
         Route::post('/submit-bid', 'submitBid');
