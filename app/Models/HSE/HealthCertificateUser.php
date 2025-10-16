@@ -17,9 +17,11 @@ class HealthCertificateUser extends Model
         'edited_by',
     ];
 
+    protected $table = 'health_certificates_users';
+
     public function healthCertificate()
     {
-        return $this->belongsTo(HealthCertificate::class, 'birthday_file_id');
+        return $this->belongsTo(HealthCertificate::class, 'health_certificate_id');
     }
 
     public function user()
