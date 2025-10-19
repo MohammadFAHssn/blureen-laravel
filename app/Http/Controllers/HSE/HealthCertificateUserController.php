@@ -94,12 +94,14 @@ class HealthCertificateUserController
             return response()->json(null, 404);
         }
 
-        // Return public URL
+        $fileName = basename($filePath);
 
-        $file = File::get($filePath);
-        $type = File::mimeType($filePath);
-        $response = Response::make($file, 200);
-        $response->header('Content-Type', $type);
-        return response()->download($filePath);
+        // Use response()->download to force attachment with appropriate headers
+        // Add explicit content-type (mime_content_type requires fileinfo PHP extension which is present in most PHP installs).
+        $mimeType = @mime_content_type($filePath) ?: 'application/octet-stream';
+
+        return response()->download($filePath, $fileName, [
+            'Content-Type' => $mimeType,
+        ]);
     }
 }
