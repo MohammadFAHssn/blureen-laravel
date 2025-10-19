@@ -2,6 +2,7 @@
 
 namespace App\Services\Base;
 
+use Illuminate\Support\Facades\Hash;
 use App\Repositories\Base\UserRepository;
 
 class UserService
@@ -18,5 +19,15 @@ class UserService
         $requestTypeId = $request['requestTypeId'];
 
         return $this->userRepository->getApprovalFlowsAsRequester($requestTypeId);
+    }
+
+    public function resetPassword($request)
+    {
+        $user = auth()->user();
+
+        $user->password = Hash::make($request['newPassword']);
+        $user->save();
+
+        return ['success' => true];
     }
 }
