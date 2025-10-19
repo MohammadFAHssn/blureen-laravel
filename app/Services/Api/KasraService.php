@@ -3,6 +3,7 @@
 namespace App\Services\Api;
 
 use App\Jobs\SyncWithKasraJob;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Log;
@@ -10,11 +11,14 @@ use Illuminate\Support\Facades\Http;
 
 class KasraService
 {
-    public function sync()
+    public function sync(): void
     {
         SyncWithKasraJob::dispatch();
     }
 
+    /**
+     * @throws CustomException
+     */
     public function fetchUsers()
     {
         Log::info('Fetching users from Kasra');
@@ -35,7 +39,7 @@ class KasraService
             }
 
             return $response->json();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error fetching users from Kasra', [
                 'error' => $e->getMessage(),
             ]);
@@ -43,7 +47,10 @@ class KasraService
         }
     }
 
-    public function syncUsers()
+    /**
+     * @throws CustomException
+     */
+    public function syncUsers(): void
     {
         $users = $this->fetchUsers();
 
