@@ -30,6 +30,15 @@ class AuthController
 
     public function login(LoginRequest $request)
     {
+        $user = User::whereUsername($request->username)->first();
+
+        if (!$user->active) {
+            return response()->json([
+                'message' =>
+                    "حساب کاربری شما غیرفعال شده‌است. لطفاً با مدیر سیستم تماس بگیرید.",
+            ], 401);
+        }
+
         $credentials = $request->only('username', 'password');
 
         try {
@@ -45,8 +54,6 @@ class AuthController
         } catch (JWTException $e) {
             return response()->json(['message' => 'Could not create token'], 500);
         }
-
-        $user = User::whereUsername($request->username)->first();
 
         return $this->prepareUserForLogin($user, $token);
     }
