@@ -112,7 +112,7 @@ class KasraService
         ];
 
 
-        $endpoint = config('services.kasra.modify_credit_url') . '/KasraManageCredit/ManageCredit.asmx';
+        $endpoint = config('services.kasra.modify_credit_url');
         $headers = ['Content-Type' => 'application/soap+xml; charset=utf-8'];
         $envelope = $this->generateRequestXml($requestData);
 
