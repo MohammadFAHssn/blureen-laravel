@@ -66,6 +66,10 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::post('/participate', 'participate')->middleware('role:Super Admin|employee');
         });
 
+        Route::controller(\App\Http\Controllers\Evaluation\EvaluateeController::class)->prefix('/evaluation/evaluatee')->group(function () {
+            Route::get('/by-evaluator', 'getByEvaluator')->middleware('role:Super Admin|employee');
+        });
+
         //Birthday Routes
         Route::prefix('birthday')->group(function () {
             Route::controller(\App\Http\Controllers\Birthday\BirthdayGiftController::class)->prefix('gift')->group(function () {
