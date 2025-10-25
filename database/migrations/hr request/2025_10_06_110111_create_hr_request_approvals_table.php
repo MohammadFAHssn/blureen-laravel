@@ -16,17 +16,21 @@ return new class extends Migration
             $table->foreignId('hr_request_id')
                 ->constrained('hr_requests')
                 ->cascadeOnDelete();
-            $table->foreignId('approval_flow_id')
-                ->constrained('approval_flows')
-                ->restrictOnDelete();
+
             $table->foreignId('approver_user_id')
                 ->nullable()
                 ->constrained('users')
-                ->nullOnDelete();
+                ->restrictOnDelete();
+
+            $table->integer('priority');
             $table->integer('status_id')->index();
+
             $table->text('description')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->timestamps();
+            $table->index(['approver_user_id', 'status_id'], 'idx_hr_approver_status');
+
+            $table->index(['hr_request_id', 'status_id', 'priority'], 'idx_hr_request_status_priority');
         });
     }
 

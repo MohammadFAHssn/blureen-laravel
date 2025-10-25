@@ -29,6 +29,11 @@ class HrRequestRepository {
         return $hrRequest;
     }
 
+    public function update($data)
+    {
+        return HrRequest::find($data['id'])->update($data);
+    }
+
     public function getUserHourlyLeaveRequestsOfDay($userId, $date){
         return HrRequest::where([
             'request_type_id' => AppConstants::HR_REQUEST_TYPE_HOURLY_LEAVE,
@@ -37,10 +42,6 @@ class HrRequestRepository {
         ])->whereNot('status_id',AppConstants::HR_REQUEST_REJECTED_STATUS)->get();
     }
 
-    public function getApprovalRequestsByApprover($approverId)
-    {
-        /*return HrRequest::where([
-            'status_id' => AppConstants::HR_REQUEST_PENDING_STATUS,
-        ])->whereHas('approvals', function ($query) use )*/
-    }
+
+
 }

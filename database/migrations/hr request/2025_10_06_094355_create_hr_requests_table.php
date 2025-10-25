@@ -26,7 +26,6 @@ return new class extends Migration
             $table->date('end_date')->nullable();
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
-            $table->text('description')->nullable();
             $table->integer('status_id')->index();
             $table->index(['user_id', 'request_type_id']);
             $table->index(['start_date', 'end_date']);

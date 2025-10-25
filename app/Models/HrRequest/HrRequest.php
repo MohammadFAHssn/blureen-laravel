@@ -26,9 +26,9 @@ class HrRequest extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function requestType(): BelongsTo
+    public function type(): BelongsTo
     {
-        return $this->belongsTo(RequestType::class);
+        return $this->belongsTo(RequestType::class,'request_type_id');
     }
 
     public function details(): HasMany

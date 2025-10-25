@@ -3,7 +3,9 @@ namespace App\Http\Controllers\HrRequest;
 use App\Exceptions\CustomException;
 use App\Http\Requests\HrRequest\CreateHrRequest;
 use App\Services\HrRequest\HrRequestService;
+use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class HrRequestController
 {
@@ -24,10 +26,11 @@ class HrRequestController
         ]);
     }
 
-    public function getApprovalRequestsByApprover(): JsonResponse
+    public function getUserRequestsOfCurrentMonth(Request $request): JsonResponse
     {
         return response()->json([
-            'data' => $this->hrRequestService->getApprovalRequestsByApprover()
+            'data' => $this->hrRequestService->getUserRequestsOfCurrentMonth($request->toArray())
         ]);
     }
+
 }

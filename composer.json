@@ -18,7 +18,9 @@
         "spatie/laravel-pdf": "^1.8",
         "spatie/laravel-permission": "^6.17",
         "spatie/laravel-query-builder": "^6.3",
-        "tymon/jwt-auth": "^2.2"
+        "tymon/jwt-auth": "^2.2",
+        "ext-simplexml": "*",
+        "ext-libxml": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -12,13 +12,14 @@ class HrRequestApproval extends Model
 {
     protected $fillable = [
         'hr_request_id',
-        'approval_flow_id',
+        'approver_user_id',
+        'priority',
         'status_id'
     ];
 
     public function request(): BelongsTo
     {
-        return $this->belongsTo(HrRequest::class);
+        return $this->belongsTo(HrRequest::class,'hr_request_id');
     }
 
     public function approvalFlow(): BelongsTo

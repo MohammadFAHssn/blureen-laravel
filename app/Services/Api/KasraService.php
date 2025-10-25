@@ -100,45 +100,63 @@ class KasraService
     public function modifyCredit(HrRequest $hrRequest): array
     {
         $requestData = [
-            //'PersonCode' => $hrRequest->user->personnel_code,
-            'PersonCode' => '123456789',
-            'StartDate' => $hrRequest->start_date,
-            'EndDate' => $hrRequest->end_date,
-            'StartTime' => $hrRequest->start_time ?? '',
-            'EndTime' => $hrRequest->end_time??'',
+            // پیشنهاد: به‌جای هاردکد از $hrRequest->user->personnel_code استفاده کنید
+            'PersonCode'  => '123456789',
+            'StartDate'   => $hrRequest->start_date,
+            'EndDate'     => $hrRequest->end_date,
+            'StartTime'   => $hrRequest->start_time ?? '',
+            'EndTime'     => $hrRequest->end_time ?? '',
             'Description' => $hrRequest->description ?? '',
-            'CreditType' => $this->creditTypeMap[$hrRequest->request_type_id],
-            'CreditID' => '0',
+            'CreditType'  => $this->creditTypeMap[$hrRequest->request_type_id], // قبلاً چک شده
+            'CreditID'    => '0',
         ];
 
 
         $endpoint = config('services.kasra.modify_credit_url');
-        $headers = ['Content-Type' => 'application/soap+xml; charset=utf-8'];
         $envelope = $this->generateRequestXml($requestData);
 
         try {
             $response = Http::timeout(30)
-                ->withBody($envelope, $headers['Content-Type'])
+                ->withBody($envelope, 'application/soap+xml; charset=utf-8')
                 ->post($endpoint);
 
-            if ($response->failed()) {
-                Log::error('Kasra ModifyCredit failed', [
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                ]);
-                throw new Exception('SOAP call failed for ModifyCredit.');
-            }
-
-            $body = $response->body();
-            return [
-                'status' => $response->status(),
-                'raw_xml' => $body,
-            ];
+            return $this->parseModifyCreditResponse($response->body());
         } catch (Throwable $e) {
             Log::error('Kasra ModifyCredit exception', ['error' => $e->getMessage()]);
             throw new CustomException('عدم دسترسی یا خطا در فراخوانی سرویس کسرا', 500);
         }
     }
+
+    /**
+     * @throws CustomException
+     */
+    private function parseModifyCreditResponse(string $soapBody): array
+    {
+        libxml_use_internal_errors(true);
+        $body = trim($soapBody);
+        $body = preg_replace('/^\xEF\xBB\xBF|[^\x09\x0A\x0D\x20-\x7E\x{80}-\x{10FFFF}]/u', '', $body);
+        $xml = simplexml_load_string($body);
+        if ($xml === false) {
+            throw new CustomException('XML نامعتبر از سرویس کسرا', 500);
+        }
+        $nodes = $xml->xpath('//*[local-name()="ModifyCreditResult"]');
+        if (!$nodes || !isset($nodes[0])) {
+            throw new CustomException('ساختار پاسخ کسرا نامعتبر است', 500);
+        }
+        $inner = html_entity_decode((string)$nodes[0], ENT_QUOTES | ENT_XML1, 'UTF-8');
+        $innerXml = simplexml_load_string($inner, 'SimpleXMLElement', LIBXML_NOCDATA);
+        if ($innerXml === false) {
+            throw new CustomException('XML داخلی پاسخ کسرا نامعتبر است', 500);
+        }
+
+        return [
+            'success' => ((int)($innerXml->Validate ?? 0) === 1),
+            'message'  => (string)$innerXml->Message  ?? 'خطای ناشناخته هنگام ثبت در کسرا',
+            'creditID' => (string)$innerXml->CreditID ?? null,
+        ];
+
+    }
+
     protected function generateRequestXml(array $data): string
     {
         return <<<XML
