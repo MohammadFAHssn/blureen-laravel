@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Base;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginSupplierRequest extends FormRequest
+class ResetPasswordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,7 @@ class LoginSupplierRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'mobileNumber' => 'required|string|regex:/^09[0-9]{9}$/',
+            'newPassword' => 'required|string|regex:/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/',
         ];
     }
 }

@@ -9,7 +9,7 @@ class CustomException extends Exception
 {
     public function report(): void
     {
-        Log::error($this->getMessage());
+        // Log::error($this->getMessage());
     }
 
     public function render()

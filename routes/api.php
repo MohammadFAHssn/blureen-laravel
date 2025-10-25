@@ -9,6 +9,10 @@ Route::middleware('throttle:60,1')->group(function () {
 
     Route::post('/verify-supplier-otp', [\App\Http\Controllers\Auth\AuthController::class, 'verifySupplierOtp']);
 
+    Route::post('/get-otp-code', [\App\Http\Controllers\Auth\AuthController::class, 'getOtpCode']);
+
+    Route::post('/verify-user-otp', [\App\Http\Controllers\Auth\AuthController::class, 'verifyUserOtp']);
+
     Route::controller(\App\Http\Controllers\Commerce\TenderController::class)->prefix('/commerce/tender')->group(function () {
         Route::get('/get-by-token', 'getByToken');
         Route::post('/submit-bid', 'submitBid');
@@ -48,6 +52,7 @@ Route::middleware('throttle:60,1')->group(function () {
 
         Route::controller(\App\Http\Controllers\Base\UserController::class)->prefix('/base/user')->group(function () {
             Route::get('/approval-flows-as-requester', 'getApprovalFlowsAsRequester')->middleware('permission:read Approval-Flows');
+            Route::post('/reset-password', 'resetPassword');
         });
 
         Route::controller(\App\Http\Controllers\Base\ApprovalFlowController::class)->prefix('/base/approval-flow')->group(function () {
