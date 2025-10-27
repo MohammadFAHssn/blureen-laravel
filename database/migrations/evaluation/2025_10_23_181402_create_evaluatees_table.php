@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
             $table->foreignId('evaluator_id')->constrained('evaluators')->cascadeOnDelete();
             $table->unique(['user_id', 'evaluator_id']);
-            $table->unsignedTinyInteger('final_score')->nullable();
+            $table->double('final_score')->nullable();
 
             $table->timestamps();
         });
