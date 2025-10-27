@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use RuntimeException;
 use Throwable;
 
 class KasraService
@@ -100,14 +101,13 @@ class KasraService
     public function modifyCredit(HrRequest $hrRequest): array
     {
         $requestData = [
-            // پیشنهاد: به‌جای هاردکد از $hrRequest->user->personnel_code استفاده کنید
             'PersonCode'  => '123456789',
             'StartDate'   => $hrRequest->start_date,
             'EndDate'     => $hrRequest->end_date,
             'StartTime'   => $hrRequest->start_time ?? '',
             'EndTime'     => $hrRequest->end_time ?? '',
             'Description' => $hrRequest->description ?? '',
-            'CreditType'  => $this->creditTypeMap[$hrRequest->request_type_id], // قبلاً چک شده
+            'CreditType'  => $this->creditTypeMap[$hrRequest->request_type_id],
             'CreditID'    => '0',
         ];
 
@@ -181,6 +181,135 @@ class KasraService
               </soap12:Body>
             </soap12:Envelope>
         XML;
+    }
+
+    public function getEmployeeAttendanceReport($data): array
+    {
+        $personnelCode = $data['personnel_code'];
+        $startDate = $data['start_date'];
+        $endDate = $data['end_date'];
+
+        $xmlParam = "
+        <ReportEntity>
+            <Tb>
+                <Caption>پرسنلي</Caption>
+                <Value>$personnelCode</Value>
+            </Tb>
+            <Tb>
+                <Caption>از تاريخ</Caption>
+                <Value>$startDate</Value>
+            </Tb>
+            <Tb>
+                <Caption>تا تاريخ</Caption>
+                <Value>$endDate</Value>
+            </Tb>
+        </ReportEntity>";
+
+        $endpoint = config('services.kasra.get_report_url');
+
+        $form = [
+            'outPutType'              => 1,
+            'OnLineUserID'            => $personnelCode,
+            'ReportID'                => AppConstants::KASRA_REPORTS['ATTENDANCE_LOGS'],
+            'XmlParam'                => $xmlParam,
+            'PageNumber'              => 1,
+            'PageSize'                => 0,
+            'CompanyFinatialPeriodID' => 1,
+        ];
+
+        $response = Http::asForm()
+            ->withHeaders([
+                'Accept' => 'text/xml, application/xml, */*',
+            ])
+            ->timeout(120)
+            ->post($endpoint, $form);
+
+        if (!$response->ok()) {
+            throw new RuntimeException("Kasra service error: HTTP {$response->status()}");
+        }
+
+        $raw     = $response->body();
+        $retXml  = null;   // برای سازگاری؛ این سرویس عملاً xml جدا ندارد
+        $retDs   = null;   // XML کامل نود <ds>
+        $rows    = [];     // آرایه‌ی ردیف‌ها (GetShowReport)
+        $total   = null;   // TotalRecords (در صورت وجود)
+        $page    = null;   // PageNumber (در صورت وجود)
+
+        // کمکی: دی‌کد کردن اسامی فیلد مانند _x0020_ → فاصله
+        $decodeXmlEncodedName = static function (string $name): string {
+            return preg_replace_callback('/_x([0-9A-Fa-f]{4})_/', function ($m) {
+                return mb_convert_encoding('&#x'.$m[1].';', 'UTF-8', 'HTML-ENTITIES');
+            }, $name);
+        };
+
+        try {
+            $sx = @simplexml_load_string($raw);
+            if ($sx === false) {
+                return [
+                    'raw'     => $raw,
+                    'ret_xml' => $retXml,
+                    'ret_ds'  => $retDs,
+                    'parsed'  => $rows,
+                    'total'   => $total,
+                    'page'    => $page,
+                ];
+            }
+
+            // ثبت فضاهای نام
+            $sx->registerXPathNamespace('t', 'http://tempuri.org/');
+            $sx->registerXPathNamespace('d', 'urn:schemas-microsoft-com:xml-diffgram-v1');
+
+            // متن کامل نود <ds> (برای دیباگ/ذخیره)
+            $dsNodes = $sx->xpath('//t:ds');
+            if (!empty($dsNodes)) {
+                // asXML شامل خود تگ <ds> و محتوای داخل آن است
+                $retDs = $dsNodes[0] instanceof SimpleXMLElement ? $dsNodes[0]->asXML() : null;
+            }
+
+            // لیست ردیف‌ها در diffgram → ReportEntity → GetShowReport
+            $getShowReportNodes = $sx->xpath('//t:ds/d:diffgram/*[local-name()="ReportEntity"]/*[local-name()="GetShowReport"]');
+
+            if (!empty($getShowReportNodes)) {
+                foreach ($getShowReportNodes as $node) {
+                    $item = [];
+
+                    // خواندن همه‌ی فیلدهای فرزند
+                    foreach ($node->children() as $child) {
+                        $key   = $decodeXmlEncodedName($child->getName()); // مانند "كد_x0020_پرسنلي" ← "كد پرسنلي"
+                        $key   = trim(preg_replace('/\s+/u', ' ', $key));
+                        $value = trim((string) $child);
+
+                        // تبدیل فاصله/نیم‌فاصله به _
+                        $slug = str_replace([' ', '‌'], '_', $key);
+                        // حذف کاراکترهای ناخواسته از کلید
+                        $slug = preg_replace('/[^\p{L}\p{N}_]/u', '', $slug);
+
+                        $item[$slug] = $value;
+                    }
+
+                    // استخراج total/page از هر ردیف (اگر موجود باشد)
+                    if (isset($item['TotalRecords']) && $total === null) {
+                        $total = $item['TotalRecords'];
+                    }
+                    if (isset($item['PageNumber']) && $page === null) {
+                        $page = $item['PageNumber'];
+                    }
+
+                    $rows[] = $item;
+                }
+            }
+        } catch (Throwable $e) {
+            // در صورت خطای پارس، فقط raw و ds را برمی‌گردانیم
+        }
+
+        return [
+            'raw'     => $raw,   // متن کامل پاسخ ASMX
+            'ret_xml' => $retXml,
+            'ret_ds'  => $retDs, // XML کامل <ds> (برای بررسی/دیباگ)
+            'parsed'  => $rows,  // آرایه‌ی تمیز از ردیف‌های GetShowReport
+            'total'   => $total, // مجموع رکوردها (در صورت وجود)
+            'page'    => $page,  // شماره صفحه (در صورت وجود)
+        ];
     }
 
 
