@@ -6,20 +6,22 @@ use App\Constants\AppConstants;
 use App\Jobs\SyncWithKasraJob;
 use App\Models\HrRequest\HrRequest;
 use Exception;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\DB;
 use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
+use SimpleXMLElement;
 use Throwable;
 
 class KasraService
 {
     //mapping request_type_id with kasra creditType
     protected array $creditTypeMap = [
-        AppConstants::HR_REQUEST_TYPE_DAILY_LEAVE => '11002', // مرخصی روزانه
-        AppConstants::HR_REQUEST_TYPE_HOURLY_LEAVE => '11001', // مرخصی ساعتی
-        AppConstants::HR_REQUEST_TYPE_OVERTIME => '11101', // اضافه کار عادی
+        AppConstants::HR_REQUEST_TYPES['DAILY_LEAVE'] => '11002', // مرخصی روزانه
+        AppConstants::HR_REQUEST_TYPES['HOURLY_LEAVE'] => '11001', // مرخصی ساعتی
+        AppConstants::HR_REQUEST_TYPES['OVERTIME'] => '11101', // اضافه کار عادی
     ];
 
     public function sync(): void
@@ -183,12 +185,15 @@ class KasraService
         XML;
     }
 
+    /**
+     * @throws ConnectionException
+     */
     public function getEmployeeAttendanceReport($data): array
     {
         $personnelCode = $data['personnel_code'];
-        $startDate = $data['start_date'];
-        $endDate = $data['end_date'];
-
+        $startDate = strtr($data['start_date'], ['-' => '/']);
+        $endDate = strtr($data['end_date'], ['-' => '/']);
+        $reportId = AppConstants::KASRA_REPORTS['ATTENDANCE_LOGS'];
         $xmlParam = "
         <ReportEntity>
             <Tb>
@@ -204,111 +209,74 @@ class KasraService
                 <Value>$endDate</Value>
             </Tb>
         </ReportEntity>";
-
         $endpoint = config('services.kasra.get_report_url');
-
         $form = [
             'outPutType'              => 1,
-            'OnLineUserID'            => $personnelCode,
-            'ReportID'                => AppConstants::KASRA_REPORTS['ATTENDANCE_LOGS'],
+            'OnLineUserID'            => 123456789,
+            'ReportID'                => $reportId,
             'XmlParam'                => $xmlParam,
             'PageNumber'              => 1,
             'PageSize'                => 0,
             'CompanyFinatialPeriodID' => 1,
         ];
-
         $response = Http::asForm()
             ->withHeaders([
                 'Accept' => 'text/xml, application/xml, */*',
             ])
             ->timeout(120)
             ->post($endpoint, $form);
-
         if (!$response->ok()) {
             throw new RuntimeException("Kasra service error: HTTP {$response->status()}");
         }
-
-        $raw     = $response->body();
-        $retXml  = null;   // برای سازگاری؛ این سرویس عملاً xml جدا ندارد
-        $retDs   = null;   // XML کامل نود <ds>
-        $rows    = [];     // آرایه‌ی ردیف‌ها (GetShowReport)
-        $total   = null;   // TotalRecords (در صورت وجود)
-        $page    = null;   // PageNumber (در صورت وجود)
-
-        // کمکی: دی‌کد کردن اسامی فیلد مانند _x0020_ → فاصله
+        $rows    = [];
+        $total   = null;
         $decodeXmlEncodedName = static function (string $name): string {
             return preg_replace_callback('/_x([0-9A-Fa-f]{4})_/', function ($m) {
                 return mb_convert_encoding('&#x'.$m[1].';', 'UTF-8', 'HTML-ENTITIES');
             }, $name);
         };
-
         try {
-            $sx = @simplexml_load_string($raw);
+            $sx = @simplexml_load_string($response->body());
             if ($sx === false) {
-                return [
-                    'raw'     => $raw,
-                    'ret_xml' => $retXml,
-                    'ret_ds'  => $retDs,
-                    'parsed'  => $rows,
-                    'total'   => $total,
-                    'page'    => $page,
-                ];
+                throw new Exception('خطا در دریافت لیست تردد از سامانه کسرا',403);
             }
 
-            // ثبت فضاهای نام
             $sx->registerXPathNamespace('t', 'http://tempuri.org/');
             $sx->registerXPathNamespace('d', 'urn:schemas-microsoft-com:xml-diffgram-v1');
 
-            // متن کامل نود <ds> (برای دیباگ/ذخیره)
-            $dsNodes = $sx->xpath('//t:ds');
-            if (!empty($dsNodes)) {
-                // asXML شامل خود تگ <ds> و محتوای داخل آن است
-                $retDs = $dsNodes[0] instanceof SimpleXMLElement ? $dsNodes[0]->asXML() : null;
-            }
-
-            // لیست ردیف‌ها در diffgram → ReportEntity → GetShowReport
             $getShowReportNodes = $sx->xpath('//t:ds/d:diffgram/*[local-name()="ReportEntity"]/*[local-name()="GetShowReport"]');
 
             if (!empty($getShowReportNodes)) {
                 foreach ($getShowReportNodes as $node) {
                     $item = [];
 
-                    // خواندن همه‌ی فیلدهای فرزند
                     foreach ($node->children() as $child) {
                         $key   = $decodeXmlEncodedName($child->getName()); // مانند "كد_x0020_پرسنلي" ← "كد پرسنلي"
                         $key   = trim(preg_replace('/\s+/u', ' ', $key));
                         $value = trim((string) $child);
 
-                        // تبدیل فاصله/نیم‌فاصله به _
                         $slug = str_replace([' ', '‌'], '_', $key);
-                        // حذف کاراکترهای ناخواسته از کلید
                         $slug = preg_replace('/[^\p{L}\p{N}_]/u', '', $slug);
-
                         $item[$slug] = $value;
                     }
 
-                    // استخراج total/page از هر ردیف (اگر موجود باشد)
                     if (isset($item['TotalRecords']) && $total === null) {
                         $total = $item['TotalRecords'];
                     }
-                    if (isset($item['PageNumber']) && $page === null) {
-                        $page = $item['PageNumber'];
-                    }
-
                     $rows[] = $item;
                 }
             }
         } catch (Throwable $e) {
-            // در صورت خطای پارس، فقط raw و ds را برمی‌گردانیم
+            Log::error($e->getMessage());
         }
+        $rows = collect($rows)
+            ->sortBy(fn ($row) => $row['تاريخ'] ?? '')
+            ->values()
+            ->all();
 
         return [
-            'raw'     => $raw,   // متن کامل پاسخ ASMX
-            'ret_xml' => $retXml,
-            'ret_ds'  => $retDs, // XML کامل <ds> (برای بررسی/دیباگ)
-            'parsed'  => $rows,  // آرایه‌ی تمیز از ردیف‌های GetShowReport
-            'total'   => $total, // مجموع رکوردها (در صورت وجود)
-            'page'    => $page,  // شماره صفحه (در صورت وجود)
+            'attendances' => $rows,
+            'total'   => $total,
         ];
     }
 
