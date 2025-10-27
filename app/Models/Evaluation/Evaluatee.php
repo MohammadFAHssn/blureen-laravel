@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Evaluatee extends Model
 {
+    protected $fillable = [
+        'final_score',
+    ];
+
     public function evaluator()
     {
         return $this->belongsTo(Evaluator::class);

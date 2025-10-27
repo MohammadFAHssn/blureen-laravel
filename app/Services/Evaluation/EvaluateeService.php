@@ -12,4 +12,9 @@ class EvaluateeService
     {
         $this->evaluateeRepository = new EvaluateeRepository();
     }
+
+    public function getByEvaluator()
+    {
+        return $this->evaluateeRepository->getByEvaluator();
+    }
 }

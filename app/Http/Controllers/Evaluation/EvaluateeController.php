@@ -12,4 +12,9 @@ class EvaluateeController
     {
         $this->evaluateeService = new EvaluateeService();
     }
+
+    public function getByEvaluator()
+    {
+        return response()->json(['data' => $this->evaluateeService->getByEvaluator()], 200);
+    }
 }
