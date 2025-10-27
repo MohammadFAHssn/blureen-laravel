@@ -68,10 +68,15 @@ Route::middleware('throttle:60,1')->group(function () {
 
         Route::prefix('/evaluation')->group(function () {
             Route::controller(\App\Http\Controllers\Evaluation\EvaluateeController::class)->prefix('/evaluatee')->group(function () {
+                Route::get('/by-evaluator', 'getByEvaluator')->middleware('role:Super Admin|employee');
             });
 
             Route::controller(\App\Http\Controllers\Evaluation\EvaluationQuestionController::class)->prefix('/evaluation-question')->group(function () {
                 Route::get('/actives', 'getActives')->middleware('role:Super Admin|employee');
+            });
+
+            Route::controller(\App\Http\Controllers\Evaluation\EvaluationScoreController::class)->prefix('/evaluation-score')->group(function () {
+                Route::post('create', 'evaluate')->middleware('role:Super Admin|employee');
             });
         });
 
