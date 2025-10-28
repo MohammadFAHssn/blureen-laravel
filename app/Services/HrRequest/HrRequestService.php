@@ -46,10 +46,10 @@ class HrRequestService
 
 
         return match ($formTypeId) {
-            AppConstants::HR_REQUEST_TYPE_DAILY_LEAVE => $this->createDailyLeaveRequest($data, $userApprovalFlows),
-            AppConstants::HR_REQUEST_TYPE_HOURLY_LEAVE => $this->createHourlyLeaveRequest($data, $userApprovalFlows),
-            AppConstants::HR_REQUEST_TYPE_OVERTIME => $this->createOvertimeRequest($data, $userApprovalFlows),
-            AppConstants::HR_REQUEST_TYPE_SICK => $this->createSickRequest($data, $userApprovalFlows),
+            AppConstants::HR_REQUEST_TYPES['DAILY_LEAVE'] => $this->createDailyLeaveRequest($data, $userApprovalFlows),
+            AppConstants::HR_REQUEST_TYPES['HOURLY_LEAVE'] => $this->createHourlyLeaveRequest($data, $userApprovalFlows),
+            AppConstants::HR_REQUEST_TYPES['OVERTIME'] => $this->createOvertimeRequest($data, $userApprovalFlows),
+            AppConstants::HR_REQUEST_TYPES['SICK'] => $this->createSickRequest($data, $userApprovalFlows),
             default => throw new Exception('فرم ارسالی نامعتبر است', 400),
         };
     }
@@ -148,5 +148,10 @@ class HrRequestService
             ->orderBy('start_date')
             ->with('status')
             ->get();
+    }
+
+    public function getKasra()
+    {
+
     }
 }

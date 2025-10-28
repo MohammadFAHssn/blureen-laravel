@@ -5,7 +5,7 @@ namespace App\Http\Requests\Base;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class RequestTypeIdRequest extends FormRequest
+class GetByUserIdRequest extends FormRequest
 {
     protected $stopOnFirstFailure = true;
     /**
@@ -24,7 +24,14 @@ class RequestTypeIdRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'requestTypeId' => 'required|integer|exists:request_types,id',
+            'user_id' => 'required|exists:users,id',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+          'user_id' => 'شناسه کاربر'
         ];
     }
 }

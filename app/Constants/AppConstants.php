@@ -10,9 +10,17 @@ class AppConstants
     public const HR_REQUEST_PENDING_STATUS = 1;
     public const HR_REQUEST_APPROVED_STATUS = 2;
     public const HR_REQUEST_REJECTED_STATUS = 3;
-    public const HR_REQUEST_TYPE_DAILY_LEAVE = 1;
-    public const HR_REQUEST_TYPE_HOURLY_LEAVE = 2;
-    public const HR_REQUEST_TYPE_OVERTIME = 3;
-    public const HR_REQUEST_TYPE_SICK = 4;
+
+    public const HR_REQUEST_TYPES = [
+        'DAILY_LEAVE' => 1,
+        'HOURLY_LEAVE' => 2,
+        'OVERTIME' => 3,
+        'SICK' => 4
+    ];
+
+    public const KASRA_REPORTS = [
+      'ATTENDANCE_LOGS' => 238,
+        'REMAINING_LEAVE' => 6,
+    ];
 
 }

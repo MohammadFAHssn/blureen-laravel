@@ -5,6 +5,7 @@ namespace App\Services\Api;
 use App\Constants\AppConstants;
 use App\Jobs\SyncWithKasraJob;
 use App\Models\HrRequest\HrRequest;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\DB;
@@ -12,7 +13,6 @@ use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
-use SimpleXMLElement;
 use Throwable;
 
 class KasraService
@@ -187,18 +187,21 @@ class KasraService
 
     /**
      * @throws ConnectionException
+     * @throws CustomException
      */
     public function getEmployeeAttendanceReport($data): array
     {
-        $personnelCode = $data['personnel_code'];
-        $startDate = strtr($data['start_date'], ['-' => '/']);
-        $endDate = strtr($data['end_date'], ['-' => '/']);
-        $reportId = AppConstants::KASRA_REPORTS['ATTENDANCE_LOGS'];
+        $user = User::find($data['user_id']);
+        if(!$user->personnel_code)
+            throw new CustomException('کد پرسنلی یافت نشد',404);
+
+        $startDate = $data['start_date'];
+        $endDate = $data['end_date'];
         $xmlParam = "
         <ReportEntity>
             <Tb>
                 <Caption>پرسنلي</Caption>
-                <Value>$personnelCode</Value>
+                <Value>$user->personnel_code</Value>
             </Tb>
             <Tb>
                 <Caption>از تاريخ</Caption>
@@ -213,7 +216,7 @@ class KasraService
         $form = [
             'outPutType'              => 1,
             'OnLineUserID'            => 123456789,
-            'ReportID'                => $reportId,
+            'ReportID'                => AppConstants::KASRA_REPORTS['ATTENDANCE_LOGS'],
             'XmlParam'                => $xmlParam,
             'PageNumber'              => 1,
             'PageSize'                => 0,
@@ -226,7 +229,7 @@ class KasraService
             ->timeout(120)
             ->post($endpoint, $form);
         if (!$response->ok()) {
-            throw new RuntimeException("Kasra service error: HTTP {$response->status()}");
+            throw new RuntimeException("خطا در سرویس کسرا: HTTP {$response->status()}");
         }
         $rows    = [];
         $total   = null;
@@ -269,17 +272,90 @@ class KasraService
         } catch (Throwable $e) {
             Log::error($e->getMessage());
         }
-        $rows = collect($rows)
-            ->sortBy(fn ($row) => $row['تاريخ'] ?? '')
+
+        $attendances = collect($rows)
+            ->map(fn ($row) => $this->normalizeAttendanceReport($row))
+            ->sortBy('date')
             ->values()
             ->all();
 
         return [
-            'attendances' => $rows,
+            'attendances' => $attendances,
             'total'   => $total,
         ];
     }
 
+    protected function normalizeAttendanceReport(array $row): array
+    {
+        return [
+            'personnel_code' => $row['كد_پرسنلي'] ?? null,
+            'date'           => $row['تاريخ'] ?? null,
+            'in'             => $row['زمان_ورود'] ?? null,
+            'out'            => $row['زمان_خروج'] ?? null,
+        ];
+    }
 
+
+    /**
+     * @throws CustomException
+     * @throws ConnectionException
+     */
+    public function getRemainingLeave($data): array
+    {
+        $user = User::find($data['user_id']);
+        if(!$user->personnel_code)
+            throw new CustomException('کد پرسنلی یافت نشد',404);
+
+        $xmlParam = "
+        <ReportEntity>
+            <Tb>
+                <Caption>از شماره پرسنلي</Caption>
+                <Value>$user->personnel_code</Value>
+            </Tb>
+        </ReportEntity>";
+        $endpoint = config('services.kasra.get_report_url');
+        $form = [
+            'outPutType'              => 1,
+            'OnLineUserID'            => 123456789,
+            'ReportID'                => AppConstants::KASRA_REPORTS['REMAINING_LEAVE'],
+            'XmlParam'                => $xmlParam,
+            'PageNumber'              => 1,
+            'PageSize'                => 0,
+            'CompanyFinatialPeriodID' => 1,
+        ];
+        $response = Http::asForm()
+            ->withHeaders([
+                'Accept' => 'text/xml, application/xml, */*',
+            ])
+            ->timeout(120)
+            ->post($endpoint, $form);
+        if (!$response->ok()) {
+            throw new CustomException("خطا در سرویس کسرا: HTTP {$response->status()}");
+        }
+
+        $body = $response->body();
+        $xml = simplexml_load_string($body);
+        if ($xml === false) {
+            throw new CustomException('XML نامعتبر از سرویس دریافت شد.');
+        }
+
+        $rows = $xml->xpath('//*[local-name()="diffgram"]/*[local-name()="ReportEntity"]/*[local-name()="GetShowReport"]');
+        if (!$rows || count($rows) === 0) {
+            $rows = $xml->xpath('//*[local-name()="ReportEntity"]/*[local-name()="GetShowReport"]');
+        }
+
+        if (!$rows || count($rows) === 0) {
+            throw new CustomException('رکوردی با برچسب GetShowReport در پاسخ یافت نشد.');
+        }
+        $n = $rows[0];
+        $personnel = isset($n->{'شماره_x0020_پرسنلي'}) ? (string) $n->{'شماره_x0020_پرسنلي'} : null;
+        $remain    = isset($n->{'مانده'}) ? (string) $n->{'مانده'} : null;
+
+        return [
+            'personnel_code'  => $personnel,
+            'remaining_leave' => $remain,
+        ];
+
+    }
 
 }

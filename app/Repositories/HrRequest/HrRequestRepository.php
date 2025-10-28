@@ -36,7 +36,7 @@ class HrRequestRepository {
 
     public function getUserHourlyLeaveRequestsOfDay($userId, $date){
         return HrRequest::where([
-            'request_type_id' => AppConstants::HR_REQUEST_TYPE_HOURLY_LEAVE,
+            'request_type_id' => AppConstants::HR_REQUEST_TYPES['HOURLY_LEAVE'],
             'user_id' => $userId,
             'start_date' => $date
         ])->whereNot('status_id',AppConstants::HR_REQUEST_REJECTED_STATUS)->get();

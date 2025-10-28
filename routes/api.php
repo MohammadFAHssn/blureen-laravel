@@ -104,6 +104,11 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::post('/request/approve','approveRequest');
         });
 
+        Route::controller(\App\Http\Controllers\KasraController\KasraController::class)->prefix('/kasra')->group(function (){
+            Route::post('/reports/get-attendance-report','getEmployeeAttendanceReport');
+            Route::post('/reports/get-remaining-leave','getRemainingLeave');
+        });
+
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
             Route::get('/{module}/{model_name}', 'get')->middleware('CheckPermission');
         });

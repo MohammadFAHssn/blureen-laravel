@@ -58,7 +58,8 @@ return [
             'users' => env('KASRA_FETCH_USERS'),
         ],
         'base_url' => env('KASRA_BASE_URL'),
-        'modify_credit_url' => env('KASRA_MODIFY_CREDIT_URL')
+        'modify_credit_url' => env('KASRA_MODIFY_CREDIT_URL'),
+        'get_report_url' => env('KASRA_GET_REPORT_URL')
     ],
 
     'porsline' => [
