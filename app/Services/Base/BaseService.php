@@ -21,11 +21,8 @@ class BaseService
             $modelClass = 'App\\Models\\' . $module . '\\' . $modelName;
         }
 
-        $filter = array_keys(
-            array_map(function ($item) {
-                return AllowedFilter::exact($item);
-            }, $request->query('filter', []))
-        );
+        $filterKeys = array_keys($request->query('filter', []));
+        $filter = array_map(fn($key) => AllowedFilter::exact($key), $filterKeys);
 
         $include = $request->query('include', '');
         $arrayedInclude = explode(',', $include);

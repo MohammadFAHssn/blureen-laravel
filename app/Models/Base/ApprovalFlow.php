@@ -28,6 +28,11 @@ class ApprovalFlow extends Model
         return $this->belongsTo(JobPosition::class, 'requester_position_id', 'rayvarz_id');
     }
 
+    public function requesterCostCenter()
+    {
+        return $this->belongsTo(CostCenter::class, 'requester_center_id', 'rayvarz_id');
+    }
+
     public function approverUser()
     {
         return $this->belongsTo(User::class, 'approver_user_id');
@@ -36,5 +41,10 @@ class ApprovalFlow extends Model
     public function approverPosition()
     {
         return $this->belongsTo(JobPosition::class, 'approver_position_id', 'rayvarz_id');
+    }
+
+    public function approverCostCenter()
+    {
+        return $this->belongsTo(CostCenter::class, 'approver_center_id', 'rayvarz_id');
     }
 }
