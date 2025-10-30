@@ -57,6 +57,7 @@ Route::middleware('throttle:60,1')->group(function () {
 
         Route::controller(\App\Http\Controllers\Base\ApprovalFlowController::class)->prefix('/base/approval-flow')->group(function () {
             Route::post('/update', 'update')->middleware('permission:edit Approval-Flows');
+            Route::post('/get-sub-users', 'getSubUsers');
         });
 
         Route::controller(\App\Http\Controllers\Survey\SurveyController::class)->prefix('/survey/survey')->group(function () {
