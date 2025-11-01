@@ -18,9 +18,13 @@ class AppConstants
         'SICK' => 4
     ];
 
+    public const WORK_DAY_MINUTES = 450;
+
     public const KASRA_REPORTS = [
       'ATTENDANCE_LOGS' => 238,
         'REMAINING_LEAVE' => 6,
     ];
+
+    public const MAX_NEGATIVE_LEAVE_MINUTES = 1320;
 
 }

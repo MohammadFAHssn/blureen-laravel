@@ -5,36 +5,47 @@ namespace App\Services\HrRequest;
 
 use App\Constants\AppConstants;
 use App\Exceptions\CustomException;
+use App\Models\Base\Setting;
 use App\Models\HrRequest\HrRequest;
-use App\Models\User;
+use App\Repositories\HrRequest\HrRequestDetailRepository;
 use App\Repositories\HrRequest\HrRequestRepository;
+use App\Services\Api\KasraService;
 use App\Services\Base\ApprovalFlowService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\App;
 use Morilog\Jalali\Jalalian;
-use Termwind\Components\Hr;
-
 
 class HrRequestService
 {
     protected HrRequestRepository $hrRequestRepository;
+    protected HrRequestDetailRepository $hrRequestDetailRepository;
     protected ApprovalFlowService $approvalFlowService;
     protected HrRequestApprovalService $hrRequestApprovalService;
+    protected KasraService $kasraService;
 
-    public function __construct(HrRequestRepository $hrRequestRepository, ApprovalFlowService $approvalFlowService, HrRequestApprovalService $hrRequestApprovalService)
+    public function __construct(
+        HrRequestRepository       $hrRequestRepository,
+        HrRequestDetailRepository $hrRequestDetailRepository,
+        ApprovalFlowService       $approvalFlowService,
+        HrRequestApprovalService  $hrRequestApprovalService,
+        KasraService              $kasraService
+    )
     {
         $this->hrRequestRepository = $hrRequestRepository;
+        $this->hrRequestDetailRepository =$hrRequestDetailRepository;
         $this->approvalFlowService = $approvalFlowService;
         $this->hrRequestApprovalService = $hrRequestApprovalService;
+        $this->kasraService = $kasraService;
     }
 
     /**
      * @throws CustomException
      * @throws Exception
      */
-    public function create(array $data): true
+    public function create(array $data)
     {
         $formTypeId = $data['request_type_id'];
         $userId = $data['user_id'];
@@ -54,8 +65,25 @@ class HrRequestService
         };
     }
 
-    protected function createDailyLeaveRequest(array $data, Collection $userApprovalFlows): true
+    /**
+     * @throws CustomException
+     * @throws ConnectionException
+     * @throws Exception
+     */
+    protected function createDailyLeaveRequest(array $data, Collection $userApprovalFlows)
     {
+        $startDate = Jalalian::fromFormat('Y/m/d', $data['start_date'])->toCarbon()->startOfDay();
+        $endDate = Jalalian::fromFormat('Y/m/d', $data['end_date'])->toCarbon()->startOfDay();
+        $leaveRequestDuration = ($startDate->diffInDays($endDate)+1)*AppConstants::WORK_DAY_MINUTES;
+        $data['details'] = [
+            'duration' => $leaveRequestDuration
+        ];
+
+        if(!$this->userHasEnoughLeaveBalance($data['user_id'],$leaveRequestDuration)){
+            throw new Exception('مانده مرخصی کافی نمیباشد.',403);
+        }
+
+
         $hrRequest = $this->hrRequestRepository->create($data);
         $this->hrRequestApprovalService->create($hrRequest->id, $userApprovalFlows);
         return true;
@@ -64,46 +92,47 @@ class HrRequestService
     /**
      * @throws Exception
      */
-    protected function createHourlyLeaveRequest(array $data, Collection $userApprovalFlows): true
-    {
 
+    protected function createHourlyLeaveRequest(array $data, Collection $userApprovalFlows)
+    {
         $startInCarbon = Carbon::createFromFormat('H:i', $data['start_time']);
         $endInCarbon = Carbon::createFromFormat('H:i', $data['end_time']);
 
-
-        $totalHourlyLeavesOfDay = 0;
+        $currentRequestDuration = $this->calculateDiffInMinutes($startInCarbon, $endInCarbon);
         if ($endInCarbon->lt($startInCarbon)) {
-            $totalHourlyLeavesOfDay += $startInCarbon->diffInMinutes($startInCarbon->copy()->endOfDay());
-            $totalHourlyLeavesOfDay += Carbon::createFromTime(0, 0)->diffInMinutes($endInCarbon);
             $data['end_date'] = Jalalian::fromFormat('Y/m/d', $data['start_date'])
                 ->addDay()->format('Y/m/d');
-        } else {
-            $totalHourlyLeavesOfDay += $startInCarbon->diffInMinutes($endInCarbon);
         }
+        $data['details'] = [
+            'duration' => $currentRequestDuration,
+        ];
 
-        $existingRequests = $this->hrRequestRepository->getUserHourlyLeaveRequestsOfDay($data['user_id'], $data['start_date']);
+        $existingRequests =
+            $this->hrRequestRepository
+                ->getUserHourlyLeaveRequestsOfDay($data['user_id'], $data['start_date']);
+
+        $otherHourlyRequestsDuration = 0;
         foreach ($existingRequests as $request) {
             $startInCarbon = Carbon::createFromFormat('H:i:s', $request['start_time']);
             $endInCarbon = Carbon::createFromFormat('H:i:s', $request['end_time']);
-            if ($endInCarbon->lt($startInCarbon)) {
-                $totalHourlyLeavesOfDay += $startInCarbon->diffInMinutes($startInCarbon->copy()->endOfDay());
-                $totalHourlyLeavesOfDay += Carbon::createFromTime(0, 0)->diffInMinutes($endInCarbon);
-
-                $data['end_date'] = Jalalian::fromFormat('Y/m/d', $data['start_date'])
-                    ->addDay()->format('Y/m/d');
-            } else {
-                $totalHourlyLeavesOfDay += $startInCarbon->diffInMinutes($endInCarbon);
-            }
+            $otherHourlyRequestsDuration += $this->calculateDiffInMinutes($startInCarbon, $endInCarbon);
         }
 
-        if ($totalHourlyLeavesOfDay > AppConstants::MAX_HOURLY_LEAVE_MINUTES) {
+        if ($currentRequestDuration + $otherHourlyRequestsDuration > AppConstants::MAX_HOURLY_LEAVE_MINUTES) {
             throw new Exception('مجموع مرخصی ساعتی در یک روز نمی‌تواند بیشتر از ۳ ساعت و ۳۰ دقیقه باشد.', 403);
         }
 
+        if(!$this->userHasEnoughLeaveBalance($data['user_id'],$currentRequestDuration)){
+            throw new Exception('مانده مرخصی کافی نمیباشد.',403);
+        }
+
+
         $hrRequest = $this->hrRequestRepository->create($data);
         $this->hrRequestApprovalService->create($hrRequest->id, $userApprovalFlows);
+
         return true;
     }
+
 
     protected function createOvertimeRequest(array $data, Collection $userApprovalFlows): true
     {
@@ -150,8 +179,56 @@ class HrRequestService
             ->get();
     }
 
-    public function getKasra()
+
+    /*
+     * helper functions
+     * */
+    private function calculateDiffInMinutes(Carbon $start, Carbon $end): int
     {
+        if ($end->lt($start)) {
+            $toEndOfDay = $start->diffInMinutes($start->copy()->endOfDay());
+            $fromMidnightToEnd = $end->diffInMinutes($end->copy()->startOfDay());
+            return $toEndOfDay + $fromMidnightToEnd;
+        }
+
+        return $start->diffInMinutes($end);
+    }
+
+
+    /**
+     * @throws CustomException
+     * @throws ConnectionException
+     */
+    function userHasEnoughLeaveBalance($userId, $requestDurationInMin): bool
+    {
+        $kasraResponse = $this->kasraService->getRemainingLeave($userId);
+        $remainingLeave = $this->convertRemainingLeaveToMinutes($kasraResponse['remaining_leave']);
+        $totalPendingLeaveRequestDurationInMin = $this->hrRequestDetailRepository->getAllPendingLeaveRequestDuration($userId);
+        $maxNegativeLeaveMinutes = (int) (
+            Setting::query()
+                ->where('group', 'human_resource')
+                ->where('key', 'max_negative_leave_minutes')
+                ->value('value')
+            ?? 0
+        );
+        return $requestDurationInMin <= ($maxNegativeLeaveMinutes+$remainingLeave-$totalPendingLeaveRequestDurationInMin);
+
 
     }
+
+    /**
+     * @throws CustomException
+     */
+    function convertRemainingLeaveToMinutes(string $balance): int
+    {
+        if (!preg_match('/^(\d+),(\d{2}):(\d{2})$/', $balance, $matches)) {
+            throw new CustomException('فرمت مانده مرخصی نامعتبر است.');
+        }
+
+        $days = (int)$matches[1];
+        $hours = (int)$matches[2];
+        $minutes = (int)$matches[3];
+        return $days * 440 + $hours * 60 + $minutes;
+    }
+
 }

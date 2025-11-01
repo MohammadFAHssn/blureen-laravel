@@ -14,7 +14,7 @@ class HrRequestDetail extends Model
 
     public function request(): BelongsTo
     {
-        return $this->belongsTo(HrRequest::class);
+        return $this->belongsTo(HrRequest::class,'hr_request_id');
     }
 
 }

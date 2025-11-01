@@ -300,9 +300,9 @@ class KasraService
      * @throws CustomException
      * @throws ConnectionException
      */
-    public function getRemainingLeave($data): array
+    public function getRemainingLeave($userId): array
     {
-        $user = User::find($data['user_id']);
+        $user = User::find($userId);
         if(!$user->personnel_code)
             throw new CustomException('کد پرسنلی یافت نشد',404);
 

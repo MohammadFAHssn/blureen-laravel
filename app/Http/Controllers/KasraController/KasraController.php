@@ -33,7 +33,7 @@ class KasraController
     public function getRemainingLeave(GetByUserIdRequest $request): JsonResponse
     {
         return response()->json([
-            'data' => $this->kasraService->getRemainingLeave($request->validated())
+            'data' => $this->kasraService->getRemainingLeave($request['user_id'])
         ]);
     }
 
