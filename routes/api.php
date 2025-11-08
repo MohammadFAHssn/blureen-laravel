@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Spatie\LaravelPdf\Facades\Pdf;
 
 Route::middleware('throttle:60,1')->group(function () {
     Route::post('/login', [\App\Http\Controllers\Auth\AuthController::class, 'login']);
@@ -9,6 +8,10 @@ Route::middleware('throttle:60,1')->group(function () {
     Route::post('/login-supplier', [\App\Http\Controllers\Auth\AuthController::class, 'loginSupplier']);
 
     Route::post('/verify-supplier-otp', [\App\Http\Controllers\Auth\AuthController::class, 'verifySupplierOtp']);
+
+    Route::post('/get-otp-code', [\App\Http\Controllers\Auth\AuthController::class, 'getOtpCode']);
+
+    Route::post('/verify-user-otp', [\App\Http\Controllers\Auth\AuthController::class, 'verifyUserOtp']);
 
     Route::controller(\App\Http\Controllers\Commerce\TenderController::class)->prefix('/commerce/tender')->group(function () {
         Route::get('/get-by-token', 'getByToken');
@@ -40,20 +43,7 @@ Route::middleware('throttle:60,1')->group(function () {
         Route::controller(\App\Http\Controllers\Payroll\PayrollSlipController::class)->prefix('/payroll/payroll-slip')->group(function () {
             Route::get('/get-the-last-few-months', 'getTheLastFewMonths')->middleware('role:Super Admin|employee');
             // Route::get('print', 'print')->middleware('role:Super Admin|employee');
-
-
-            Route::get('/print/{id}', function (int $id) {
-                $invoice = [
-                    'id' => $id,
-                    'customer' => 'علی رضایی',
-                    'amount' => 1250000,
-                ];
-
-                // دانلود فایل
-                return Pdf::view('pdfs.invoice', ['invoice' => $invoice])
-                    ->format('a4')      // اندازه صفحه
-                    ->name("invoice-{$id}.pdf"); // نام فایل خروجی
-            });
+            Route::get('reports', 'getReports')->middleware('permission:read Payroll-Batches');
         });
 
         Route::controller(\App\Http\Controllers\PersonnelRecords\PersonnelRecordsController::class)->prefix('/personnel-records')->group(function () {
@@ -62,6 +52,7 @@ Route::middleware('throttle:60,1')->group(function () {
 
         Route::controller(\App\Http\Controllers\Base\UserController::class)->prefix('/base/user')->group(function () {
             Route::get('/approval-flows-as-requester', 'getApprovalFlowsAsRequester')->middleware('permission:read Approval-Flows');
+            Route::post('/reset-password', 'resetPassword');
         });
 
         Route::controller(\App\Http\Controllers\Base\ApprovalFlowController::class)->prefix('/base/approval-flow')->group(function () {
@@ -73,6 +64,20 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::post('/update', 'update')->middleware('permission:read Surveys');
             Route::delete('/', 'delete')->middleware('permission:read Surveys');
             Route::post('/participate', 'participate')->middleware('role:Super Admin|employee');
+        });
+
+        Route::prefix('/evaluation')->group(function () {
+            Route::controller(\App\Http\Controllers\Evaluation\EvaluateeController::class)->prefix('/evaluatee')->group(function () {
+                Route::get('/by-evaluator', 'getByEvaluator')->middleware('role:Super Admin|employee');
+            });
+
+            Route::controller(\App\Http\Controllers\Evaluation\EvaluationQuestionController::class)->prefix('/evaluation-question')->group(function () {
+                Route::get('/actives', 'getActives')->middleware('role:Super Admin|employee');
+            });
+
+            Route::controller(\App\Http\Controllers\Evaluation\EvaluationScoreController::class)->prefix('/evaluation-score')->group(function () {
+                Route::post('create', 'evaluate')->middleware('role:Super Admin|employee');
+            });
         });
 
         //Birthday Routes

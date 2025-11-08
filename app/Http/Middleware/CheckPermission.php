@@ -23,7 +23,7 @@ class CheckPermission
         $user = $request->user();
 
         if ($user->hasRole('Super Admin')) {
-            return $next($request);
+            return $next($this->resolveUrl($request));
         }
 
         $fullUrl = parse_url(

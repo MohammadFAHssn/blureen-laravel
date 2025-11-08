@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Payroll;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginSupplierRequest extends FormRequest
+class GetPayrollSlipReportsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,8 @@ class LoginSupplierRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'mobileNumber' => 'required|string|regex:/^09[0-9]{9}$/',
+            'month' => 'required|integer|between:1,12',
+            'year' => 'required|integer|between:1390,1430', // :)
         ];
     }
 }
