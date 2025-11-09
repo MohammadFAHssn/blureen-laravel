@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('health_certificate_id');
             $table->unsignedInteger('user_id');
-            $table->text('image');
+            $table->text('image')->nullable();
             $table->boolean('status')->default(true);
             $table->unsignedInteger('uploaded_by')->default(0);
             $table->unsignedInteger('edited_by')->default(0);
