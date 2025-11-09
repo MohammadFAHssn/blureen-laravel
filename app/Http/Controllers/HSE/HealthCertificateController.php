@@ -49,7 +49,7 @@ class HealthCertificateController
 
             $payload = [
                 'data' => $data,
-                'message' => 'فایل با موفقیت آپلود شد.',
+                'message' => 'گروه با موفقیت ایجاد شد.',
                 'status' => 200,
             ];
 
