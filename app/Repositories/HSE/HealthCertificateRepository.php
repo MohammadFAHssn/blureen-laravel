@@ -15,8 +15,6 @@ class HealthCertificateRepository
      */
     public function create(array $data)
     {
-        // $path = request()->file('image')->store('birthdayGifts', 'public');
-        // $data['image'] = $path;
         $data = array_merge($data, [
             'uploaded_by' => Auth::id(),
             'status' => 1,
@@ -53,10 +51,6 @@ class HealthCertificateRepository
      */
     public function update(int $id, array $data)
     {
-        // if (request()->file('image')) {
-        //     $path = request()->file('image')->store('healthCertificates', 'public');
-        //     $data['image'] = $path;
-        // }
         $data['edited_by'] = Auth::id();
         $healthCertificate = $this->findById($id);
         $healthCertificate->update($data);
