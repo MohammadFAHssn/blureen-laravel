@@ -2,27 +2,33 @@
 
 namespace App\Services\HSE;
 
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\HSE\HealthCertificate;
 use Illuminate\Validation\ValidationException;
 use App\Repositories\HSE\HealthCertificateRepository;
+use App\Repositories\HSE\HealthCertificateUserRepository;
 
 class HealthCertificateService
 {
     /**
      * @var HealthCertificateRepository
+     * @var HealthCertificateUserRepository
      */
     protected $healthCertificateRepository;
+    protected $healthCertificateUserRepository;
 
     /**
      * HealthCertificateService constructor
      *
      * @param HealthCertificateRepository $healthCertificateRepository
+     * @param HealthCertificateUserRepository $healthCertificateUserRepository
      */
-    public function __construct(HealthCertificateRepository $healthCertificateRepository)
+    public function __construct(HealthCertificateRepository $healthCertificateRepository, HealthCertificateUserRepository $healthCertificateUserRepository)
     {
         $this->healthCertificateRepository = $healthCertificateRepository;
+        $this->healthCertificateUserRepository = $healthCertificateUserRepository;
     }
 
     public function createHealthCertificate($request)
@@ -33,11 +39,24 @@ class HealthCertificateService
             $validatedRequest
         )) {
             throw ValidationException::withMessages([
-                'health_certificate_exist' => ['برای این ماه از سال، فایل شناسنامه سلامت، آپلود شده است.']
+                'health_certificate_exist' => ['برای این ماه از سال، شناسنامه سلامت، ایحاد شده است.']
             ]);
         }
-        $healthCertificate = $this->healthCertificateRepository->create($validatedRequest);
-        return $this->formatHealthCertificatePayload($healthCertificate);
+        $users = User::active()->get();
+        DB::beginTransaction();
+        try {
+            $healthCertificate = $this->healthCertificateRepository->create($validatedRequest);
+            foreach ($users as $user) {
+                $this->healthCertificateUserRepository->create($user->id, $healthCertificate->id);
+            }
+            DB::commit();
+            return $this->formatHealthCertificatePayload($healthCertificate);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'create_health_certificate' => 'خطا در هنگام ایجاد: ' . $e->getMessage()
+            ]);
+        }
     }
 
     /**
