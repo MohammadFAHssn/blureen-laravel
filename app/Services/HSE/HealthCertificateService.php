@@ -47,7 +47,7 @@ class HealthCertificateService
         try {
             $healthCertificate = $this->healthCertificateRepository->create($validatedRequest);
             foreach ($users as $user) {
-                $this->healthCertificateUserRepository->create($user->id, $healthCertificate->id);
+                $this->healthCertificateUserRepository->create(null, $user->id, $healthCertificate->id);
             }
             DB::commit();
             return $this->formatHealthCertificatePayload($healthCertificate);
@@ -96,13 +96,15 @@ class HealthCertificateService
     }
 
     /**
-     * Format single HealthCertificate payload
+     * Get HealthCertificate
      *
-     * @param HealthCertificate $healthCertificate
+     * @param int $id
      * @return array
+     * @throws ModelNotFoundException
      */
-    protected function formatHealthCertificatePayload(HealthCertificate $healthCertificate): array
+    public function getHealthCertificate(int $id)
     {
+        $healthCertificate = $this->healthCertificateRepository->findById($id);
         return [
             'id' => $healthCertificate->id,
             'name' => $healthCertificate->file_name,
@@ -127,11 +129,7 @@ class HealthCertificateService
                         'fullName' => $hcUser->user->first_name . ' ' . $hcUser->user->last_name,
                         'username' => $hcUser->user->username,
                     ] : null,
-                    'gift' => $hcUser->gift ? [
-                        'id' => $hcUser->gift->id,
-                        'name' => $hcUser->gift->name,
-                        'code' => $hcUser->gift->code,
-                    ] : null,
+                    'image' => $hcUser->image,
                     'status' => $hcUser->status,
                     'uploadedBy' => $hcUser->uploadedBy ? [
                         'id' => $hcUser->uploadedBy->id,
@@ -145,6 +143,35 @@ class HealthCertificateService
                     ] : null,
                 ];
             })->toArray(),
+            'createdAt' => $healthCertificate->created_at,
+            'updatedAt' => $healthCertificate->updated_at,
+        ];
+    }
+
+    /**
+     * Format single HealthCertificate payload
+     *
+     * @param HealthCertificate $healthCertificate
+     * @return array
+     */
+    protected function formatHealthCertificatePayload(HealthCertificate $healthCertificate): array
+    {
+        return [
+            'id' => $healthCertificate->id,
+            'name' => $healthCertificate->file_name,
+            'month' => $healthCertificate->month,
+            'year' => $healthCertificate->year,
+            'status' => $healthCertificate->status,
+            'uploadedBy' => $healthCertificate->uploadedBy ? [
+                'id' => $healthCertificate->uploadedBy->id,
+                'fullName' => $healthCertificate->uploadedBy->first_name . ' ' . $healthCertificate->uploadedBy->last_name,
+                'username' => $healthCertificate->uploadedBy->username,
+            ] : null,
+            'editedBy' => $healthCertificate->editedBy ? [
+                'id' => $healthCertificate->editedBy->id,
+                'fullName' => $healthCertificate->editedBy->first_name . ' ' . $healthCertificate->editedBy->last_name,
+                'username' => $healthCertificate->editedBy->username,
+            ] : null,
             'createdAt' => $healthCertificate->created_at,
             'updatedAt' => $healthCertificate->updated_at,
         ];
