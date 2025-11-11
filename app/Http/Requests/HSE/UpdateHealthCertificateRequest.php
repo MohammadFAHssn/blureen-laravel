@@ -25,7 +25,7 @@ class UpdateHealthCertificateRequest extends FormRequest
             'file_name' => 'required|string|max:255',
             'month' => 'string|max:255',
             'year' => 'string|max:255',
-            'status' => 'required|integer',
+            'status' => 'integer',
         ];
     }
 
@@ -46,7 +46,6 @@ class UpdateHealthCertificateRequest extends FormRequest
             'year.max' => 'سال نباید بیشتر از 255 کاراکتر باشد.',
             'file.file' => 'فایل باید معتبر باشد.',
             'file.mimes' => 'فقط فایل‌های اکسل (xls یا xlsx) مورد قبول می‌باشد.',
-            'status.required' => 'وضعیت الزامی است.',
             'status.integer' => 'وضعیت باید فعال یا غیرفعال باشد.',
         ];
     }

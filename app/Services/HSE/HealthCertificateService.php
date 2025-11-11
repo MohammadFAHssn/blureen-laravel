@@ -2,22 +2,18 @@
 
 namespace App\Services\HSE;
 
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\HSE\HealthCertificate;
 use Illuminate\Validation\ValidationException;
 use App\Repositories\HSE\HealthCertificateRepository;
-use App\Repositories\HSE\HealthCertificateUserRepository;
 
 class HealthCertificateService
 {
     /**
      * @var HealthCertificateRepository
-     * @var HealthCertificateUserRepository
      */
     protected $healthCertificateRepository;
-    protected $healthCertificateUserRepository;
 
     /**
      * HealthCertificateService constructor
@@ -25,10 +21,9 @@ class HealthCertificateService
      * @param HealthCertificateRepository $healthCertificateRepository
      * @param HealthCertificateUserRepository $healthCertificateUserRepository
      */
-    public function __construct(HealthCertificateRepository $healthCertificateRepository, HealthCertificateUserRepository $healthCertificateUserRepository)
+    public function __construct(HealthCertificateRepository $healthCertificateRepository)
     {
         $this->healthCertificateRepository = $healthCertificateRepository;
-        $this->healthCertificateUserRepository = $healthCertificateUserRepository;
     }
 
     public function createHealthCertificate($request)
@@ -42,13 +37,9 @@ class HealthCertificateService
                 'health_certificate_exist' => ['برای این ماه از سال، شناسنامه سلامت، ایحاد شده است.']
             ]);
         }
-        $users = User::active()->get();
         DB::beginTransaction();
         try {
             $healthCertificate = $this->healthCertificateRepository->create($validatedRequest);
-            foreach ($users as $user) {
-                $this->healthCertificateUserRepository->create(null, $user->id, $healthCertificate->id);
-            }
             DB::commit();
             return $this->formatHealthCertificatePayload($healthCertificate);
         } catch (\Throwable $e) {

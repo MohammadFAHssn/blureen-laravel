@@ -50,7 +50,7 @@ class HealthCertificateController
 
             $payload = [
                 'data' => $data,
-                'message' => 'گروه با موفقیت ایجاد شد.',
+                'message' => 'دوره شناسنامه با موفقیت ایجاد شد.',
                 'status' => 200,
             ];
 
