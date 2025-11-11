@@ -2,14 +2,94 @@
 
 namespace App\Http\Controllers\HSE;
 
+use Throwable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\ValidationException;
+use App\Services\HSE\HealthCertificateUserService;
+use App\Http\Requests\HSE\CreateHealthCertificateUserRequest;
 
 class HealthCertificateUserController
 {
+    /**
+     * @var HealthCertificateUserService
+     */
+    protected $healthCertificateUserService;
+
+    /**
+     * HealthCertificateUserController constructor
+     *
+     * @param HealthCertificateUserService $healthCertificateUserService
+     */
+    public function __construct(HealthCertificateUserService $healthCertificateUserService)
+    {
+        $this->healthCertificateUserService = $healthCertificateUserService;
+    }
+
+    /**
+     * Store a new HealthCertificateUser
+     *
+     * @param Request $request
+     * @param CreateHealthCertificateUserRequest $request
+     * @return JsonResponse
+     */
+    public function store(CreateHealthCertificateUserRequest $request)
+    {
+        try {
+            $results = [];
+            $skipped = [];
+
+            foreach ($request->codes as $code) {
+                $res = $this->healthCertificateUserService->createHealthCertificateUser([
+                    'code' => $code,
+                    'health_certificate_id' => $request->health_certificate_id,
+                ]);
+
+                // user not found (skipped)
+                if (isset($res['reason'])) {
+                    $skipped[] = $res;
+                    continue;
+                }
+
+                // user exists (already in health certificate) → ignore silently
+                if (!$res) {
+                    continue;
+                }
+
+                // newly created
+                $results[] = $res;
+            }
+
+            $payload = [
+                'created' => $results,
+                'skipped' => $skipped,
+                'message' => 'لیست کاربران، با موفقیت بروزرسانی شد',
+                'status' => 200,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        } catch (ValidationException $e) {
+            $payload = [
+                'errors' => $e->errors(),
+                'message' => 'اطلاعات وارد شده معتبر نیست.',
+                'status' => 422,
+                'code' => 'VALIDATION_ERROR',
+            ];
+
+            return response()->json($payload, $payload['status']);
+        } catch (Throwable $e) {
+            $payload = [
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        }
+    }
+
     /**
      * Get URL for latest image (any format) or image of selected year for HealthCertificateUser
      */
