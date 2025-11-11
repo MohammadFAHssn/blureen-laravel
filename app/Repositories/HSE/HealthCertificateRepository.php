@@ -29,7 +29,7 @@ class HealthCertificateRepository
      */
     public function getAll()
     {
-        return HealthCertificate::with('users', 'uploadedBy', 'editedBy')->get();
+        return HealthCertificate::get();
     }
 
     /**
@@ -39,7 +39,7 @@ class HealthCertificateRepository
      */
     public function getAllActive()
     {
-        return HealthCertificate::with('users', 'createdBy', 'editedBy')->where('status', 1)->get();
+        return HealthCertificate::where('status', 1)->get();
     }
 
     /**
@@ -51,8 +51,8 @@ class HealthCertificateRepository
      */
     public function update(int $id, array $data)
     {
-        $data['edited_by'] = Auth::id();
         $healthCertificate = $this->findById($id);
+        $data['edited_by'] = Auth::id();
         $healthCertificate->update($data);
         return $healthCertificate;
     }
