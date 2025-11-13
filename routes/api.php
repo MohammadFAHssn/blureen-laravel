@@ -114,13 +114,13 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::controller(\App\Http\Controllers\HSE\HealthCertificateController::class)->prefix('file')->group(function () {
                     Route::post('/', 'store');
                     Route::get('/', 'index');
+                    Route::post('/image', 'image');
                     Route::post('/{id}', 'update');
                     Route::delete('/{id}', 'delete');
                     Route::get('/{id}', 'show');
                 });
 
                 Route::controller(\App\Http\Controllers\HSE\HealthCertificateUserController::class)->prefix('user')->group(function () {
-                    Route::post('/', 'store');
                     Route::get('/image', 'getImage');
                     Route::get('/image/download', 'downloadImage');
                 });
