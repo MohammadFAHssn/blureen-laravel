@@ -7,13 +7,17 @@ use Illuminate\Support\Facades\DB;
 use App\Models\HSE\HealthCertificate;
 use Illuminate\Validation\ValidationException;
 use App\Repositories\HSE\HealthCertificateRepository;
+use App\Models\User;
+use App\Repositories\HSE\HealthCertificateUserRepository;
 
 class HealthCertificateService
 {
     /**
      * @var HealthCertificateRepository
+     * @var HealthCertificateUserRepository
      */
     protected $healthCertificateRepository;
+    protected $healthCertificateUserRepository;
 
     /**
      * HealthCertificateService constructor
@@ -21,9 +25,10 @@ class HealthCertificateService
      * @param HealthCertificateRepository $healthCertificateRepository
      * @param HealthCertificateUserRepository $healthCertificateUserRepository
      */
-    public function __construct(HealthCertificateRepository $healthCertificateRepository)
+    public function __construct(HealthCertificateRepository $healthCertificateRepository, HealthCertificateUserRepository $healthCertificateUserRepository)
     {
         $this->healthCertificateRepository = $healthCertificateRepository;
+        $this->healthCertificateUserRepository = $healthCertificateUserRepository;
     }
 
     public function createHealthCertificate($request)
@@ -87,56 +92,53 @@ class HealthCertificateService
     }
 
     /**
-     * Get HealthCertificate
+     * Show a specific healthCertificate’s users
      *
-     * @param int $id
      * @return array
-     * @throws ModelNotFoundException
      */
-    public function getHealthCertificate(int $id)
+    public function getHealthCertificateUsers()
     {
-        $healthCertificate = $this->healthCertificateRepository->findById($id);
-        return [
-            'id' => $healthCertificate->id,
-            'name' => $healthCertificate->file_name,
-            'month' => $healthCertificate->month,
-            'year' => $healthCertificate->year,
-            'status' => $healthCertificate->status,
-            'uploadedBy' => $healthCertificate->uploadedBy ? [
-                'id' => $healthCertificate->uploadedBy->id,
-                'fullName' => $healthCertificate->uploadedBy->first_name . ' ' . $healthCertificate->uploadedBy->last_name,
-                'username' => $healthCertificate->uploadedBy->username,
-            ] : null,
-            'editedBy' => $healthCertificate->editedBy ? [
-                'id' => $healthCertificate->editedBy->id,
-                'fullName' => $healthCertificate->editedBy->first_name . ' ' . $healthCertificate->editedBy->last_name,
-                'username' => $healthCertificate->editedBy->username,
-            ] : null,
-            'users' => $healthCertificate->users->map(function ($hcUser) {
-                return [
-                    'id' => $hcUser->id,
-                    'user' => $hcUser->user ? [
-                        'id' => $hcUser->user->id,
-                        'fullName' => $hcUser->user->first_name . ' ' . $hcUser->user->last_name,
-                        'username' => $hcUser->user->username,
-                    ] : null,
-                    'image' => $hcUser->image,
-                    'status' => $hcUser->status,
-                    'uploadedBy' => $hcUser->uploadedBy ? [
-                        'id' => $hcUser->uploadedBy->id,
-                        'fullName' => $hcUser->uploadedBy->first_name . ' ' . $hcUser->uploadedBy->last_name,
-                        'username' => $hcUser->uploadedBy->username,
-                    ] : null,
-                    'editedBy' => $hcUser->editedBy ? [
-                        'id' => $hcUser->editedBy->id,
-                        'fullName' => $hcUser->editedBy->first_name . ' ' . $hcUser->editedBy->last_name,
-                        'username' => $hcUser->editedBy->username,
-                    ] : null,
+        return $this->healthCertificateRepository->getHealthCertificateUsers();
+    }
+
+    /**
+     * @param int $healthCertificateId
+     * @param int $year
+     * @param UploadedFile[] $files
+     * @return array{success: array<int, array>, skipped: array<int, array>}
+     */
+    public function addImages(int $healthCertificateId, int $year, array $files): array
+    {
+        $success = [];
+        $skipped = [];
+
+        foreach ($files as $file) {
+            $original = $file->getClientOriginalName();
+            $basename = pathinfo($original, PATHINFO_FILENAME); // e.g. "6543"
+            $code = trim($basename);
+
+            $user = User::where('personnel_code', $code)->first();
+
+            if (!$user) {
+                $skipped[] = [
+                    'filename' => $original,
+                    'reason' => 'user_not_found_by_personnel_code',
+                    'personnel_code' => $code,
                 ];
-            })->toArray(),
-            'createdAt' => $healthCertificate->created_at,
-            'updatedAt' => $healthCertificate->updated_at,
-        ];
+                continue;
+            }
+
+            $record = $this->healthCertificateUserRepository
+                ->createOrReplaceForUser($healthCertificateId, $user->id, $year, $file);
+
+            $success[] = [
+                'filename' => $original,
+                'personnel_code' => $code,
+                'record_id' => $record->id,
+            ];
+        }
+
+        return compact('success', 'skipped');
     }
 
     /**
