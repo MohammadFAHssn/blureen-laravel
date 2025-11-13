@@ -5,7 +5,6 @@ namespace App\Http\Controllers\HSE;
 use Throwable;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Controller;
 use App\Services\HSE\HealthCertificateService;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -184,20 +183,18 @@ class HealthCertificateController
     }
 
     /**
-     * Show a specific HealthCertificate
+     * Show a specific healthCertificate’s users
      *
-     * @param Request $request
-     * @param int $id
      * @return JsonResponse
      */
-    public function show(int $id)
+    public function show()
     {
         try {
-            $data = $this->healthCertificateService->getHealthCertificate($id);
+            $data = $this->healthCertificateService->getHealthCertificateUsers();
 
             $payload = [
                 'data' => $data,
-                'message' => 'شناسنامه سلامت با موفقیت دریافت شد.',
+                'message' => 'کاربران با موفقیت دریافت شدند.',
                 'status' => 200,
             ];
 
@@ -209,6 +206,45 @@ class HealthCertificateController
             ];
 
             return response()->json($payload, $payload['status']);
+        }
+    }
+
+    /**
+     * add image to HealthCertificate
+     *
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function image(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'id' => 'required|integer|exists:health_certificates,id',
+                'year' => 'required|string',
+                'images' => 'required|array|max:3000',
+                'images.*' => 'file|mimes:jpg,jpeg,png|max:2048',  // 2MB each
+            ]);
+
+            $result = $this->healthCertificateService->addImages(
+                (int) $validated['id'],
+                (int) $validated['year'],
+                $request->file('images')  // array of UploadedFile
+            );
+
+            $payload = [
+                'data' => $result,
+                'message' => 'شناسنامه سلامت با موفقیت بروزرسانی شد.',
+                'status' => 200,
+            ];
+
+            return response()->json($payload, 200);
+        } catch (Throwable $e) {
+            $payload = [
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ];
+            return response()->json($payload, 500);
         }
     }
 }
