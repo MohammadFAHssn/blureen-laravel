@@ -2,137 +2,38 @@
 
 namespace App\Http\Controllers\HSE;
 
-use Throwable;
+use App\Models\HSE\HealthCertificateUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Validation\ValidationException;
-use App\Services\HSE\HealthCertificateUserService;
-use App\Http\Requests\HSE\CreateHealthCertificateUserRequest;
-
+use Illuminate\Support\Facades\Storage;
 class HealthCertificateUserController
 {
-    /**
-     * @var HealthCertificateUserService
-     */
-    protected $healthCertificateUserService;
-
-    /**
-     * HealthCertificateUserController constructor
-     *
-     * @param HealthCertificateUserService $healthCertificateUserService
-     */
-    public function __construct(HealthCertificateUserService $healthCertificateUserService)
-    {
-        $this->healthCertificateUserService = $healthCertificateUserService;
-    }
-
-    /**
-     * Store a new HealthCertificateUser
-     *
-     * @param Request $request
-     * @param CreateHealthCertificateUserRequest $request
-     * @return JsonResponse
-     */
-    public function store(CreateHealthCertificateUserRequest $request)
-    {
-        try {
-            $results = [];
-            $skipped = [];
-
-            foreach ($request->codes as $code) {
-                $res = $this->healthCertificateUserService->createHealthCertificateUser([
-                    'code' => $code,
-                    'health_certificate_id' => $request->health_certificate_id,
-                ]);
-
-                // user not found (skipped)
-                if (isset($res['reason'])) {
-                    $skipped[] = $res;
-                    continue;
-                }
-
-                // user exists (already in health certificate) → ignore silently
-                if (!$res) {
-                    continue;
-                }
-
-                // newly created
-                $results[] = $res;
-            }
-
-            $payload = [
-                'created' => $results,
-                'skipped' => $skipped,
-                'message' => 'لیست کاربران، با موفقیت بروزرسانی شد',
-                'status' => 200,
-            ];
-
-            return response()->json($payload, $payload['status']);
-        } catch (ValidationException $e) {
-            $payload = [
-                'errors' => $e->errors(),
-                'message' => 'اطلاعات وارد شده معتبر نیست.',
-                'status' => 422,
-                'code' => 'VALIDATION_ERROR',
-            ];
-
-            return response()->json($payload, $payload['status']);
-        } catch (Throwable $e) {
-            $payload = [
-                'error' => $e->getMessage(),
-                'status' => 500,
-            ];
-
-            return response()->json($payload, $payload['status']);
-        }
-    }
-
-    /**
-     * Get URL for latest image (any format) or image of selected year for HealthCertificateUser
-     */
     public function getImage(Request $request): JsonResponse
     {
         $user = Auth::user();
-        $personnelCode = $user->personnel_code;
         $year = $request->query('year');
 
-        $basePath = storage_path('app/public/healthCertificates');
+        $record = HealthCertificateUser::query()
+            ->join('health_certificates as hc', 'hc.id', '=', 'health_certificates_users.health_certificate_id')
+            ->where('health_certificates_users.user_id', $user->id)
+            ->when($year, fn($q) => $q->where('hc.year', $year))
+            ->orderByDesc('hc.year')
+            ->orderByDesc('health_certificates_users.updated_at')
+            ->select('health_certificates_users.*', 'hc.year')
+            ->first();
 
-        // Determine folder
-        if ($year) {
-            $folder = $basePath . '/' . $year;
-        } else {
-            $folders = File::directories($basePath);
-            rsort($folders);  // latest year first
-            $folder = $folders[0] ?? null;
-        }
-
-        if (!$folder || !File::isDirectory($folder)) {
+        if (!$record || empty($record->image)) {
             return response()->json(null, 404);
         }
 
-        // Check for any supported image extension
-        $extensions = ['jpg', 'jpeg', 'png'];
-        $filePath = null;
-
-        foreach ($extensions as $ext) {
-            $path = $folder . '/' . $personnelCode . '.' . $ext;
-            if (File::exists($path)) {
-                $filePath = $path;
-                break;
-            }
-        }
-
-        if (!$filePath) {
+        $path = $record->image;  // e.g. healthCertificates/1400/<hash>.jpg
+        if (!Storage::disk('public')->exists($path)) {
             return response()->json(null, 404);
         }
 
-        // Return public URL
-        $fileName = basename($filePath);
-        $url = asset('storage/healthCertificates/' . basename($folder) . '/' . $fileName);
+        // Build public URL without calling ->url()
+        $url = asset('storage/' . ltrim($path, '/'));  // => /storage/healthCertificates/1400/<hash>.jpg
 
         return response()->json($url);
     }
@@ -140,48 +41,33 @@ class HealthCertificateUserController
     public function downloadImage(Request $request)
     {
         $user = Auth::user();
-        $personnelCode = $user->personnel_code;
         $year = $request->query('year');
 
-        $basePath = storage_path('app/public/healthCertificates');
+        $record = HealthCertificateUser::query()
+            ->join('health_certificates as hc', 'hc.id', '=', 'health_certificates_users.health_certificate_id')
+            ->where('health_certificates_users.user_id', $user->id)
+            ->when($year, fn($q) => $q->where('hc.year', $year))
+            ->orderByDesc('hc.year')
+            ->orderByDesc('health_certificates_users.updated_at')
+            ->select('health_certificates_users.*', 'hc.year')
+            ->first();
 
-        // Determine folder
-        if ($year) {
-            $folder = $basePath . '/' . $year;
-        } else {
-            $folders = File::directories($basePath);
-            rsort($folders);  // latest year first
-            $folder = $folders[0] ?? null;
-        }
-
-        if (!$folder || !File::isDirectory($folder)) {
+        if (!$record || empty($record->image)) {
             return response()->json(null, 404);
         }
 
-        // Check for any supported image extension
-        $extensions = ['jpg', 'jpeg', 'png'];
-        $filePath = null;
-
-        foreach ($extensions as $ext) {
-            $path = $folder . '/' . $personnelCode . '.' . $ext;
-            if (File::exists($path)) {
-                $filePath = $path;
-                break;
-            }
-        }
-
-        if (!$filePath) {
+        $relative = $record->image;  // relative to 'public' disk
+        if (!Storage::disk('public')->exists($relative)) {
             return response()->json(null, 404);
         }
 
-        $fileName = basename($filePath);
+        // Absolute filesystem path for response()->download()
+        $absolute = Storage::disk('public')->path($relative);
+        $downloadName = basename($relative);
+        $mime = @mime_content_type($absolute) ?: 'application/octet-stream';
 
-        // Use response()->download to force attachment with appropriate headers
-        // Add explicit content-type (mime_content_type requires fileinfo PHP extension which is present in most PHP installs).
-        $mimeType = @mime_content_type($filePath) ?: 'application/octet-stream';
-
-        return response()->download($filePath, $fileName, [
-            'Content-Type' => $mimeType,
+        return response()->download($absolute, $downloadName, [
+            'Content-Type' => $mime,
         ]);
     }
 }
