@@ -4,46 +4,50 @@ namespace App\Repositories\HSE;
 
 use App\Models\HSE\HealthCertificateUser;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class HealthCertificateUserRepository
 {
     /**
-     * create new Health Certificate User
-     *
-     * @param array|null $data
-     * @param int|null $userId
-     * @param int|null $healthCertificateId
-     * @return \App\Models\HSE\HealthCertificateUser
+     * Create or replace a HealthCertificateUser's image for a given user.
      */
-    public function create(?array $data = null, ?int $userId = null, ?int $healthCertificateId = null)
-    {
-        if (!empty($data)) {
-            $data = array_merge($data, [
-                'uploaded_by' => Auth::id(),
+    public function createOrReplaceForUser(
+        int $healthCertificateId,
+        int $userId,
+        int $year,
+        UploadedFile $file
+    ): HealthCertificateUser {
+        // Store new image
+        $path = $file->store("healthCertificates/{$year}", 'public');
+
+        // Find existing record for this health certificate + user
+        $existing = HealthCertificateUser::where('health_certificate_id', $healthCertificateId)
+            ->where('user_id', $userId)
+            ->first();
+
+        if ($existing) {
+            // Delete old image if exists
+            if ($existing->image && Storage::disk('public')->exists($existing->image)) {
+                Storage::disk('public')->delete($existing->image);
+            }
+
+            $existing->update([
+                'edited_by' => Auth::id(),
                 'status' => 1,
+                'image' => $path,
             ]);
-            $record = HealthCertificateUser::create($data);
-            return $record->load('uploadedBy');
+
+            return $existing->fresh();
         }
-        $data = [
+
+        // Create new record
+        return HealthCertificateUser::create([
             'health_certificate_id' => $healthCertificateId,
+            'user_id' => $userId,
             'uploaded_by' => Auth::id(),
             'status' => 1,
-        ];
-        if ($userId) {
-            $data['user_id'] = $userId;
-        }
-        return HealthCertificateUser::create($data);
-    }
-
-    /**
-     * Check if there's a Health Certificate User with the same Health Certificate ID and User ID
-     *
-     * @param array $data
-     * @return bool
-     */
-    public function UserExist(array $data)
-    {
-        return HealthCertificateUser::where('health_certificate_id', $data['health_certificate_id'])->where('user_id', $data['user_id'])->exists();
+            'image' => $path,
+        ]);
     }
 }
