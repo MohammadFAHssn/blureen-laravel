@@ -4,6 +4,7 @@ namespace App\Repositories\HSE;
 
 use App\Models\HSE\HealthCertificate;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class HealthCertificateRepository
 {
@@ -30,16 +31,6 @@ class HealthCertificateRepository
     public function getAll()
     {
         return HealthCertificate::get();
-    }
-
-    /**
-     * Get all active HealthCertificates
-     *
-     * @return array
-     */
-    public function getAllActive()
-    {
-        return HealthCertificate::where('status', 1)->get();
     }
 
     /**
@@ -79,6 +70,16 @@ class HealthCertificateRepository
     public function findById(int $id): HealthCertificate
     {
         return HealthCertificate::findOrFail($id);
+    }
+
+    /**
+     * Show a specific healthCertificate’s users
+     *
+     * @return User
+     */
+    public function getHealthCertificateUsers()
+    {
+        return User::with('healthCertificate')->get();
     }
 
     /**
