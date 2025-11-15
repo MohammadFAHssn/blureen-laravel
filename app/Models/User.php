@@ -4,6 +4,7 @@ namespace App\Models;
 use App\Models\Base\ApprovalFlow;
 use App\Models\Base\LiaisonCostCenter;
 use App\Models\Base\UserProfile;
+use App\Models\HSE\HealthCertificateUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -78,5 +79,10 @@ class User extends Authenticatable implements JWTSubject
     public function costCentersAsLiaison()
     {
         return $this->belongsTo(LiaisonCostCenter::class, 'id', 'user_id');
+    }
+
+    public function healthCertificate()
+    {
+        return $this->hasMany(HealthCertificateUser::class);
     }
 }

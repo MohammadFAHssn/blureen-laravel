@@ -3,6 +3,7 @@
 namespace App\Models\Birthday;
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 
 class BirthdayGift extends Model
@@ -25,5 +26,14 @@ class BirthdayGift extends Model
     public function editedBy()
     {
         return $this->belongsTo(User::class, 'edited_by');
+    }
+
+    protected static function booted()
+    {
+        static::deleting(function ($gift) {
+            DB::table('birthday_files_users')
+                ->where('birthday_gift_id', $gift->id)
+                ->update(['birthday_gift_id' => 0]);
+        });
     }
 }
