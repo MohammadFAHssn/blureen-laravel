@@ -10,13 +10,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('evaluation_questions', function (Blueprint $table) {
+        Schema::create('question_types', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('category_id')->constrained('evaluation_question_categories')->restrictOnDelete();
-            $table->string('question_text', 200);
-            $table->unique(['category_id', 'question_text']);
-            $table->boolean('active')->default(true);
+            $table->string('name')->unique();
 
             $table->timestamps();
         });
@@ -27,6 +24,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('evaluation_questions');
+        Schema::dropIfExists('question_types');
     }
 };

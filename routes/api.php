@@ -73,6 +73,11 @@ Route::middleware('throttle:60,1')->group(function () {
 
             Route::controller(\App\Http\Controllers\Evaluation\EvaluationQuestionController::class)->prefix('/evaluation-question')->group(function () {
                 Route::get('/actives', 'getActives')->middleware('role:Super Admin|employee');
+                Route::get('/self-evaluation', 'getSelfEvaluation')->middleware('role:Super Admin|employee');
+            });
+
+            Route::controller(\App\Http\Controllers\Evaluation\SelfEvaluationController::class)->prefix('/self-evaluation')->group(function () {
+                Route::post('create', 'evaluate')->middleware('role:Super Admin|employee');
             });
 
             Route::controller(\App\Http\Controllers\Evaluation\EvaluationScoreController::class)->prefix('/evaluation-score')->group(function () {

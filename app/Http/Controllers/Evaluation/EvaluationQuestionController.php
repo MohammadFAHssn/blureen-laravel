@@ -17,4 +17,9 @@ class EvaluationQuestionController
     {
         return response()->json(['data' => $this->evaluationQuestionService->getActives()], 200);
     }
+
+    public function getSelfEvaluation()
+    {
+        return response()->json(['data' => $this->evaluationQuestionService->getSelfEvaluation()], 200);
+    }
 }
