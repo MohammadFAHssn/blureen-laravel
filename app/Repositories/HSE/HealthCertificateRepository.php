@@ -44,6 +44,20 @@ class HealthCertificateRepository
     {
         $healthCertificate = $this->findById($id);
         $data['edited_by'] = Auth::id();
+
+        // if there is a healthCertificate with same year as in $data,
+        // do not update $healthCertificate year.
+        if (isset($data['month'], $data['year'])) {
+            $exists = get_class($healthCertificate)::query()
+                ->where('year', $data['year'])
+                ->where('id', '!=', $id)  // exclude current record
+                ->exists();
+
+            if ($exists) {
+                unset($data['year']);
+            }
+        }
+
         $healthCertificate->update($data);
         return $healthCertificate;
     }
