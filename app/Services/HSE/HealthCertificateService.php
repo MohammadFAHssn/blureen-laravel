@@ -92,7 +92,7 @@ class HealthCertificateService
     }
 
     /**
-     * Show a specific healthCertificate’s users
+     * Show all users with their healthCertificates
      *
      * @return array
      */

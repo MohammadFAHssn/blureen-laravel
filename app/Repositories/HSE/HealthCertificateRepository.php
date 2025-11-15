@@ -87,7 +87,7 @@ class HealthCertificateRepository
     }
 
     /**
-     * Show a specific healthCertificate’s users
+     * Show all users with their healthCertificates
      *
      * @return User
      */

@@ -183,7 +183,7 @@ class HealthCertificateController
     }
 
     /**
-     * Show a specific healthCertificate’s users
+     * Show all users with their healthCertificates
      *
      * @return JsonResponse
      */
