@@ -76,6 +76,7 @@ class KasraService
 
             $userProfile[] = [
                 'user_id' => $usersMap[$user['Code']],
+                'national_code' => $user['NationalCode'],
                 'mobile_number' => $user['MobileNO'],
                 'updated_at' => now(),
             ];
