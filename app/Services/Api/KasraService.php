@@ -77,7 +77,7 @@ class KasraService
 
             $userProfile[] = [
                 'user_id' => $usersMap[$user['Code']],
-                'national_code' => $user['NationalCode'],
+                'national_code' => $user['NationalCode'] ? $user['NationalCode'] : null,
                 'mobile_number' => $user['MobileNO'] ? ('0' . Str::substr((string) $user['MobileNO'], -10)) : null,
                 'updated_at' => now(),
             ];
