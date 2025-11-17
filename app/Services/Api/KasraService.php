@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class KasraService
 {
@@ -77,7 +78,7 @@ class KasraService
             $userProfile[] = [
                 'user_id' => $usersMap[$user['Code']],
                 'national_code' => $user['NationalCode'],
-                'mobile_number' => $user['MobileNO'],
+                'mobile_number' => $user['MobileNO'] ? ('0' . Str::substr((string) $user['MobileNO'], -10)) : null,
                 'updated_at' => now(),
             ];
         }
