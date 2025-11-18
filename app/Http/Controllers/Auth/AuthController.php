@@ -144,11 +144,11 @@ class AuthController
         }
 
         $otpCode = random_int(100000, 999999);
-        $otpExpiresAt = time() + 5;
+        $otpExpiresAt = time() + 120;
         $user->otp_code = $otpCode;
         $user->otp_expires_at = $otpExpiresAt;
         $user->save();
-        // SendOtpSmsJob::dispatch($otpCode, $user->profile->mobile_number);
+        SendOtpSmsJob::dispatch($otpCode, $user->profile->mobile_number);
         return ['otpExpiresAt' => $otpExpiresAt];
     }
 
