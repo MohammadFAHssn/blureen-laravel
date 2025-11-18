@@ -196,7 +196,7 @@ class RayvarzService
         }
 
         foreach (array_chunk($userData, 500) as $chunk) {
-            DB::table('users')->upsert($chunk, ['personnel_code']);
+            DB::table('users')->upsert($chunk, ['username']);
         }
 
         foreach (array_chunk($userProfile, 500) as $chunk) {
