@@ -131,7 +131,7 @@ class AuthController
 
     public function getOtpCode(PhoneNumberRequest $request)
     {
-        $user = User::whereHas('profile', function ($query) use ($request) {
+        $user = User::active()->whereHas('profile', function ($query) use ($request) {
             $query->where('mobile_number', $request->mobileNumber);
         })->first();
 
@@ -144,19 +144,18 @@ class AuthController
         }
 
         $otpCode = random_int(100000, 999999);
-        $otpExpiresAt = time() + 120;
+        $otpExpiresAt = time() + 5;
         $user->otp_code = $otpCode;
         $user->otp_expires_at = $otpExpiresAt;
         $user->save();
-        SendOtpSmsJob::dispatch($otpCode, $user->profile->mobile_number);
+        // SendOtpSmsJob::dispatch($otpCode, $user->profile->mobile_number);
         return ['otpExpiresAt' => $otpExpiresAt];
     }
 
     public function verifyUserOtp(VerifyUserOtpRequest $request)
     {
-        $user = User::whereHas('profile', function ($query) use ($request) {
-            $query->where('mobile_number', $request->mobileNumber)
-                ->orWhere('mobile_number', ltrim($request->mobileNumber, '0'));
+        $user = User::active()->whereHas('profile', function ($query) use ($request) {
+            $query->where('mobile_number', $request->mobileNumber);
         })->first();
 
         if (!$user) {
