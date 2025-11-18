@@ -13,10 +13,10 @@ class HealthCertificateUserController
     public function getImage(Request $request)
     {
         $user = Auth::user();
-        $year = $request->query('year');
-        $healthCertificate = HealthCertificate::where('year', $year)->first();
-        $healthCertificateUser = HealthCertificateUser::where('user_id', $user->id)->where('health_certificate_id', $healthCertificate->id)->first();
-        return $healthCertificateUser->image;
+        $healthCertificate = HealthCertificate::where('year', $request->query('year'))->first();
+        return HealthCertificateUser::where('user_id', $user?->id)
+            ->where('health_certificate_id', $healthCertificate?->id)
+            ->first()?->image;
     }
 
     public function downloadImage(Request $request)
