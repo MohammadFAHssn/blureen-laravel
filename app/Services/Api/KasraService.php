@@ -56,10 +56,7 @@ class KasraService
             'userCount' => count($users),
         ]);
 
-        $usersMap = User::pluck('id', 'personnel_code');
-
         $userData = [];
-        $userProfile = [];
         foreach ($users as $user) {
 
             if (strlen($user['Code']) !== 4) {
@@ -75,15 +72,26 @@ class KasraService
                 'updated_at' => now(),
             ];
 
+        }
+
+        foreach (array_chunk($userData, 500) as $chunk) {
+            DB::table('users')->upsert($chunk, ['username']);
+        }
+
+        $usersMap = User::pluck('id', 'personnel_code');
+        $userProfile = [];
+
+        foreach ($users as $user) {
+
+            if (strlen($user['Code']) !== 4) {
+                continue;
+            }
+
             $userProfile[] = [
                 'user_id' => $usersMap[$user['Code']],
                 'mobile_number' => $user['MobileNO'] ? ('0' . Str::substr((string) $user['MobileNO'], -10)) : null,
                 'updated_at' => now(),
             ];
-        }
-
-        foreach (array_chunk($userData, 500) as $chunk) {
-            DB::table('users')->upsert($chunk, ['username']);
         }
 
         foreach (array_chunk($userProfile, 500) as $chunk) {
