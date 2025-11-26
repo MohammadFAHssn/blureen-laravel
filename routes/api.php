@@ -136,8 +136,4 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::get('/{module}/{model_name}', 'get')->middleware('CheckPermission');
         });
     });
-
-    Route::get('/test', function () {
-        return 'test';
-    });
 });
