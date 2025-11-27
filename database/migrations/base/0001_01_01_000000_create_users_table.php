@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            // unique or index, nullable, default, foreignId(read more about this), primary, compound (or composite) index, full-text
+            // unique, index, nullable, default, foreignId(read more about this), primary, compound (or composite) index, full-text
             // $table->primary(['id', 'parent_id']);	Adds composite keys.
 
             $table->id();
