@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('payroll_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('payroll_slip_id')->constrained()->onDelete('cascade');
+            $table->foreignId('payroll_slip_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->string('item_title');
             $table->unique(['payroll_slip_id', 'item_title']);
             $table->text('item_value');
