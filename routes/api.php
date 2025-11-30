@@ -136,7 +136,15 @@ Route::middleware('throttle:60,1')->group(function () {
         Route::prefix('food')->group(function () {
             Route::controller(\App\Http\Controllers\Food\Kitchen\FoodController::class)->prefix('food')->group(function () {
                 Route::get('/', 'index');
-                Route::get('/get-actives', 'getActives')->middleware('role:Super Admin|employee');
+                Route::get('/get-actives', 'getActives');
+                Route::post('/', 'store');
+                Route::post('/status/{id}', 'changeStatus');
+                Route::post('/{id}', 'update');
+                Route::delete('/{id}', 'delete');
+            });
+            Route::controller(\App\Http\Controllers\Food\Kitchen\MealController::class)->prefix('meal')->group(function () {
+                Route::get('/', 'index');
+                Route::get('/get-actives', 'getActives');
                 Route::post('/', 'store');
                 Route::post('/status/{id}', 'changeStatus');
                 Route::post('/{id}', 'update');
