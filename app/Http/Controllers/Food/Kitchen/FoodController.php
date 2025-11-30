@@ -29,7 +29,7 @@ class FoodController
     protected $foodService;
 
     /**
-     * BirthdayGiftController constructor
+     * FoodController constructor
      *
      * @param FoodService $foodService
      */

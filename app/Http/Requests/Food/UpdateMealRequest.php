@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdateFoodRequest extends FormRequest
+class UpdateMealRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,8 +25,6 @@ class UpdateFoodRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'price' => 'required|integer|min:1',
-            'status' => 'nullable|integer|min:0|max:1'
         ];
     }
 
@@ -41,11 +39,6 @@ class UpdateFoodRequest extends FormRequest
             'name.required' => 'نام غذا الزامی است.',
             'name.string' => 'نام غذا باید به صورت متن باشد.',
             'name.max' => 'نام غذا نباید بیشتر از 255 کاراکتر باشد.',
-            'price.required' => 'قیمت غذا الزامی باشد.',
-            'price.integer' => 'قیمت غذا باید به صورت عدد صحیح باشد.',
-            'price.min' => 'قیمت غذا نباید کمتر از 1 باشد.',
-            'status.integer' => 'وضعیت هدیه باید به صورت عدد صحیح باشد.',
-            'status.min' => 'وضعیت هدیه نباید کمتر از 0 و بیشتر از 1 باشد.',
         ];
     }
 
