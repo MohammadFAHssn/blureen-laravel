@@ -150,6 +150,12 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::post('/{id}', 'update');
                 Route::delete('/{id}', 'delete');
             });
+            Route::controller(\App\Http\Controllers\Food\Kitchen\MealPlanController::class)->prefix('meal-plan')->group(function () {
+                Route::get('/get-for-date', 'plansForDate');
+                Route::post('/', 'store');
+                Route::post('/{id}', 'update');
+                Route::delete('/{id}', 'delete');
+            });
             Route::controller(\App\Http\Controllers\Food\FoodTestController::class)->prefix('reserve')->group(function () {
                 Route::get('/testFetch', 'testMethodFetch');
                 Route::post('/testPost', 'testMethodPost');
