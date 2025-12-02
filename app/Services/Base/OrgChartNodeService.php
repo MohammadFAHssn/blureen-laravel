@@ -20,7 +20,7 @@ class OrgChartNodeService
             ->get();
     }
 
-    public function getUserOrgPosition($userId)
+    public function getUserOrgPositions($userId)
     {
         return OrgChartNode::where('user_id', $userId)
             ->with('orgPosition')->get()->pluck('orgPosition')
@@ -31,17 +31,19 @@ class OrgChartNodeService
     {
         $orgPositionLevel = OrgPosition::find($orgPositionId)->level;
 
-        $parentNode = $this->getUserOrgChartNodes($userId)[0]->parentRecursive;
+        foreach ($this->getUserOrgChartNodes($userId) as $userOrgChartNodes) {
+            $parentNode = $userOrgChartNodes->parentRecursive;
+            $supervisor = [];
 
-        $supervisor = null;
-
-        while ($parentNode) {
-            if ($parentNode->orgPosition->level <= $orgPositionLevel) {
-                $supervisor = $parentNode->only(['user', 'orgUnit', 'orgPosition']);
-                break;
+            while ($parentNode) {
+                if ($parentNode->orgPosition->level <= $orgPositionLevel) {
+                    $supervisor[] = $parentNode->only(['user', 'orgUnit', 'orgPosition']);
+                    break;
+                }
+                $parentNode = $parentNode->parentRecursive;
             }
-            $parentNode = $parentNode->parentRecursive;
         }
+
         return $supervisor;
     }
 }
