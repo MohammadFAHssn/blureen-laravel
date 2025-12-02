@@ -2,8 +2,8 @@
 
 namespace App\Services\Base;
 
-use App\Models\Base\OrgChartNode;
 use App\Models\Base\OrgPosition;
+use App\Models\Base\OrgChartNode;
 
 class OrgChartNodeService
 {
@@ -24,16 +24,16 @@ class OrgChartNodeService
     {
         return OrgChartNode::where('user_id', $userId)
             ->with('orgPosition')->get()->pluck('orgPosition')
-            ->filter()->values()->toArray();
+            ->filter()->values();
     }
 
     public function getUserSupervisor($userId, $orgPositionId)
     {
         $orgPositionLevel = OrgPosition::find($orgPositionId)->level;
 
+        $supervisor = [];
         foreach ($this->getUserOrgChartNodes($userId) as $userOrgChartNodes) {
             $parentNode = $userOrgChartNodes->parentRecursive;
-            $supervisor = [];
 
             while ($parentNode) {
                 if ($parentNode->orgPosition->level <= $orgPositionLevel) {
