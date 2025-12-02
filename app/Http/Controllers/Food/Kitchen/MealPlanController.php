@@ -44,7 +44,6 @@ class MealPlanController
      */
     public function store(CreateMealPlanRequest $request)
     {
-        info($request);
         try {
             $data = $this->mealPlanService->createMealPlan($request->validated());
 
