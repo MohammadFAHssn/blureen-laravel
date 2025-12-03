@@ -13,9 +13,7 @@ return new class extends Migration
     {
         Schema::create('meal_plans', function (Blueprint $table) {
             $table->id();
-            $table->string('year');
-            $table->string('month');
-            $table->string('day');
+            $table->date('date');
             $table->unsignedInteger('meal_id');
             $table->unsignedInteger('food_id');
             $table->unsignedInteger('created_by');
