@@ -1,9 +1,8 @@
 <?php
-
 namespace App\Services\Base;
 
-use App\Models\Base\OrgPosition;
 use App\Models\Base\OrgChartNode;
+use App\Models\Base\OrgPosition;
 
 class OrgChartNodeService
 {
@@ -15,7 +14,7 @@ class OrgChartNodeService
                 'childrenRecursive',
                 'parentRecursive',
                 'orgPosition',
-                'orgUnit'
+                'orgUnit',
             ])
             ->get();
     }
@@ -23,8 +22,11 @@ class OrgChartNodeService
     public function getUserOrgPositions($userId)
     {
         return OrgChartNode::where('user_id', $userId)
-            ->with('orgPosition')->get()->pluck('orgPosition')
-            ->filter()->values();
+            ->with('orgPosition')
+            ->get()
+            ->pluck('orgPosition')
+            ->filter()
+            ->values();
     }
 
     public function getUserSupervisor($userId, $orgPositionId)
