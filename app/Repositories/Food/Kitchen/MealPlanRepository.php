@@ -37,7 +37,7 @@ class MealPlanRepository
      */
     public function getAllForDate($data)
     {
-        return MealPlan::where('year', $data['year'])->where('month', $data['month'])->where('day', $data['day'])->with('createdBy', 'editedBy')->get();
+        return MealPlan::where('date', $data['date'])->with('createdBy', 'editedBy')->get();
     }
 
     /**
@@ -80,13 +80,13 @@ class MealPlanRepository
     }
 
     /**
-     * Check if there's a meal plan with the same year, month, day and meal Id
+     * Check if there's a meal plan with the same date and meal Id
      *
      * @param array $data
      * @return bool
      */
     public function mealPlanExist(array $data)
     {
-        return MealPlan::where('year', $data['year'])->where('month', $data['month'])->where('day', $data['day'])->where('meal_id', $data['meal_id'])->exists();
+        return MealPlan::where('date', $data['date'])->where('meal_id', $data['meal_id'])->exists();
     }
 }
