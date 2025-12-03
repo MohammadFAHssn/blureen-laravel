@@ -32,7 +32,7 @@ class MealPlanService
      */
     public function createMealPlan($request)
     {
-        // Check for meal plan existence with same year, month, day and meal Id
+        // Check for meal plan existence with same date and meal Id
         if ($this->mealPlanRepository->mealPlanExist(
             $request
         )) {
@@ -101,9 +101,7 @@ class MealPlanService
     protected function formatMealPlanPayload(MealPlan $mealPlan): array
     {
         return [
-            'year' => $mealPlan->year,
-            'month' => $mealPlan->month,
-            'day' => $mealPlan->day,
+            'date' => $mealPlan->date,
             'meal' => $mealPlan->meal ? [
                 'id' => $mealPlan->meal->id,
                 'name' => $mealPlan->meal->name,
@@ -113,7 +111,6 @@ class MealPlanService
                 'name' => $mealPlan->food->name,
                 'price' => $mealPlan->food->price,
             ] : null,
-            'day' => $mealPlan->day,
             'createdBy' => $mealPlan->createdBy ? [
                 'id' => $mealPlan->createdBy->id,
                 'fullName' => $mealPlan->createdBy->first_name . ' ' . $mealPlan->createdBy->last_name,
