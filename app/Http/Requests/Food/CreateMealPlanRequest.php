@@ -24,9 +24,7 @@ class CreateMealPlanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'year' => 'required|integer|min:1,max:1000000',
-            'month' => 'required|integer|min:1,max:12',
-            'day' => 'required|integer|min:1,max:31',
+            'date' => 'required|date',  // e.g. Y-m-d
             'meal_id' => 'required|integer|exists:meals,id',
             'food_id' => 'required|integer|exists:foods,id',
         ];
@@ -40,18 +38,8 @@ class CreateMealPlanRequest extends FormRequest
     public function messages()
     {
         return [
-            'year.required' => 'سال الزامی است.',
-            'year.integer' => 'سال باید به صورت عدد باشد.',
-            'year.min' => 'سال معتبر نیست.',
-            'year.max' => 'سال نباید بیشتر از 1000000 باشد.',
-            'month.required' => 'ماه الزامی است.',
-            'month.integer' => 'ماه باید به صورت عدد باشد.',
-            'month.min' => 'ماه نمی‌تواند کمتر از 1 باشد.',
-            'month.max' => 'ماه نمی‌تواند بیشتر از 12 باشد.',
-            'day.required' => 'روز الزامی است.',
-            'day.integer' => 'روز باید به صورت عدد باشد.',
-            'day.min' => 'روز نمی‌تواند کمتر از 1 باشد.',
-            'day.max' => 'روز نمی‌تواند بیشتر از 31 باشد.',
+            'date.required' => 'تاریخ الزامی است.',
+            'date.date' => 'فرمت تاریخ معتبر نیست.',
             'meal_id.required' => 'وعده غذایی الزامی است.',
             'meal_id.integer' => 'وعده غذایی باید عدد باشد.',
             'meal_id.exists' => 'وعده غذایی انتخاب‌شده معتبر نیست.',
