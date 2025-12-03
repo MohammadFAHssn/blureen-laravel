@@ -37,6 +37,11 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::controller(\App\Http\Controllers\Base\ApprovalFlowController::class)->prefix('/approval-flow')->group(function () {
                 Route::post('/update', 'update')->middleware('permission:edit Approval-Flows');
             });
+
+            Route::controller(\App\Http\Controllers\Base\OrgChartNodeController::class)->prefix('/org-chart-node')->group(function () {
+                // TODO: middleware
+                Route::get('', 'get');
+            });
         });
 
         Route::prefix('/payroll')->group(function () {

@@ -6,6 +6,25 @@ use App\Models\Base\OrgPosition;
 
 class OrgChartNodeService
 {
+    public function get()
+    {
+        $nodes = OrgChartNode::with([
+            'user:id,first_name,last_name,personnel_code',
+            'orgPosition',
+            'orgUnit',
+        ])->get();
+
+        return $nodes->groupBy(function ($node) {
+            return $node->org_position_id . '-' . $node->org_unit_id . '-' . $node->parent_id;
+        })->map(function ($group) {
+            $first = $group->first();
+            $first->users = $group->pluck('user')->filter()->values();
+            unset($first->user);
+            unset($first->user_id);
+            return $first;
+        })->values();
+    }
+
     public function getUserOrgChartNodes($userId)
     {
         return OrgChartNode::where('user_id', $userId)
