@@ -12,9 +12,7 @@ class MealPlan extends Model
     protected $table = 'meal_plans';
 
     protected $fillable = [
-        'year',
-        'month',
-        'day',
+        'date',
         'meal_id',
         'food_id',
         'created_by',
