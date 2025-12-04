@@ -13,14 +13,13 @@ return new class extends Migration
     {
         Schema::create('meal_reservations_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('reserved_for_personnel')->constrained('users');
-            $table->foreignId('reserved_for_contractor')->constrained('contractors');
+            $table->foreignId('meal_reservation_id')->constrained('meal_reservations')->cascadeOnDelete();
+            $table->foreignId('reserved_for_personnel')->nullable()->constrained('users');
+            $table->foreignId('reserved_for_contractor')->nullable()->constrained('contractors');
             $table->foreignId('food_id')->constrained('foods');
             $table->unsignedBigInteger('food_price');
-            $table->string('reserve_type');  // 'personnel', 'contractor', 'guest'
-            $table->foreignId('supervisor_id')->constrained('users');
-            $table->unsignedBigInteger('delivery_code')->unique();
-            $table->text('description')->nullable();
+            $table->unsignedInteger('quantity')->default(1);
+            $table->boolean('delivery_status')->default(0);
             $table->foreignId('created_by')->constrained('users');
             $table->foreignId('edited_by')->nullable()->constrained('users');
             $table->timestamps();
