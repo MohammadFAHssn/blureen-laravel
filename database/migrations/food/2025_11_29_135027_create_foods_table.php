@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->boolean('status')->default(1);
             $table->unsignedBigInteger('price');
-            $table->unsignedInteger('created_by');
-            $table->unsignedInteger('edited_by')->nullable();
+            $table->foreignId('created_by')->constrained('users');
+            $table->foreignId('edited_by')->nullable()->constrained('users');
             $table->timestamps();
         });
     }
