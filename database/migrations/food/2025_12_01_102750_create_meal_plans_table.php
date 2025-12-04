@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('meal_plans', function (Blueprint $table) {
             $table->id();
             $table->date('date');
-            $table->unsignedInteger('meal_id');
-            $table->unsignedInteger('food_id');
-            $table->unsignedInteger('created_by');
-            $table->unsignedInteger('edited_by')->nullable();
+            $table->foreignId('meal_id')->constrained('meals');
+            $table->foreignId('food_id')->constrained('foods');
+            $table->foreignId('created_by')->constrained('users');
+            $table->foreignId('edited_by')->nullable()->constrained('users');
             $table->timestamps();
         });
     }
