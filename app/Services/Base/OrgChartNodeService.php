@@ -25,8 +25,10 @@ class OrgChartNodeService
         })->values();
     }
 
-    public function getUserOrgChartNodes($userId)
+    public function getUserOrgChartNodes($data)
     {
+        $userId = $data['user_id'];
+
         return OrgChartNode::where('user_id', $userId)
             ->with([
                 'user:id,first_name,last_name,personnel_code',

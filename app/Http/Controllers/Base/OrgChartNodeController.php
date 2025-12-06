@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Base;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\Base\UserIdRequest;
 use App\Services\Base\OrgChartNodeService;
 
 class OrgChartNodeController
@@ -17,5 +17,10 @@ class OrgChartNodeController
     public function get()
     {
         return response()->json(['data' => $this->orgChartNodeService->get()], 200);
+    }
+
+    public function getUserOrgChartNodes(UserIdRequest $request)
+    {
+        return response()->json(['data' => $this->orgChartNodeService->getUserOrgChartNodes($request->validated())]);
     }
 }
