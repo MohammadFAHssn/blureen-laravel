@@ -19,45 +19,47 @@ Route::middleware('throttle:60,1')->group(function () {
     });
 
     Route::middleware('JwtMiddleware')->group(function () {
-        // Route::controller(\App\Http\Controllers\Api\RayvarzController::class)->prefix('/rayvarz')->group(function () {
-        //     Route::post('/sync/{module}/{model_name}', 'sync');
-        // });
-
-        // Route::controller(\App\Http\Controllers\Api\KasraController::class)->prefix('/kasra')->group(function () {
-        //     Route::post('/sync', 'sync');
-        // });
 
         Route::controller(\App\Http\Controllers\Commerce\TenderController::class)->prefix('/commerce/tender')->group(function () {
             Route::get('/get-actives', 'getActives')->middleware('permission:read Active-Tenders');
         });
 
-        Route::controller(\App\Http\Controllers\Base\UserRoleController::class)->prefix('/base/user-role')->group(function () {
-            Route::post('/update', 'update')->middleware('permission:edit User-Roles');
+        Route::prefix('/base')->group(function () {
+            Route::controller(\App\Http\Controllers\Base\UserRoleController::class)->prefix('/user-role')->group(function () {
+                Route::post('/update', 'update')->middleware('permission:edit User-Roles');
+            });
+
+            Route::controller(\App\Http\Controllers\Base\UserController::class)->prefix('/user')->group(function () {
+                Route::get('/approval-flows-as-requester', 'getApprovalFlowsAsRequester')->middleware('permission:read Approval-Flows');
+                Route::post('/reset-password', 'resetPassword');
+            });
+
+            Route::controller(\App\Http\Controllers\Base\ApprovalFlowController::class)->prefix('/approval-flow')->group(function () {
+                Route::post('/update', 'update')->middleware('permission:edit Approval-Flows');
+            });
+
+            Route::controller(\App\Http\Controllers\Base\OrgChartNodeController::class)->prefix('/org-chart-node')->group(function () {
+                // TODO: middleware
+                Route::get('', 'get');
+                Route::get('/user-org-chart-nodes', 'getUserOrgChartNodes');
+            });
         });
 
-        Route::controller(\App\Http\Controllers\Payroll\PayrollBatchController::class)->prefix('/payroll/payroll-batch')->group(function () {
-            Route::post('/create', 'create')->middleware('permission:create Payroll-Batch');
-            Route::delete('/', 'delete')->middleware('permission:delete Payroll-Batches');
-        });
+        Route::prefix('/payroll')->group(function () {
+            Route::controller(\App\Http\Controllers\Payroll\PayrollBatchController::class)->prefix('/payroll-batch')->group(function () {
+                Route::post('/create', 'create')->middleware('permission:create Payroll-Batch');
+                Route::delete('/', 'delete')->middleware('permission:delete Payroll-Batches');
+            });
 
-        Route::controller(\App\Http\Controllers\Payroll\PayrollSlipController::class)->prefix('/payroll/payroll-slip')->group(function () {
-            Route::get('/get-the-last-few-months', 'getTheLastFewMonths')->middleware('role:Super Admin|employee');
-            // Route::get('print', 'print')->middleware('role:Super Admin|employee');
-            Route::get('reports', 'getReports')->middleware('permission:read Payroll-Batches');
+            Route::controller(\App\Http\Controllers\Payroll\PayrollSlipController::class)->prefix('/payroll-slip')->group(function () {
+                Route::get('/get-the-last-few-months', 'getTheLastFewMonths')->middleware('role:Super Admin|employee');
+                // Route::get('print', 'print')->middleware('role:Super Admin|employee');
+                Route::get('reports', 'getReports')->middleware('permission:read Payroll-Batches');
+            });
         });
 
         Route::controller(\App\Http\Controllers\PersonnelRecords\PersonnelRecordsController::class)->prefix('/personnel-records')->group(function () {
             Route::get('/get-by-personnel_code', 'getPersonnelRecords')->middleware('permission:read Personnel-Records');
-        });
-
-        Route::controller(\App\Http\Controllers\Base\UserController::class)->prefix('/base/user')->group(function () {
-            Route::get('/approval-flows-as-requester', 'getApprovalFlowsAsRequester')->middleware('permission:read Approval-Flows');
-            Route::post('/reset-password', 'resetPassword');
-        });
-
-        Route::controller(\App\Http\Controllers\Base\ApprovalFlowController::class)->prefix('/base/approval-flow')->group(function () {
-            Route::post('/update', 'update')->middleware('permission:edit Approval-Flows');
-            Route::post('/get-sub-users', 'getSubUsers');
         });
 
         Route::controller(\App\Http\Controllers\Survey\SurveyController::class)->prefix('/survey/survey')->group(function () {
