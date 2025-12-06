@@ -16,6 +16,7 @@ class MealReservation extends Model
         'supervisor_id',  // created_by for now, may change in future - in future use, this means personnel x reserved food for staff, contractor or guest related to personnel y
         'delivery_code',
         'description',  // mandatory only for guest
+        'status',
         'created_by',
         'edited_by',
     ];
@@ -23,9 +24,9 @@ class MealReservation extends Model
     protected $casts = [
         'date'          => 'date',
         'meal_id'       => 'integer',
-        'reserve_type'  => 'string',
         'supervisor_id' => 'integer',
         'delivery_code' => 'integer',
+        'status'        => 'boolean',
         'created_by'    => 'integer',
         'edited_by'     => 'integer',
     ];
