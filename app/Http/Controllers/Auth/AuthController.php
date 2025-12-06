@@ -131,9 +131,8 @@ class AuthController
 
     public function getOtpCode(PhoneNumberRequest $request)
     {
-        $user = User::whereHas('profile', function ($query) use ($request) {
-            $query->where('mobile_number', $request->mobileNumber)
-                ->orWhere('mobile_number', ltrim($request->mobileNumber, '0'));
+        $user = User::active()->whereHas('profile', function ($query) use ($request) {
+            $query->where('mobile_number', $request->mobileNumber);
         })->first();
 
         if (!$user) {
@@ -155,9 +154,8 @@ class AuthController
 
     public function verifyUserOtp(VerifyUserOtpRequest $request)
     {
-        $user = User::whereHas('profile', function ($query) use ($request) {
-            $query->where('mobile_number', $request->mobileNumber)
-                ->orWhere('mobile_number', ltrim($request->mobileNumber, '0'));
+        $user = User::active()->whereHas('profile', function ($query) use ($request) {
+            $query->where('mobile_number', $request->mobileNumber);
         })->first();
 
         if (!$user) {

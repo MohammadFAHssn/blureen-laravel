@@ -10,12 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('payroll_items', function (Blueprint $table) {
+        Schema::create('evaluation_question_options', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('payroll_slip_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
-            $table->string('item_title');
-            $table->unique(['payroll_slip_id', 'item_title']);
-            $table->text('item_value');
+
+            $table->string('option_title')->unique();
+
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('payroll_items');
+        Schema::dropIfExists('evaluation_question_options');
     }
 };

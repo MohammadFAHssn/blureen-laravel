@@ -183,7 +183,6 @@ class RayvarzService
                 'father_name' => $user['fatherName'],
                 'birth_place' => $rayvarzCities->firstWhere('rayvarz_id', $user['birthPlaceId'])['name'] ?? null,
                 'birth_date' => jalalianYmdDateToCarbon($user['birthDate']),
-                'mobile_number' => $user['mobile'],
                 'marital_status' => $this->getMaritalStatusById($user['mariageStatusId']),
                 'employment_date' => jalalianYmdDateToCarbon($user['employmentDate']),
                 'start_date' => jalalianYmdDateToCarbon($user['assignmentStartDate']),
@@ -197,7 +196,7 @@ class RayvarzService
         }
 
         foreach (array_chunk($userData, 500) as $chunk) {
-            DB::table('users')->upsert($chunk, ['personnel_code']);
+            DB::table('users')->upsert($chunk, ['username']);
         }
 
         foreach (array_chunk($userProfile, 500) as $chunk) {

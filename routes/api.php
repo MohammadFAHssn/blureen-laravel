@@ -74,6 +74,11 @@ Route::middleware('throttle:60,1')->group(function () {
 
             Route::controller(\App\Http\Controllers\Evaluation\EvaluationQuestionController::class)->prefix('/evaluation-question')->group(function () {
                 Route::get('/actives', 'getActives')->middleware('role:Super Admin|employee');
+                Route::get('/self-evaluation', 'getSelfEvaluation')->middleware('role:Super Admin|employee');
+            });
+
+            Route::controller(\App\Http\Controllers\Evaluation\SelfEvaluationController::class)->prefix('/self-evaluation')->group(function () {
+                Route::post('create', 'evaluate')->middleware('role:Super Admin|employee');
             });
 
             Route::controller(\App\Http\Controllers\Evaluation\EvaluationScoreController::class)->prefix('/evaluation-score')->group(function () {
@@ -109,6 +114,25 @@ Route::middleware('throttle:60,1')->group(function () {
             });
         });
 
+        // HSE Routes
+        Route::prefix('hse')->group(function () {
+            Route::prefix('health-certificate')->group(function () {
+                Route::controller(\App\Http\Controllers\HSE\HealthCertificateController::class)->prefix('file')->group(function () {
+                    Route::post('/', 'store');
+                    Route::get('/', 'index');
+                    Route::post('/image', 'image');
+                    Route::post('/{id}', 'update');
+                    Route::delete('/{id}', 'delete');
+                    Route::get('/{id}', 'show');
+                });
+
+                Route::controller(\App\Http\Controllers\HSE\HealthCertificateUserController::class)->prefix('user')->group(function () {
+                    Route::get('/image', 'getImage');
+                    Route::get('/image/download', 'downloadImage');
+                });
+            });
+        });
+
         // TODO: add middleware
         Route::controller(\App\Http\Controllers\HrRequest\HrRequestController::class)->prefix('/hr-request')->group(function (){
            Route::post('/requests/create','create');
@@ -127,9 +151,5 @@ Route::middleware('throttle:60,1')->group(function () {
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
             Route::get('/{module}/{model_name}', 'get')->middleware('CheckPermission');
         });
-    });
-
-    Route::get('/test', function () {
-        return 'test';
     });
 });

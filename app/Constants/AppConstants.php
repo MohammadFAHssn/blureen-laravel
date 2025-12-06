@@ -6,6 +6,12 @@ class AppConstants
 {
     public const MAX_FILE_SIZE = '5120';
 
+    public const QUESTION_TYPES = [
+        'RATING' => 1,
+        'SINGLE_CHOICE' => 2,
+        'MULTIPLE_CHOICE' => 3,
+        'OPEN_ENDED' => 4,
+    ];
     public const MAX_HOURLY_LEAVE_MINUTES = 210;
     public const HR_REQUEST_PENDING_STATUS = 1;
     public const HR_REQUEST_APPROVED_STATUS = 2;

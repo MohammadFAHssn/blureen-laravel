@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('payroll_slips', function (Blueprint $table) {
             $table->id();
             $table->foreignId('batch_id')->constrained('payroll_batches')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('restrict');
+            $table->foreignId('user_id')->constrained()->onDelete('restrict')->onUpdate('cascade');
             $table->unique(['batch_id', 'user_id']);
             $table->timestamps();
         });

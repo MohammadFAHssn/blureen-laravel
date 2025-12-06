@@ -20,4 +20,9 @@ class Evaluatee extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function scores()
+    {
+        return $this->hasMany(EvaluationScore::class);
+    }
 }
