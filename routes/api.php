@@ -42,6 +42,8 @@ Route::middleware('throttle:60,1')->group(function () {
                 // TODO: middleware
                 Route::get('', 'get');
                 Route::get('/user-org-chart-nodes', 'getUserOrgChartNodes');
+                Route::get('/user-child', 'getUserChild');
+                Route::get('/user-and-child', 'getUserAndChild');
             });
         });
 
