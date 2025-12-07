@@ -1,8 +1,9 @@
 <?php
 namespace App\Services\Base;
 
-use App\Models\Base\OrgChartNode;
+use App\Models\User;
 use App\Models\Base\OrgPosition;
+use App\Models\Base\OrgChartNode;
 
 class OrgChartNodeService
 {
@@ -38,6 +39,45 @@ class OrgChartNodeService
                 'orgUnit',
             ])
             ->get();
+    }
+
+    public function getUserChild($data)
+    {
+        $userId = $data['user_id'];
+        $userOrgChartNodes = $this->getUserOrgChartNodes(['user_id' => $userId]);
+
+        if ($userOrgChartNodes->isEmpty()) {
+            return collect();
+        }
+
+        $child = collect();
+        foreach ($userOrgChartNodes as $node) {
+            $child = $child->merge($this->getUserChildRecursive($node));
+        }
+
+        return $child->unique('id')->values();
+    }
+
+    private function getUserChildRecursive($userOrgChartNode)
+    {
+        $child = collect();
+
+        foreach ($userOrgChartNode->childrenRecursive as $children) {
+            $child->push($children->user);
+            $child = $child->merge($this->getUserChildRecursive($children));
+        }
+
+        return $child;
+    }
+
+    public function getUserAndChild($data)
+    {
+        $userId = $data['user_id'];
+        $user = User::where('id', $userId)->select('id', 'first_name', 'last_name', 'personnel_code')->first();
+
+        $userChild = $this->getUserChild(['user_id' => $userId]);
+
+        return $userChild->prepend($user)->values();
     }
 
     public function getUserOrgPositions($userId)

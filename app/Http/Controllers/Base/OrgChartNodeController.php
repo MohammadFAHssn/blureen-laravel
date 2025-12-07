@@ -23,4 +23,14 @@ class OrgChartNodeController
     {
         return response()->json(['data' => $this->orgChartNodeService->getUserOrgChartNodes($request->validated())]);
     }
+
+    public function getUserChild(UserIdRequest $request)
+    {
+        return response()->json(['data' => $this->orgChartNodeService->getUserChild($request->validated())]);
+    }
+
+    public function getUserAndChild(UserIdRequest $request)
+    {
+        return response()->json(['data' => $this->orgChartNodeService->getUserAndChild($request->validated())]);
+    }
 }
