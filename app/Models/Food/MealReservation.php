@@ -22,13 +22,13 @@ class MealReservation extends Model
     ];
 
     protected $casts = [
-        'date'          => 'date',
-        'meal_id'       => 'integer',
+        'date' => 'date:Y/m/d',
+        'meal_id' => 'integer',
         'supervisor_id' => 'integer',
         'delivery_code' => 'integer',
-        'status'        => 'boolean',
-        'created_by'    => 'integer',
-        'edited_by'     => 'integer',
+        'status' => 'boolean',
+        'created_by' => 'integer',
+        'edited_by' => 'integer',
     ];
 
     public function createdBy()
@@ -54,5 +54,20 @@ class MealReservation extends Model
     public function details()
     {
         return $this->hasMany(MealReservationDetail::class, 'meal_reservation_id');
+    }
+
+    public function scopePersonnel($query)
+    {
+        return $query->where('reserve_type', 'personnel');
+    }
+
+    public function scopeContractor($query)
+    {
+        return $query->where('reserve_type', 'contractor');
+    }
+
+    public function scopeGuest($query)
+    {
+        return $query->where('reserve_type', 'guest');
     }
 }
