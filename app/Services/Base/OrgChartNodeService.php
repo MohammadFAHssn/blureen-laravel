@@ -1,6 +1,7 @@
 <?php
 namespace App\Services\Base;
 
+use App\Models\Base\LiaisonOrgUnit;
 use App\Models\User;
 use App\Models\Base\OrgPosition;
 use App\Models\Base\OrgChartNode;
@@ -78,6 +79,31 @@ class OrgChartNodeService
         $userChild = $this->getUserChild(['user_id' => $userId]);
 
         return $userChild->prepend($user)->values();
+    }
+
+    public function getLiaisonChild($data)
+    {
+        $userId = $data['user_id'];
+
+        $LiaisonOrgUnits = LiaisonOrgUnit::where('user_id', $userId)->with('liaisonUsers')->get();
+
+        $liaisonUsers = collect();
+        foreach ($LiaisonOrgUnits as $LiaisonOrgUnit) {
+            $liaisonUsers = $liaisonUsers->merge($LiaisonOrgUnit->liaisonUsers->select('id', 'first_name', 'last_name', 'personnel_code'));
+        }
+
+        return $liaisonUsers->unique('id')->values();
+    }
+
+
+    public function getUserSubordinates($data)
+    {
+        $userId = $data['user_id'];
+
+        $userAndChild = $this->getUserAndChild(['user_id' => $userId]);
+        $liaisonChild = $this->getLiaisonChild(['user_id' => $userId]);
+
+        return $userAndChild->merge($liaisonChild)->unique('id')->values();
     }
 
     public function getUserOrgPositions($userId)

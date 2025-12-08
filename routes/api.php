@@ -41,9 +41,7 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::controller(\App\Http\Controllers\Base\OrgChartNodeController::class)->prefix('/org-chart-node')->group(function () {
                 // TODO: middleware
                 Route::get('', 'get');
-                Route::get('/user-org-chart-nodes', 'getUserOrgChartNodes');
-                Route::get('/user-child', 'getUserChild');
-                Route::get('/user-and-child', 'getUserAndChild');
+                Route::get('/user-subordinates', 'getUserSubordinates');
             });
         });
 
