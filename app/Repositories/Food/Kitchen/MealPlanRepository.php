@@ -80,18 +80,17 @@ class MealPlanRepository
     }
 
     /**
-     * Get a by date and ID
+     * Get a meal plan by date and meal Id.
      *
      * @param string $date
-     * @param int $mealId
-     * @return MealPlan
-     * @throws ModelNotFoundException
+     * @param int    $mealId
+     * @return MealPlan|null
      */
-    public function findByDateAndId($date, $mealId): MealPlan
+    public function findByDateAndId(string $date, int $mealId): ?MealPlan
     {
         return MealPlan::where('date', $date)
             ->where('meal_id', $mealId)
-            ->firstOrFail();
+            ->first();
     }
 
     /**
