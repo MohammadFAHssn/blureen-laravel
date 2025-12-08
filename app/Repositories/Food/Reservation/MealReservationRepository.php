@@ -43,35 +43,15 @@ class MealReservationRepository
     }
 
     /**
-     * Get all meal reservations
-     *
-     * @return array
-     */
-    public function getAll()
-    {
-        return MealReservation::with('createdBy', 'editedBy')->get();
-    }
-
-    /**
-     * Get all meal reservations for a date
+     * Get all meal reservations for personnel by a user on a date
      *
      * @param array $data
      * @return array
      */
-    public function getAllForDate($data)
+    public function getAllForPersonnelByUserOnDate($data)
     {
-        return MealReservation::where('date', $data['date'])->with('createdBy', 'editedBy')->get();
-    }
-
-    /**
-     * Get all meal reservations for a user on date
-     *
-     * @param array $data
-     * @return array
-     */
-    public function getAllForUserOnDate($data)
-    {
-        return MealReservation::where('created_by', $data['user_id'])->where('date', $data['date'])->with('createdBy', 'editedBy')->get();
+        $id = Auth::id();
+        return MealReservation::personnel()->where('date', $data)->where('created_by', $id)->with('meal', 'details', 'createdBy', 'editedBy')->get();
     }
 
     /**
@@ -111,6 +91,16 @@ class MealReservationRepository
     public function findById(int $id): MealReservation
     {
         return MealReservation::findOrFail($id);
+    }
+
+    /**
+     * Get all meal reservations by date
+     *
+     * @param $date
+     */
+    public function findByDate($date)
+    {
+        return MealReservation::where('date', $date)->get();
     }
 
     /**
