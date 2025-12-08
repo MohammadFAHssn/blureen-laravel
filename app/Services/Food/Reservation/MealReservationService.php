@@ -57,7 +57,7 @@ class MealReservationService
                 $foodId = 1;
                 $foodPrice = 1;
             }
-            
+
             // create reservation
             $payload = $request;
             $payload['date'] = $date;
@@ -87,45 +87,70 @@ class MealReservationService
                 $detail['quantity'] = $request['quantity'];
                 $this->mealReservationDetailRepository->create($detail);
             }
-            
+
             $mealReservations[] = $this->formatMealReservationPayload($mealReservation);
         }
         return $mealReservations;
     }
 
     /**
-     * Get all meal reservations
-     *
-     * @return array
-     */
-    public function getAllMealReservations()
-    {
-        $mealReservations = $this->mealReservationRepository->getAll();
-        return $this->formatMealReservationsListPayload($mealReservations);
-    }
-
-    /**
-     * Get all meal reservations for a date
+     * Get all meal reservations for personnel by a user on a date
      *
      * @param array $data
      * @return array
      */
-    public function getAllMealReservationsForDate($request)
+    public function getAllMealReservationsForPersonnelByUserOnDate($request)
     {
-        $mealReservations = $this->mealReservationRepository->getAllForDate($request);
-        return $this->formatMealReservationsListPayload($mealReservations);
+        $mealReservationsForAllDates = [];
+        foreach ($request['date'] as $date) {
+            $mealReservationsForDate = $this->mealReservationRepository->getAllForPersonnelByUserOnDate($date);
+            // $mealReservationsForDate = $this->formatMealReservationsListPayload($mealReservationsForDate);
+            $mealReservationsForAllDates[] = $mealReservationsForDate;
+        }
+        return $mealReservationsForAllDates;
+        // return $this->formatMealReservationsListPayload($mealReservations);
     }
 
     /**
-     * Get all meal reservations for a user on date
+     * Get all meal reservations for a user on a date
      *
      * @param array $data
      * @return array
      */
-    public function getAllMealReservationsForUserOnDate($request)
+    public function getAllMealReservationsForUserByOthersOnDate($request)
     {
-        $mealReservations = $this->mealReservationRepository->getAllForUserOnDate($request);
-        return $this->formatMealReservationsListPayload($mealReservations);
+        $result = [];
+
+        foreach ($request['date'] as $date) {
+            // Get all reservations for this date
+            $reservations = $this->mealReservationRepository->findByDate($date);
+
+            foreach ($reservations as $reservation) {
+                // Load details for this reservation ID
+                $details = $this->mealReservationDetailRepository->findByReservationIdUserId($reservation->id);
+                if ($details->isNotEmpty()) {
+                    // $result[] = $details;
+                    // /////////////////////////
+                    foreach ($details as $detail) {
+                        $result[] = [
+                            'createdBy' => trim(
+                                ($detail->createdBy->first_name ?? '') . ' '
+                                . ($detail->createdBy->last_name ?? '')
+                            ),
+                            'personnelCode' => $detail->createdBy->personnel_code ?? null,
+                            'deliveryStatus' => $detail->delivery_status ?? null,
+                            'reservation' => $detail->reservation ? [
+                                'mealName' => $detail->reservation->meal->name ?? null,
+                                'date' => $detail->reservation->date?->format('Y/m/d'),
+                            ] : null,
+                        ];
+                    }
+                    // /////////////////////////
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -168,10 +193,30 @@ class MealReservationService
                 'name' => $mealReservation->meal->name,
             ] : null,
             'supervisor' => $mealReservation->supervisor ? [
-                'personneCode' => $mealReservation->supervisor->personne_code,
+                'personneCode' => $mealReservation->supervisor->personnel_code,
                 'fullName' => $mealReservation->supervisor->first_name . $mealReservation->supervisor->last_name,
             ] : null,
-            'details' => $mealReservation->details ?: null,
+            //
+            'details' => $mealReservation->details->map(function ($detail) {
+                return [
+                    'id' => $detail->id,
+                    'reservedForPersonnel' => $detail->personnel ? [
+                        'fullName' => $detail->personnel->first_name . $detail->personnel->last_name,
+                        'personnelCode' => $detail->personnel->personnel_code,
+                    ] : null,
+                    'reservedForContractor' => $detail->contractor ? [
+                        'fullName' => $detail->contractor->first_name . $detail->contractor->last_name,
+                        'nationalCode' => $detail->contractor->national_code,
+                        'mobileNumber' => $detail->contractor->mobile_number,
+                    ] : null,
+                    'food' => [
+                        'id' => $detail->food_id,
+                        'quantity' => $detail->quantity,
+                    ],
+                    'deliveryStatus' => $detail->delivery_status,
+                ];
+            })->toArray(),
+            //
             'createdBy' => $mealReservation->createdBy ? [
                 'id' => $mealReservation->createdBy->id,
                 'fullName' => $mealReservation->createdBy->first_name . ' ' . $mealReservation->createdBy->last_name,
