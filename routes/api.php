@@ -156,10 +156,6 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::post('/{id}', 'update');
                 Route::delete('/{id}', 'delete');
             });
-            Route::controller(\App\Http\Controllers\Food\FoodTestController::class)->prefix('reserve')->group(function () {
-                Route::get('/testFetch', 'testMethodFetch');
-                Route::post('/testPost', 'testMethodPost');
-            });
             Route::controller(\App\Http\Controllers\Food\Reservation\MealReservationController::class)->prefix('meal-reservation')->group(function () {
                 Route::get('/get-reservations-for-personnel-by-user-on-date', 'reservationsForPersonnelByUserOnDate');
                 Route::get('/get-reservations-for-user-by-others-on-date', 'reservationsForUserByOthersOnDate');
