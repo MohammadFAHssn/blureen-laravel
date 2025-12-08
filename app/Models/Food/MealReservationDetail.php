@@ -50,7 +50,7 @@ class MealReservationDetail extends Model
 
     public function reservation()
     {
-        return $this->belongsTo(MealReservation::class, 'meal_reservation_id');
+        return $this->belongsTo(MealReservation::class, 'meal_reservation_id')->with('meal');
     }
 
     public function personnel()
