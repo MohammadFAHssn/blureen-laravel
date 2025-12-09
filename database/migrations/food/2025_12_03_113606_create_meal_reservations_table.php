@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->foreignId('supervisor_id')->constrained('users');
             $table->unsignedBigInteger('delivery_code');
             $table->text('description')->nullable();
+            $table->string('serve_place')->nullable();
             $table->boolean('status')->default(0);
             $table->foreignId('created_by')->constrained('users');
             $table->foreignId('edited_by')->nullable()->constrained('users');
