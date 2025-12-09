@@ -167,6 +167,15 @@ Route::middleware('throttle:60,1')->group(function () {
             });
         });
 
+        // Contractor Routes
+        Route::prefix('contractor')->group(function () {
+            Route::controller(\App\Http\Controllers\Contractor\ContractorController::class)->group(function () {
+                Route::get('/', 'index');
+                Route::post('/', 'store');
+                Route::get('/get-actives', 'getActives');
+            });
+        });
+
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
             Route::get('/{module}/{model_name}', 'get')->middleware('CheckPermission');
         });
