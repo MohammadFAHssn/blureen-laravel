@@ -36,7 +36,7 @@ class CreateMealReservationRequest extends FormRequest
             'personnel.*' => 'required_if:reserve_type,personnel|integer|exists:users,id',
 
             // contractor
-            'contractor' => 'required_if:reserve_type,contractor|in:contractors,id',
+            'contractor' => 'required_if:reserve_type,contractor|integer|exist:contractors,id',
 
             // quantity (both contractor & guest)
             'quantity' => 'required_if:reserve_type,contractor,guest|integer|min:1',
@@ -81,6 +81,8 @@ class CreateMealReservationRequest extends FormRequest
 
             // contractor
             'contractor.required_if'  => 'برای نوع رزرو پیمانکار، انتخاب پیمانکار الزامی است.',
+            'contractor.integer'     => 'شناسه پیمانکار باید عدد صحیح باشد.',
+            'contractor.exists'      => 'پیمانکار انتخاب‌شده معتبر نیست.',
 
             // quantity (both contractor & guest)
             'quantity.required_if'    => 'تعداد الزامی است.',
