@@ -36,7 +36,7 @@ class CreateMealReservationRequest extends FormRequest
             'personnel.*' => 'required_if:reserve_type,personnel|integer|exists:users,id',
 
             // contractor
-            'contractor' => 'required_if:reserve_type,contractor',
+            'contractor' => 'required_if:reserve_type,contractor|in:contractors,id',
 
             // quantity (both contractor & guest)
             'quantity' => 'required_if:reserve_type,contractor,guest|integer|min:1',
