@@ -2,6 +2,7 @@
 
 namespace App\Models\Food;
 
+use App\Models\Contractor\Contractor;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
@@ -60,6 +61,6 @@ class MealReservationDetail extends Model
 
     public function contractor()
     {
-        return $this->belongsTo(User::class, 'reserved_for_contractor');
+        return $this->belongsTo(Contractor::class, 'reserved_for_contractor');
     }
 }
