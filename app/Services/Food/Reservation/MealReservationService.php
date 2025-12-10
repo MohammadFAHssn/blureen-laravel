@@ -80,7 +80,7 @@ class MealReservationService
                     $this->mealReservationDetailRepository->create($detail);
                 }
             } elseif ($request['reserve_type'] === 'contractor') {
-                $detail['reserved_for_contractor'] = $request['contractor'][0];
+                $detail['reserved_for_contractor'] = $request['contractor'];
                 $detail['quantity'] = $request['quantity'];
                 $this->mealReservationDetailRepository->create($detail);
             } else {
@@ -94,7 +94,7 @@ class MealReservationService
     }
 
     /**
-     * Get all meal reservations for personnel by a user on a date
+     * Get all meal reservations for personnel by a user on date
      *
      * @param array $data
      * @return array
@@ -104,15 +104,13 @@ class MealReservationService
         $mealReservationsForAllDates = [];
         foreach ($request['date'] as $date) {
             $mealReservationsForDate = $this->mealReservationRepository->getAllForPersonnelByUserOnDate($date);
-            // $mealReservationsForDate = $this->formatMealReservationsListPayload($mealReservationsForDate);
             $mealReservationsForAllDates[] = $mealReservationsForDate;
         }
         return $mealReservationsForAllDates;
-        // return $this->formatMealReservationsListPayload($mealReservations);
     }
 
     /**
-     * Get all meal reservations for a user on a date
+     * Get all meal reservations for a user on date
      *
      * @param array $data
      * @return array
@@ -151,6 +149,38 @@ class MealReservationService
         }
 
         return $result;
+    }
+
+    /**
+     * Get all meal reservations for contractor by a user on date
+     *
+     * @param array $data
+     * @return array
+     */
+    public function getAllMealReservationsForContractorByUserOnDate($request)
+    {
+        $mealReservationsForAllDates = [];
+        foreach ($request['date'] as $date) {
+            $mealReservationsForDate = $this->mealReservationRepository->getAllForContractorByUserOnDate($date);
+            $mealReservationsForAllDates[] = $mealReservationsForDate;
+        }
+        return $mealReservationsForAllDates;
+    }
+
+    /**
+     * Get all meal reservations for guest by a user on date
+     *
+     * @param array $data
+     * @return array
+     */
+    public function getAllMealReservationsForGuestByUserOnDate($request)
+    {
+        $mealReservationsForAllDates = [];
+        foreach ($request['date'] as $date) {
+            $mealReservationsForDate = $this->mealReservationRepository->getAllForGuestByUserOnDate($date);
+            $mealReservationsForAllDates[] = $mealReservationsForDate;
+        }
+        return $mealReservationsForAllDates;
     }
 
     /**
