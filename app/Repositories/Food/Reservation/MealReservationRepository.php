@@ -55,6 +55,30 @@ class MealReservationRepository
     }
 
     /**
+     * Get all meal reservations for contractor by a user on a date
+     *
+     * @param array $data
+     * @return array
+     */
+    public function getAllForContractorByUserOnDate($data)
+    {
+        $id = Auth::id();
+        return MealReservation::contractor()->where('date', $data)->where('created_by', $id)->with('meal', 'details', 'createdBy', 'editedBy')->get();
+    }
+
+    /**
+     * Get all meal reservations for guest by a user on a date
+     *
+     * @param array $data
+     * @return array
+     */
+    public function getAllForGuestByUserOnDate($data)
+    {
+        $id = Auth::id();
+        return MealReservation::guest()->where('date', $data)->where('created_by', $id)->with('meal', 'details', 'createdBy', 'editedBy')->get();
+    }
+
+    /**
      * Update meal reservation
      *
      * @param int $id
