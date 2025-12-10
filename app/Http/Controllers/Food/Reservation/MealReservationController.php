@@ -128,4 +128,60 @@ class MealReservationController
             return response()->json($payload, $payload['status']);
         }
     }
+
+    /**
+     * Get all meal reservations for contractor by a user on date
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function reservationsForContractorByUserOnDate(Request $request)
+    {
+        try {
+            $data = $this->mealReservationService->getAllMealReservationsForContractorByUserOnDate($request);
+
+            $payload = [
+                'data' => $data,
+                'message' => 'لیست رزروها با موفقیت دریافت شد.',
+                'status' => 200,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        } catch (Throwable $e) {
+            $payload = [
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        }
+    }
+
+    /**
+     * Get all meal reservations for guest by a user on date
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function reservationsForGuestByUserOnDate(Request $request)
+    {
+        try {
+            $data = $this->mealReservationService->getAllMealReservationsForGuestByUserOnDate($request);
+
+            $payload = [
+                'data' => $data,
+                'message' => 'لیست رزروها با موفقیت دریافت شد.',
+                'status' => 200,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        } catch (Throwable $e) {
+            $payload = [
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        }
+    }
 }
