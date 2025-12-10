@@ -54,7 +54,7 @@ class MealReservation extends Model
 
     public function details()
     {
-        return $this->hasMany(MealReservationDetail::class, 'meal_reservation_id');
+        return $this->hasMany(MealReservationDetail::class, 'meal_reservation_id')->with('food', 'contractor');
     }
 
     public function scopePersonnel($query)
