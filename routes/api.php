@@ -165,6 +165,10 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::post('/{id}', 'update');
                 Route::delete('/{id}', 'delete');
             });
+            Route::controller(\App\Http\Controllers\Food\Kitchen\FoodDeliveryController::class)->prefix('delivery')->group(function () {
+                Route::get('/', 'index');
+                Route::get('/find', 'find');
+            });
         });
 
         // Contractor Routes
