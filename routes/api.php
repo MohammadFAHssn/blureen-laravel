@@ -168,6 +168,7 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::controller(\App\Http\Controllers\Food\Kitchen\FoodDeliveryController::class)->prefix('delivery')->group(function () {
                 Route::get('/', 'index');
                 Route::get('/find', 'find');
+                Route::post('/', 'deliver');
             });
         });
 
