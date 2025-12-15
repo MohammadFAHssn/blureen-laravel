@@ -30,4 +30,20 @@ class MealReservationDetailRepository
         $userId = Auth::id();
         return MealReservationDetail::where('meal_reservation_id', $reservationId)->where('reserved_for_personnel', $userId)->with('reservation', 'createdBy', 'editedBy')->get();
     }
+
+    /**
+     * Mark undelivered reservation details as delivered, excluding specific detail IDs.
+     *
+     * @param  int    $reservationId
+     * @param  int[]  $excludeDetailIds
+     * @return int  Number of updated rows.
+     */
+    public function markDeliveredExcept(int $reservationId, array $excludeDetailIds = []): int
+    {
+        return MealReservationDetail::query()
+            ->where('meal_reservation_id', $reservationId)
+            ->where('delivery_status', false)
+            ->when(!empty($excludeDetailIds), fn($q) => $q->whereNotIn('id', $excludeDetailIds))
+            ->update(['delivery_status' => true]);
+    }
 }
