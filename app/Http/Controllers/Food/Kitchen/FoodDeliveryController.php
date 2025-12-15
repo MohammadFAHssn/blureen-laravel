@@ -34,7 +34,45 @@ class FoodDeliveryController
     }
 
     /**
-     * find a undelivered meal reservation by date and delivery code
+     * deliver a meal reservation
+     *
+     * @param Request $request
+     * @param FindMealReservationRequest $request
+     * @return JsonResponse
+     */
+    public function deliver(Request $request)
+    {
+        try {
+            $data = $this->foodDeliveryService->deliverMealReservation($request);
+
+            $payload = [
+                'data' => $data,
+                'message' => 'اطلاعات با موفقیت ارسال شد.',
+                'status' => 201,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        } catch (ValidationException $e) {
+            $payload = [
+                'errors' => $e->errors(),
+                'message' => 'اطلاعات وارد شده معتبر نیست.',
+                'status' => 422,
+                'code' => 'VALIDATION_ERROR',
+            ];
+
+            return response()->json($payload, $payload['status']);
+        } catch (Throwable $e) {
+            $payload = [
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        }
+    }
+
+    /**
+     * find a meal reservation by date and delivery code
      *
      * @param Request $request
      * @param FindMealReservationRequest $request
@@ -43,7 +81,7 @@ class FoodDeliveryController
     public function find(FindMealReservationRequest $request)
     {
         try {
-            $data = $this->foodDeliveryService->findUndeliveredMealReservation($request->validated());
+            $data = $this->foodDeliveryService->findMealReservation($request->validated());
 
             $payload = [
                 'data' => $data,
@@ -72,14 +110,14 @@ class FoodDeliveryController
     }
 
     /**
-     * Get all undelivered meal reservations on a date
+     * Get all delivered and undelivered meal reservations on a date
      *
      * @return JsonResponse
      */
     public function index(Request $request)
     {
         try {
-            $data = $this->foodDeliveryService->getAllUndeliveredMealReservationsOnDate($request->toArray());
+            $data = $this->foodDeliveryService->getAllMealReservationsOnDate($request->toArray());
 
             $payload = [
                 'data' => $data,
