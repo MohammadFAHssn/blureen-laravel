@@ -79,12 +79,12 @@ class MealReservationRepository
     }
 
     /**
-     * Get all undelivered meal reservations on a date
+     * Get all meal reservations on a date
      *
      * @param array $data
      * @return array
      */
-    public function getAllUndeliveredOnDate($data)
+    public function getAllOnDate($data)
     {
         return MealReservation::where('date', $data)->with('meal', 'supervisor', 'details', 'createdBy', 'editedBy')->get();
     }
@@ -139,17 +139,32 @@ class MealReservationRepository
     }
 
     /**
-     * find a undelivered meal reservation by date and delivery code.
+     * find a meal reservation by date and delivery code.
      *
      * @param array $data
      * @return MealReservation|null
      */
-    public function findByUndeliveredDateAndDeliveryCode(array $data): ?MealReservation
+    public function findByDateAndDeliveryCode(array $data): ?MealReservation
     {
         return MealReservation::where('date', $data['date'])
             ->where('delivery_code', $data['delivery_code'])
-            ->where('status', 0)->with('meal', 'supervisor', 'details', 'createdBy', 'editedBy')
+            ->with('meal', 'supervisor', 'details', 'createdBy', 'editedBy')
             ->first();
+    }
+
+    /**
+     * find an undelivered meal reservation by it's id and deliver it(turn it's status on).
+     *
+     * @param int $id
+     * @return MealReservation
+     */
+    public function deliver(int $id)
+    {
+        $mealReservation = $this->findById($id);
+        $data['edited_by'] = Auth::id();
+        $mealReservation->status = 1;
+        $mealReservation->save();
+        return $mealReservation;
     }
 
     /**
