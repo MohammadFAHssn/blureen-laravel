@@ -46,4 +46,19 @@ class MealReservationDetailRepository
             ->when(!empty($excludeDetailIds), fn($q) => $q->whereNotIn('id', $excludeDetailIds))
             ->update(['delivery_status' => true]);
     }
+
+    /**
+     * Update meal reservation detail based on meal reservation id
+     *
+     * @param int $reservationId
+     * @param array $data
+     * @return MealReservationDetail
+     */
+    public function update(int $reservationId, array $data)
+    {
+        $mealReservationDetail = MealReservationDetail::where('meal_reservation_id', $reservationId)->first();
+        $data['edited_by'] = Auth::id();
+        $mealReservationDetail->update($data);
+        return $mealReservationDetail;
+    }
 }
