@@ -61,4 +61,33 @@ class MealReservationDetailRepository
         $mealReservationDetail->update($data);
         return $mealReservationDetail;
     }
+
+    /**
+     * Delete meal reservation detail
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function delete(int $id)
+    {
+        $mealReservationDetail = $this->findById($id);
+        if (!$mealReservationDetail->delivery_status && !$mealReservationDetail->reservation->status) {
+            return $mealReservationDetail->delete();
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * Get a meal reservation detail by ID
+     *
+     * @param int $id
+     * @return MealReservationDetail
+     * @throws ModelNotFoundException
+     */
+    public function findById(int $id): MealReservationDetail
+    {
+        return MealReservationDetail::findOrFail($id);
+    }
 }
