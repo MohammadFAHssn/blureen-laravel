@@ -101,6 +101,7 @@ class MealPlanService
     protected function formatMealPlanPayload(MealPlan $mealPlan): array
     {
         return [
+            'id' => $mealPlan->id,
             'date' => $mealPlan->date,
             'meal' => $mealPlan->meal ? [
                 'id' => $mealPlan->meal->id,
