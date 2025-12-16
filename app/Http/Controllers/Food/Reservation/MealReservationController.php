@@ -184,4 +184,40 @@ class MealReservationController
             return response()->json($payload, $payload['status']);
         }
     }
+
+    /**
+     * Delete meal reservation
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function delete(int $id)
+    {
+        try {
+            $data = $this->mealReservationService->delete($id);
+
+            $payload = [
+                'data' => $data,
+                'message' => 'رزرو با موفقیت حذف شد.',
+                'status' => 200,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        } catch (ModelNotFoundException $e) {
+            $payload = [
+                'message' => 'رزرو مورد نظر یافت نشد.',
+                'status' => 404,
+                'code' => 'RESERVE_NOT_FOUND',
+            ];
+
+            return response()->json($payload)->setStatusCode($payload['status']);
+        } catch (Throwable $e) {
+            $payload = [
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        }
+    }
 }
