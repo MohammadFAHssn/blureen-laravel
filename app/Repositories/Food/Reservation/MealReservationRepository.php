@@ -113,7 +113,12 @@ class MealReservationRepository
     public function delete(int $id)
     {
         $mealReservation = $this->findById($id);
-        return $mealReservation->delete();
+        if (!$mealReservation->status) {
+            return $mealReservation->delete();
+        }
+        else {
+            return false;
+        }
     }
 
     /**
