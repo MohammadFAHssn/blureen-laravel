@@ -25,6 +25,7 @@ class UpdateMealPlanRequest extends FormRequest
     {
         return [
             'food_id' => 'required|integer|exists:foods,id',
+            'date' => 'required|date',  // e.g. Y-m-d
         ];
     }
 
@@ -37,8 +38,11 @@ class UpdateMealPlanRequest extends FormRequest
     {
         return [
             'food_id.required' => 'غذا الزامی است.',
-            'food_id.integer' => 'غذا باید عدد باشد.',
+            'food_id.integer' => 'شناسه غذا باید عدد باشد.',
             'food_id.exists' => 'غذای انتخاب‌ شده معتبر نیست.',
+
+            'date.required' => 'تاریخ الزامی است.',
+            'date.date' => 'فرمت تاریخ معتبر نیست.',
         ];
     }
 
