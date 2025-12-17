@@ -6,22 +6,34 @@ use App\Models\Food\MealPlan;
 use App\Repositories\Food\Kitchen\MealPlanRepository;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
+use App\Models\Food\MealReservationDetail;
+use App\Repositories\Food\Kitchen\FoodRepository;
+use App\Repositories\Food\Reservation\MealReservationRepository;
 
 class MealPlanService
 {
     /**
      * @var mealPlanRepository
+     * @var mealReservationRepository
+     * @var foodRepository
      */
     protected $mealPlanRepository;
+    protected $mealReservationRepository;
+    protected $foodRepository;
 
     /**
      * MealService constructor
      *
      * @param MealPlanRepository $mealPlanRepository
+     * @param MealReservationRepository $mealReservationRepository
+     * @param FoodRepository $foodRepository
      */
-    public function __construct(MealPlanRepository $mealPlanRepository)
+    public function __construct(MealPlanRepository $mealPlanRepository, MealReservationRepository $mealReservationRepository, FoodRepository $foodRepository)
     {
         $this->mealPlanRepository = $mealPlanRepository;
+        $this->mealReservationRepository = $mealReservationRepository;
+        $this->foodRepository = $foodRepository;
     }
 
     /**
@@ -30,18 +42,30 @@ class MealPlanService
      * @param array $data
      * @return \App\Models\Food\MealPlan
      */
-    public function createMealPlan($request)
+    public function createMealPlan($data)
     {
-        // Check for meal plan existence with same date and meal Id
-        if ($this->mealPlanRepository->mealPlanExist(
-            $request
-        )) {
-            throw ValidationException::withMessages([
-                'meal_plan_exist' => ['این وعده غذایی برای این تاریخ، در پایگاه داده وجود دارد.']
+        return DB::transaction(function () use ($data) {
+            // Check for meal plan existence with same date and meal Id
+            if ($this->mealPlanRepository->mealPlanExist($data)) {
+                throw ValidationException::withMessages([
+                    'meal_plan_exist' => ['این وعده غذایی برای این تاریخ، در پایگاه داده وجود دارد.']
+                ]);
+            }
+            $mealPlan = $this->mealPlanRepository->create($data);
+            $food = $this->foodRepository->findById($data['food_id']);
+
+            MealReservationDetail::whereHas('reservation', function ($q) use ($data, $mealPlan) {
+                $q
+                    ->whereDate('date', $data['date'])
+                    ->where('status', 0) // not delivered
+                    ->where('meal_id', $mealPlan->meal->id);
+            })->update([
+                'food_id' => $food->id,
+                'food_price' => $food->price,
             ]);
-        }
-        $mealPlan = $this->mealPlanRepository->create($request);
-        return $this->formatMealPlanPayload($mealPlan);
+
+            return $this->formatMealPlanPayload($mealPlan);
+        });
     }
 
     /**
@@ -66,8 +90,21 @@ class MealPlanService
      */
     public function updateMealPlan(int $id, array $data)
     {
-        $mealPlan = $this->mealPlanRepository->update($id, $data);
-        return $this->formatMealPlanPayload($mealPlan);
+        return DB::transaction(function () use ($id, $data) {
+            $food = $this->foodRepository->findById($data['food_id']);
+            $mealPlan = $this->mealPlanRepository->update($id, $data);
+            MealReservationDetail::whereHas('reservation', function ($q) use ($data, $mealPlan) {
+                $q
+                    ->whereDate('date', $data['date'])
+                    ->where('status', 0) // not delivered
+                    ->where('meal_id', $mealPlan->meal->id);
+            })->update([
+                'food_id' => $food->id,
+                'food_price' => $food->price,
+            ]);
+
+            return $this->formatMealPlanPayload($mealPlan);
+        });
     }
 
     /**
