@@ -58,12 +58,12 @@ class MealPlanRepository
     /**
      * Delete meal plan
      *
-     * @param int $id
+     * @param Request $request
      * @return bool
      */
-    public function delete(int $id)
+    public function delete($data)
     {
-        $mealPlan = $this->findById($id);
+        $mealPlan = $this->findById($data['id']);
         return $mealPlan->delete();
     }
 

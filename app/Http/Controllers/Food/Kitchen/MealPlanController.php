@@ -177,13 +177,13 @@ class MealPlanController
     /**
      * Delete meal plan
      *
-     * @param int $id
+     * @param Request $request
      * @return bool
      */
-    public function delete(int $id)
+    public function delete(Request $request)
     {
         try {
-            $data = $this->mealPlanService->delete($id);
+            $data = $this->mealPlanService->delete($request->toArray());
 
             $payload = [
                 'data' => $data,
