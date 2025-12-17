@@ -45,17 +45,6 @@ class MealPlanService
     }
 
     /**
-     * Get all meal plans
-     *
-     * @return array
-     */
-    public function getAllMealPlans()
-    {
-        $mealPlans = $this->mealPlanRepository->getAll();
-        return $this->formatMealsListPayload($mealPlans);
-    }
-
-    /**
      * Get all meal plans for a date
      *
      * @param array $data
@@ -79,17 +68,6 @@ class MealPlanService
     {
         $mealPlan = $this->mealPlanRepository->update($id, $data);
         return $this->formatMealPlanPayload($mealPlan);
-    }
-
-    /**
-     * Delete meal plan
-     *
-     * @param int $id
-     * @return bool
-     */
-    public function delete($id)
-    {
-        return $this->mealPlanRepository->delete($id);
     }
 
     /**

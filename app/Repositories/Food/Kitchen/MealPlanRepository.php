@@ -20,16 +20,6 @@ class MealPlanRepository
     }
 
     /**
-     * Get all meal plans
-     *
-     * @return array
-     */
-    public function getAll()
-    {
-        return MealPlan::with('createdBy', 'editedBy')->get();
-    }
-
-    /**
      * Get all meal plans for a date
      *
      * @param array $data
@@ -53,18 +43,6 @@ class MealPlanRepository
         $data['edited_by'] = Auth::id();
         $mealPlan->update($data);
         return $mealPlan;
-    }
-
-    /**
-     * Delete meal plan
-     *
-     * @param Request $request
-     * @return bool
-     */
-    public function delete($data)
-    {
-        $mealPlan = $this->findById($data['id']);
-        return $mealPlan->delete();
     }
 
     /**

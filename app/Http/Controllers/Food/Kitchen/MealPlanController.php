@@ -74,33 +74,6 @@ class MealPlanController
     }
 
     /**
-     * Get all meal plans
-     *
-     * @return JsonResponse
-     */
-    public function index()
-    {
-        try {
-            $data = $this->mealPlanService->getAllMealPlans();
-
-            $payload = [
-                'data' => $data,
-                'message' => 'لیست برنامه‌های غذایی با موفقیت دریافت شد.',
-                'status' => 200,
-            ];
-
-            return response()->json($payload, $payload['status']);
-        } catch (Throwable $e) {
-            $payload = [
-                'error' => $e->getMessage(),
-                'status' => 500,
-            ];
-
-            return response()->json($payload, $payload['status']);
-        }
-    }
-
-    /**
      * Get all meal plans for date
      *
      * @param Request $request
@@ -164,42 +137,6 @@ class MealPlanController
             ];
 
             return response()->json($payload, $payload['status']);
-        } catch (Throwable $e) {
-            $payload = [
-                'error' => $e->getMessage(),
-                'status' => 500,
-            ];
-
-            return response()->json($payload, $payload['status']);
-        }
-    }
-
-    /**
-     * Delete meal plan
-     *
-     * @param Request $request
-     * @return bool
-     */
-    public function delete(Request $request)
-    {
-        try {
-            $data = $this->mealPlanService->delete($request->toArray());
-
-            $payload = [
-                'data' => $data,
-                'message' => 'برنامه غذایی با موفقیت حذف شد.',
-                'status' => 200,
-            ];
-
-            return response()->json($payload, $payload['status']);
-        } catch (ModelNotFoundException $e) {
-            $payload = [
-                'message' => 'برنامه غذایی مورد نظر یافت نشد.',
-                'status' => 404,
-                'code' => 'MEAL_PLAN_NOT_FOUND',
-            ];
-
-            return response()->json($payload)->setStatusCode($payload['status']);
         } catch (Throwable $e) {
             $payload = [
                 'error' => $e->getMessage(),
