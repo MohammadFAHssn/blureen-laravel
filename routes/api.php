@@ -154,7 +154,6 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::get('/get-for-date', 'plansForDate');
                 Route::post('/', 'store');
                 Route::post('/{id}', 'update');
-                Route::delete('/delete', 'delete');
             });
             Route::controller(\App\Http\Controllers\Food\Reservation\MealReservationController::class)->prefix('meal-reservation')->group(function () {
                 Route::get('/get-reservations-for-personnel-by-user-on-date', 'reservationsForPersonnelByUserOnDate');
