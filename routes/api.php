@@ -43,6 +43,10 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::get('', 'get');
                 Route::get('/user-subordinates', 'getUserSubordinates');
             });
+
+            Route::controller(\App\Http\Controllers\Base\FileController::class)->prefix('/file')->group(function () {
+                Route::post('/upload-bulk-avatars', 'uploadBulkAvatars')->middleware('role:Super Admin');
+            });
         });
 
         Route::prefix('/payroll')->group(function () {
