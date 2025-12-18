@@ -90,4 +90,17 @@ class MealReservationDetailRepository
     {
         return MealReservationDetail::findOrFail($id);
     }
+
+    public function reservedPersonnelIdsByDateAndMeal($date, int $mealId)
+    {
+        return MealReservationDetail::query()
+            ->whereNotNull('reserved_for_personnel')
+            ->whereHas('reservation', function ($q) use ($date, $mealId) {
+                $q->whereDate('date', $date)
+                ->where('meal_id', $mealId);
+            })
+            ->pluck('reserved_for_personnel')
+            ->unique()
+            ->values();
+    }
 }

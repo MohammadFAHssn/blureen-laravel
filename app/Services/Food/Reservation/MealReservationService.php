@@ -6,7 +6,9 @@ use App\Models\Food\MealReservation;
 use App\Repositories\Food\Kitchen\MealPlanRepository;
 use App\Repositories\Food\Reservation\MealReservationDetailRepository;
 use App\Repositories\Food\Reservation\MealReservationRepository;
+use App\Repositories\Base\UserRepository;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class MealReservationService
@@ -15,11 +17,13 @@ class MealReservationService
      * @var mealReservationRepository
      * @var mealReservationDetailRepository
      * @var mealPlanRepository
+     * @var userRepository
      */
     protected $mealReservationRepository;
 
     protected $mealReservationDetailRepository;
     protected $mealPlanRepository;
+    protected $userRepository;
 
     /**
      * MealReservationService constructor
@@ -27,12 +31,14 @@ class MealReservationService
      * @param MealReservationRepository $mealReservationRepository
      * @param MealReservationDetailRepository $mealReservationDetailRepository
      * @param MealPlanRepository $mealPlanRepository
+     * @param UserRepository $userRepository
      */
-    public function __construct(MealReservationRepository $mealReservationRepository, MealReservationDetailRepository $mealReservationDetailRepository, MealPlanRepository $mealPlanRepository)
+    public function __construct(MealReservationRepository $mealReservationRepository, MealReservationDetailRepository $mealReservationDetailRepository, MealPlanRepository $mealPlanRepository, UserRepository $userRepository)
     {
         $this->mealReservationRepository = $mealReservationRepository;
         $this->mealReservationDetailRepository = $mealReservationDetailRepository;
         $this->mealPlanRepository = $mealPlanRepository;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -41,56 +47,138 @@ class MealReservationService
      * @param array $data
      * @return array
      */
-    public function createMealReservation($request)
+    public function createMealReservation(array $request): array
     {
-        $mealReservations = [];
+        $results = [];
 
         foreach ($request['date'] as $date) {
-            // find meal plan
-            $mealPlan = $this->mealPlanRepository->findByDateAndId($date, $request['meal_id']);
+            $results[] = DB::transaction(function () use ($request, $date) {
+                // Find meal plan (food fallback)
+                $mealPlan = $this->mealPlanRepository->findByDateAndId($date, (int) $request['meal_id']);
 
-            // fallback food data if no meal plan
-            if ($mealPlan) {
-                $foodId = $mealPlan->food->id;
-                $foodPrice = $mealPlan->food->price;
-            } else {
-                $foodId = 1;
-                $foodPrice = 1;
-            }
-
-            // create reservation
-            $payload = $request;
-            $payload['date'] = $date;
-            $mealReservation = $this->mealReservationRepository->create($payload);
-
-            // base detail payload
-            $baseDetail = [
-                'meal_reservation_id' => $mealReservation->id,
-                'food_id' => $foodId,
-                'food_price' => $foodPrice,
-                'delivery_status' => 0,
-            ];
-
-            $detail = $baseDetail;
-
-            if ($request['reserve_type'] === 'personnel') {
-                foreach ($request['personnel'] as $personnelId) {
-                    $detail['reserved_for_personnel'] = $personnelId;
-                    $detail['quantity'] = 1;
-                    $this->mealReservationDetailRepository->create($detail);
+                if ($mealPlan && $mealPlan->food) {
+                    $foodId = (int) $mealPlan->food->id;
+                    $foodPrice = (int) $mealPlan->food->price;
+                } else {
+                    $foodId = 1;
+                    $foodPrice = 1;
                 }
-            } elseif ($request['reserve_type'] === 'contractor') {
-                $detail['reserved_for_contractor'] = $request['contractor'];
-                $detail['quantity'] = $request['quantity'];
-                $this->mealReservationDetailRepository->create($detail);
-            } else {
-                $detail['quantity'] = $request['quantity'];
-                $this->mealReservationDetailRepository->create($detail);
-            }
 
-            $mealReservations[] = $this->formatMealReservationPayload($mealReservation);
+                // Prepare reservation payload
+                $payload = $request;
+                $payload['date'] = $date;
+
+                // Base detail payload
+                $baseDetail = [
+                    'food_id' => $foodId,
+                    'food_price' => $foodPrice,
+                    'delivery_status' => 0,
+                ];
+
+                // --- PERSONNEL ---
+                if ($request['reserve_type'] === 'personnel') {
+                    $mealId = (int) $request['meal_id'];
+
+                    // Existing reserved personnel for (date + meal_id)
+                    $existingPersonnelIds = $this
+                        ->mealReservationDetailRepository
+                        ->reservedPersonnelIdsByDateAndMeal($date, $mealId)
+                        ->all();
+
+                    $createdPersonnel = [];
+                    $skippedPersonnel = [];
+                    // $skippedDate = [];
+
+                    // De-dupe request input
+                    $personnelIds = array_values(array_unique($request['personnel'] ?? []));
+
+                    // Decide which ones will be created BEFORE creating reservation
+                    $toCreate = [];
+                    foreach ($personnelIds as $personnelId) {
+                        $personnelId = (int) $personnelId;
+
+
+
+                        if (in_array($personnelId, $existingPersonnelIds, true)) {
+                            $personnel = $this->userRepository->findById($personnelId);
+                            $skippedPersonnel[] = [
+                                'full_name' => $personnel->first_name . ' ' . $personnel->last_name,
+                                'date' => $date,
+                            ];
+                            continue;
+                        }
+
+                        $toCreate[] = $personnelId;
+                        $existingPersonnelIds[] = $personnelId;  // prevent duplicates inside same request
+                    }
+
+                    // If all are skipped, don't create empty reservation
+                    if (count($toCreate) === 0) {
+                        return [
+                            'reservation' => null,
+                            'createdPersonnel' => [],
+                            'skippedPersonnel' => $skippedPersonnel,
+                            'date' => $date,
+                            'meal_id' => $mealId,
+                        ];
+                    }
+
+                    // Create reservation once
+                    $mealReservation = $this->mealReservationRepository->create($payload);
+
+                    // Create details
+                    foreach ($toCreate as $personnelId) {
+                        $detail = $baseDetail + [
+                            'meal_reservation_id' => $mealReservation->id,
+                            'reserved_for_personnel' => $personnelId,
+                            'quantity' => 1,
+                        ];
+
+                        $this->mealReservationDetailRepository->create($detail);
+                        $createdPersonnel[] = $personnelId;
+                    }
+
+                    return [
+                        'reservation' => $this->formatMealReservationPayload($mealReservation),
+                        'createdPersonnel' => $createdPersonnel,
+                        'skippedPersonnel' => $skippedPersonnel,
+                    ];
+                }
+
+                // --- CONTRACTOR ---
+                if ($request['reserve_type'] === 'contractor') {
+                    $mealReservation = $this->mealReservationRepository->create($payload);
+
+                    $detail = $baseDetail + [
+                        'meal_reservation_id' => $mealReservation->id,
+                        'reserved_for_contractor' => (int) $request['contractor'],
+                        'quantity' => (int) $request['quantity'],
+                    ];
+
+                    $this->mealReservationDetailRepository->create($detail);
+
+                    return [
+                        'reservation' => $this->formatMealReservationPayload($mealReservation),
+                    ];
+                }
+
+                // --- GUEST (default) ---
+                $mealReservation = $this->mealReservationRepository->create($payload);
+
+                $detail = $baseDetail + [
+                    'meal_reservation_id' => $mealReservation->id,
+                    'quantity' => (int) $request['quantity'],
+                ];
+
+                $this->mealReservationDetailRepository->create($detail);
+
+                return [
+                    'reservation' => $this->formatMealReservationPayload($mealReservation),
+                ];
+            });
         }
-        return $mealReservations;
+
+        return $results;
     }
 
     /**
@@ -217,7 +305,7 @@ class MealReservationService
     protected function formatMealReservationPayload(MealReservation $mealReservation): array
     {
         return [
-            'date' => $mealReservation->date,
+            'date' => $mealReservation->date?->format('Y/m/d'),
             'meal' => $mealReservation->meal ? [
                 'id' => $mealReservation->meal->id,
                 'name' => $mealReservation->meal->name,
