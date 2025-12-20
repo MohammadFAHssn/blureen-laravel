@@ -97,8 +97,6 @@ class MealReservationService
                     foreach ($personnelIds as $personnelId) {
                         $personnelId = (int) $personnelId;
 
-
-
                         if (in_array($personnelId, $existingPersonnelIds, true)) {
                             $personnel = $this->userRepository->findById($personnelId);
                             $skippedPersonnel[] = [
@@ -269,6 +267,23 @@ class MealReservationService
             $mealReservationsForAllDates[] = $mealReservationsForDate;
         }
         return $mealReservationsForAllDates;
+    }
+
+    /**
+     * Get all delivered meal reservations for a specific contractor in a date range
+     *
+     * @param array $request
+     * @return \Illuminate\Support\Collection
+     */
+    public function getAllDeliveredMealReservationsForContractorOnDate(array $request)
+    {
+        return $this
+            ->mealReservationRepository
+            ->getAllDeliveredForContractorBetweenDates(
+                $request['date'][0],
+                $request['date'][1],
+                $request['contractor']
+            );
     }
 
     /**
