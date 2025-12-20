@@ -160,6 +160,7 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::get('/get-reservations-for-user-by-others-on-date', 'reservationsForUserByOthersOnDate');
                 Route::get('/get-for-contractor-on-date', 'reservationsForContractorByUserOnDate');
                 Route::get('/get-for-guest-on-date', 'reservationsForGuestByUserOnDate');
+                Route::get('/get-for-specific-contractor-on-date', 'deliveredReservationsForContractorOnDate');
                 Route::post('/', 'store');
                 Route::post('/{id}', 'update');
                 Route::delete('/{id}', 'delete');
