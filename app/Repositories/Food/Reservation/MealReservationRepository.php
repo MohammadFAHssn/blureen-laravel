@@ -111,6 +111,22 @@ class MealReservationRepository
     }
 
     /**
+     * Get all meal reservations in a date range
+     *
+     * @param array $data
+     * @return \Illuminate\Support\Collection
+     */
+    public function getAllBetweenDates(
+        string $from,
+        string $to
+    ) {
+        return MealReservation::
+            whereBetween('date', [$from, $to])
+            ->with('meal', 'details', 'createdBy', 'editedBy')
+            ->get();
+    }
+
+    /**
      * Update meal reservation
      *
      * @param int $id

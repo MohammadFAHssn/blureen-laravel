@@ -287,6 +287,22 @@ class MealReservationService
     }
 
     /**
+     * Get all meal reservations in a date range
+     *
+     * @param array $request
+     * @return \Illuminate\Support\Collection
+     */
+    public function getAllMealReservationsInDateRange(array $request)
+    {
+        return $this
+            ->mealReservationRepository
+            ->getAllBetweenDates(
+                $request['date'][0],
+                $request['date'][1]
+            );
+    }
+
+    /**
      * Update meal reservation
      *
      * @param int $id
