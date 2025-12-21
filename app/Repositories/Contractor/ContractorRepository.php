@@ -40,14 +40,33 @@ class ContractorRepository
     }
 
     /**
-     * Check if there's a contractor with the same national code
+     * Get contractor by ID
      *
-     * @param array $data
-     * @return bool
+     * @param int $id
+     * @return Contractor
+     * @throws ModelNotFoundException
      */
-    public function contractorExist(array $data)
+    public function findById(int $id): Contractor
     {
-        return Contractor::where('national_code', $data['national_code'])->exists();
+        return Contractor::findOrFail($id);
     }
 
+    /**
+     * change status of a contractor
+     *
+     * @return Contractor
+     */
+    public function status(int $id)
+    {
+        $contractor = $this->findById($id);
+        if (!$contractor) {
+            return null;
+        }
+
+        $contractor->active = !$contractor->active;
+        $contractor->edited_by = Auth::id();
+        $contractor->save();
+
+        return $contractor;
+    }
 }

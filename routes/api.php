@@ -181,6 +181,7 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::get('/', 'index');
                 Route::post('/', 'store');
                 Route::get('/get-actives', 'getActives');
+                Route::post('/status/{id}', 'changeStatus');
             });
         });
 

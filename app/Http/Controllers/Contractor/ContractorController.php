@@ -126,4 +126,49 @@ class ContractorController
             return response()->json($payload, $payload['status']);
         }
     }
+
+    /**
+     * Change Status of a contractor
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function changeStatus(int $id)
+    {
+        try {
+            $data = $this->contractorService->changeStatus($id);
+
+            $payload = [
+                'data' => $data,
+                'message' => 'پیمانکار با موفقیت بروزرسانی شد.',
+                'status' => 200,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        } catch (ModelNotFoundException $e) {
+            $payload = [
+                'message' => 'پیمانکار مورد نظر یافت نشد.',
+                'status' => 404,
+                'code' => 'CONTRACTOR_NOT_FOUND',
+            ];
+
+            return response()->json($payload)->setStatusCode($payload['status']);
+        } catch (ValidationException $e) {
+            $payload = [
+                'errors' => $e->errors(),
+                'message' => 'اطلاعات وارد شده معتبر نیست.',
+                'status' => 422,
+                'code' => 'VALIDATION_ERROR',
+            ];
+
+            return response()->json($payload, $payload['status']);
+        } catch (Throwable $e) {
+            $payload = [
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        }
+    }
 }

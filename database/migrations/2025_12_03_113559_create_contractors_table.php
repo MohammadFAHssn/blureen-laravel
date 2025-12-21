@@ -15,9 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('national_code')->unique();
-            $table->string('mobile_number')->nullable();
-            $table->boolean('active')->default(false);
+            $table->string('description')->nullable();
+            $table->boolean('active')->default(true);
             $table->foreignId('created_by')->constrained('users');
             $table->foreignId('edited_by')->nullable()->constrained('users');
             $table->timestamps();

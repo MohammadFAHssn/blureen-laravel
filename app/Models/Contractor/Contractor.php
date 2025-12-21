@@ -12,8 +12,7 @@ class Contractor extends Model
     protected $fillable = [
         'first_name',
         'last_name',
-        'national_code',
-        'mobile_number',
+        'description',
         'active',
         'created_by',
         'edited_by',

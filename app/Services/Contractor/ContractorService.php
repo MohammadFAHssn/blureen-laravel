@@ -32,14 +32,6 @@ class ContractorService
      */
     public function createContractor($request)
     {
-        // Check for Contractor existence with same national code
-        if ($this->contractorRepository->contractorExist(
-            $request
-        )) {
-            throw ValidationException::withMessages([
-                'contractor_exist' => ['این پیمانکار، در پایگاه داده وجود دارد.']
-            ]);
-        }
         $contractor = $this->contractorRepository->create($request);
         return $this->formatContractorPayload($contractor);
     }
@@ -67,6 +59,20 @@ class ContractorService
     }
 
     /**
+     * change status of a contractor
+     *
+     * @return Contractor
+     */
+    public function changeStatus(int $id)
+    {
+        $contractor = $this->contractorRepository->status($id);
+        if ($contractor) {
+            return $this->formatContractorPayload($contractor);
+        }
+        return null;
+    }
+
+    /**
      * Format single contractor payload
      *
      * @param Contractor $contractor
@@ -77,9 +83,8 @@ class ContractorService
         return [
             'id' => $contractor->id,
             'fullName' => $contractor->first_name . ' ' . $contractor->last_name,
-            'nationalCode' => $contractor->national_code,
-            'mobileNumber' => $contractor->mobile_number,
-            'active' => $contractor->active,
+            'description' => $contractor->description,
+            'status' => $contractor->active,
             'createdBy' => $contractor->createdBy ? [
                 'id' => $contractor->createdBy->id,
                 'fullName' => $contractor->createdBy->first_name . ' ' . $contractor->createdBy->last_name,
