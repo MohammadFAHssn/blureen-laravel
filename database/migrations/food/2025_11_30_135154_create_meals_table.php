@@ -22,7 +22,7 @@ return new class extends Migration
         });
 
         // seed the default meals
-        DB::table('foods')->insert([
+        DB::table('meals')->insert([
             [
                 'id' => 1,
                 'name' => 'صبحانه',
