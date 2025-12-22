@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -20,6 +21,20 @@ return new class extends Migration
             $table->foreignId('edited_by')->nullable()->constrained('users');
             $table->timestamps();
         });
+
+        // seed the default food
+        DB::table('foods')->insert([
+            [
+                'id' => 1,
+                'name' => 'غذای پیش‌فرض',
+                'status' => 0,
+                'price' => 1,
+                'created_by' => 6126,
+                'edited_by' => 6126,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
     }
 
     /**
