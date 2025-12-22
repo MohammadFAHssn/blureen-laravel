@@ -2,11 +2,14 @@
 
 namespace App\Services\Api;
 
+use App\Models\User;
 use App\Jobs\SyncWithKasraJob;
+use App\Models\Base\UserProfile;
 use Illuminate\Support\Facades\DB;
 use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class KasraService
 {
@@ -68,10 +71,31 @@ class KasraService
                 'active' => false,
                 'updated_at' => now(),
             ];
+
         }
 
         foreach (array_chunk($userData, 500) as $chunk) {
-            DB::table('users')->upsert($chunk, ['personnel_code']);
+            DB::table('users')->upsert($chunk, ['username']);
+        }
+
+        $usersMap = User::pluck('id', 'personnel_code');
+        $userProfile = [];
+
+        foreach ($users as $user) {
+
+            if (strlen($user['Code']) !== 4) {
+                continue;
+            }
+
+            $userProfile[] = [
+                'user_id' => $usersMap[$user['Code']],
+                'mobile_number' => $user['MobileNO'] ? ('0' . Str::substr((string) $user['MobileNO'], -10)) : null,
+                'updated_at' => now(),
+            ];
+        }
+
+        foreach (array_chunk($userProfile, 500) as $chunk) {
+            UserProfile::upsert($chunk, ['user_id']);
         }
 
         Log::info('Sync completed');
