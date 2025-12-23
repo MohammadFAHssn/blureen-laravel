@@ -32,6 +32,7 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::controller(\App\Http\Controllers\Base\UserController::class)->prefix('/user')->group(function () {
                 Route::get('/approval-flows-as-requester', 'getApprovalFlowsAsRequester')->middleware('permission:read Approval-Flows');
                 Route::post('/reset-password', 'resetPassword');
+                Route::get('/details', 'getDetails')->middleware('permission:read user-details');
             });
 
             Route::controller(\App\Http\Controllers\Base\ApprovalFlowController::class)->prefix('/approval-flow')->group(function () {
