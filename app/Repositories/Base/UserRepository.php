@@ -46,9 +46,13 @@ class UserRepository
 
         [$viewableUserProfileFields, $userProfileWhereConditions] = $this->resolveFieldPermissionsForModel('App\Models\Base\UserProfile', $userRoleIds);
 
+        [$viewableRoleFields, $roleWhereConditions] = $this->resolveFieldPermissionsForModel('App\Models\Base\Role', $userRoleIds);
+
         return User::select($viewableUserFields)->where($userWhereConditions)
             ->with([
-                'roles:name',
+                'roles' => function ($query) use ($viewableRoleFields, $roleWhereConditions) {
+                    $query->select($viewableRoleFields)->where($roleWhereConditions);
+                },
                 'profile' => function ($query) use ($viewableUserProfileFields, $userProfileWhereConditions) {
                     $query->select($viewableUserProfileFields)->where($userProfileWhereConditions);
                 },
