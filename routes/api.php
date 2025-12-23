@@ -177,6 +177,13 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::get('/find', 'find');
                 Route::post('/', 'deliver');
             });
+            Route::controller(\App\Http\Controllers\Food\Rep\MealReservationExceptionController::class)->prefix('exception')->group(function () {
+                Route::get('/', 'index');
+                Route::get('/get-actives', 'getActives');
+                Route::post('/', 'store');
+                Route::post('/status/{id}', 'changeStatus');
+                Route::delete('/{id}', 'delete');
+            });
         });
 
         // Contractor Routes
