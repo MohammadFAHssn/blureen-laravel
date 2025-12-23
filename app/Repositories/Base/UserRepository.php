@@ -49,19 +49,24 @@ class UserRepository
         [$viewableRoleFields, $roleWhereConditions] = $this->resolveFieldPermissionsForModel('App\Models\Base\Role', $userRoleIds);
 
         return User::select($viewableUserFields)->where($userWhereConditions)
-            ->with([
-                'roles' => function ($query) use ($viewableRoleFields, $roleWhereConditions) {
-                    $query->select($viewableRoleFields)->where($roleWhereConditions);
-                },
-                'profile' => function ($query) use ($viewableUserProfileFields, $userProfileWhereConditions) {
-                    $query->select($viewableUserProfileFields)->where($userProfileWhereConditions);
-                },
-                'profile.educationLevel:rayvarz_id,name',
-                'profile.workplace:rayvarz_id,name',
-                'profile.workArea:rayvarz_id,name',
-                'profile.costCenter:rayvarz_id,name',
-                'profile.jobPosition:rayvarz_id,name',
-            ])->get();
+            ->when(!empty($viewableUserProfileFields), function ($query) use ($viewableUserProfileFields, $userProfileWhereConditions) {
+                $query->with([
+                    'profile' => function ($query) use ($viewableUserProfileFields, $userProfileWhereConditions) {
+                        $query->select($viewableUserProfileFields)->where($userProfileWhereConditions);
+                    },
+                    'profile.educationLevel:rayvarz_id,name',
+                    'profile.workplace:rayvarz_id,name',
+                    'profile.workArea:rayvarz_id,name',
+                    'profile.costCenter:rayvarz_id,name',
+                    'profile.jobPosition:rayvarz_id,name',
+                ]);
+            })->when(!empty($viewableRoleFields), function ($query) use ($viewableRoleFields, $roleWhereConditions) {
+                $query->with([
+                    'roles' => function ($query) use ($viewableRoleFields, $roleWhereConditions) {
+                        $query->select($viewableRoleFields)->where($roleWhereConditions);
+                    }
+                ]);
+            })->get();
     }
 
     function resolveFieldPermissionsForModel($modelClass, $roleIds)
@@ -76,10 +81,6 @@ class UserRepository
         $viewableFields = FieldPermission::where('model_class', $modelClass)
             ->whereIn('role_id', $roleIds)
             ->pluck('field_value', 'field_name')->toArray();
-
-        if (empty($viewableFields)) {
-            throw new CustomException("Field permission error: No viewable fields defined for " . $modelClass . " model.", 500);
-        }
 
         $realColumns = Schema::getColumnListing($table);
         foreach ($viewableFields as $fieldName => $fieldValue) {
