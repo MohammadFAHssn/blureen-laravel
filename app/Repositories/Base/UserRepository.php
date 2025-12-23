@@ -83,6 +83,9 @@ class UserRepository
 
         $realColumns = Schema::getColumnListing($table);
         foreach ($viewableFields as $fieldName => $fieldValue) {
+            if ($fieldName === '*') {
+                return [$realColumns, []];
+            }
             if (!in_array($fieldName, $realColumns)) {
                 throw new CustomException("Field permission error: The field '{$fieldName}' does not exist in " . $table . " table.", 500);
             }
