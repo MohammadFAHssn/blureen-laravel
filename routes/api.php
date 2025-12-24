@@ -159,8 +159,8 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::post('/{id}', 'update');
             });
             Route::controller(\App\Http\Controllers\Food\Reservation\MealReservationController::class)->prefix('meal-reservation')->group(function () {
-                Route::get('/get-reservations-for-personnel-by-user-on-date', 'reservationsForPersonnelByUserOnDate');
-                Route::get('/get-reservations-for-user-by-others-on-date', 'reservationsForUserByOthersOnDate');
+                Route::get('/get-for-personnel-by-user-on-date', 'reservationsForPersonnelByUserOnDate');
+                Route::get('/get-for-user-by-others-on-date', 'reservationsForUserByOthersOnDate');
                 Route::get('/get-for-contractor-on-date', 'reservationsForContractorByUserOnDate');
                 Route::get('/get-for-guest-on-date', 'reservationsForGuestByUserOnDate');
                 Route::get('/get-for-specific-contractor-on-date', 'deliveredReservationsForContractorOnDate');
@@ -182,6 +182,12 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::get('/get-actives', 'getActives');
                 Route::post('/', 'store');
                 Route::post('/status/{id}', 'changeStatus');
+                Route::delete('/{id}', 'delete');
+            });
+            Route::controller(\App\Http\Controllers\Food\Rep\MealReservationEligibilityRuleController::class)->prefix('eligibility')->group(function () {
+                Route::get('/', 'index');
+                Route::post('/', 'store');
+                Route::post('/{id}', 'update');
                 Route::delete('/{id}', 'delete');
             });
         });
