@@ -2,11 +2,11 @@
 namespace App\Models;
 
 use App\Models\Base\ApprovalFlow;
-use App\Models\Base\LiaisonCostCenter;
 use App\Models\Base\UserProfile;
 use App\Models\HSE\HealthCertificateUser;
 use App\Models\HrRequest\HrRequest;
 use Database\Factories\UserFactory;
+use App\Traits\HasFiles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,6 +20,8 @@ class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, HasRoles, Notifiable, HasFiles;
 
     /**
      * The attributes that are mass assignable.

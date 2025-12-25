@@ -32,6 +32,7 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::controller(\App\Http\Controllers\Base\UserController::class)->prefix('/user')->group(function () {
                 Route::get('/approval-flows-as-requester', 'getApprovalFlowsAsRequester')->middleware('permission:read Approval-Flows');
                 Route::post('/reset-password', 'resetPassword');
+                Route::get('/details', 'getDetails')->middleware('permission:read User-Details');
             });
 
             Route::controller(\App\Http\Controllers\Base\ApprovalFlowController::class)->prefix('/approval-flow')->group(function () {
@@ -41,9 +42,11 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::controller(\App\Http\Controllers\Base\OrgChartNodeController::class)->prefix('/org-chart-node')->group(function () {
                 // TODO: middleware
                 Route::get('', 'get');
-                Route::get('/user-org-chart-nodes', 'getUserOrgChartNodes');
-                Route::get('/user-child', 'getUserChild');
-                Route::get('/user-and-child', 'getUserAndChild');
+                Route::get('/user-subordinates', 'getUserSubordinates');
+            });
+
+            Route::controller(\App\Http\Controllers\Base\FileController::class)->prefix('/file')->group(function () {
+                Route::post('/upload-bulk-avatars', 'uploadBulkAvatars')->middleware('role:Super Admin');
             });
         });
 

@@ -10,12 +10,16 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('payroll_items', function (Blueprint $table) {
+        Schema::create('field_permissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('payroll_slip_id')->constrained()->onDelete('cascade');
-            $table->string('item_title');
-            $table->unique(['payroll_slip_id', 'item_title']);
-            $table->text('item_value');
+
+            $table->string('model_class');
+            $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
+            $table->string('field_name');
+            $table->string('field_value');
+
+            $table->index(['model_class', 'role_id']);
+
             $table->timestamps();
         });
     }
@@ -25,6 +29,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('payroll_items');
+        Schema::dropIfExists('field_permissions');
     }
 };

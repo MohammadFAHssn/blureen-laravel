@@ -24,4 +24,9 @@ class UserController
     {
         return response()->json(['data' => $this->userService->resetPassword($request)], 200);
     }
+
+    public function getDetails()
+    {
+        return response()->json(['data' => $this->userService->getDetails()]);
+    }
 }

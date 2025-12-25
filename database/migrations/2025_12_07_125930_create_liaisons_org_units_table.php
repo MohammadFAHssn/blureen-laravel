@@ -10,12 +10,12 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('payroll_items', function (Blueprint $table) {
+        Schema::create('liaisons_org_units', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('payroll_slip_id')->constrained()->onDelete('cascade');
-            $table->string('item_title');
-            $table->unique(['payroll_slip_id', 'item_title']);
-            $table->text('item_value');
+
+            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('org_unit_id')->constrained('org_units');
+
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('payroll_items');
+        Schema::dropIfExists('liaisons_org_units');
     }
 };
