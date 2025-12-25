@@ -277,7 +277,7 @@ class KasraService
                     $item = [];
 
                     foreach ($node->children() as $child) {
-                        $key   = $decodeXmlEncodedName($child->getName()); // مانند "كد_x0020_پرسنلي" ← "كد پرسنلي"
+                        $key   = $decodeXmlEncodedName($child->getName());
                         $key   = trim(preg_replace('/\s+/u', ' ', $key));
                         $value = trim((string) $child);
 
@@ -368,7 +368,7 @@ class KasraService
         }
 
         if (!$rows || count($rows) === 0) {
-            throw new CustomException('رکوردی با برچسب GetShowReport در پاسخ یافت نشد.');
+            throw new CustomException('گزارش مانده مرخصی برای این کاربر یافت نشد.');
         }
         $n = $rows[0];
         $personnel = isset($n->{'شماره_x0020_پرسنلي'}) ? (string) $n->{'شماره_x0020_پرسنلي'} : null;
