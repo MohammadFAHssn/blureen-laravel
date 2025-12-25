@@ -190,6 +190,9 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::post('/{id}', 'update');
                 Route::delete('/{id}', 'delete');
             });
+            Route::controller(\App\Http\Controllers\Food\Rep\MealReservationContradictionController::class)->prefix('report')->group(function () {
+                Route::get('/', 'index');
+            });
         });
 
         // Contractor Routes

@@ -91,6 +91,13 @@ class MealReservationDetailRepository
         return MealReservationDetail::findOrFail($id);
     }
 
+    /**
+     * Get unique personnel IDs for reserved meal for a given date and meal.
+     *
+     * @param  string|\Carbon\Carbon  $date
+     * @param  int                    $mealId
+     * @return \Illuminate\Support\Collection<int>
+     */
     public function reservedPersonnelIdsByDateAndMeal($date, int $mealId)
     {
         return MealReservationDetail::query()
@@ -103,4 +110,33 @@ class MealReservationDetailRepository
             ->unique()
             ->values();
     }
+
+    /**
+     * Get delivered meal reservation details for reservation type personnel for a given meal within a date range.
+     *
+     * Returns a collection of MealReservationDetail models where:
+     * - reserved_for_personnel is not null
+     * - delivery_status is delivered (1)
+     * - the parent reservation matches the given meal, date range, and is an active personnel reservation
+     *
+     * @param  string  $from  Start date (Y-m-d)
+     * @param  string  $to    End date (Y-m-d)
+     * @param  int     $mealId
+     * @return \Illuminate\Support\Collection<int, \App\Models\MealReservationDetail>
+     */
+    public function deliveredPersonnelReservationDetailsByDateRangeAndMeal(string $from, string $to, int $mealId)
+    {
+        return MealReservationDetail::query()
+            ->whereNotNull('reserved_for_personnel')
+            ->where('delivery_status', 1)
+            ->whereHas('reservation', function ($q) use ($mealId, $from, $to) {
+                $q->whereBetween('date', [$from, $to])
+                ->where('meal_id', $mealId)
+                ->where('reserve_type', 'personnel')
+                ->where('status', 1);
+            })
+            ->with('food', 'reservation', 'personnel')
+            ->get();
+    }
+
 }

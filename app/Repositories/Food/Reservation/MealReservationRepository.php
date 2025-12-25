@@ -92,7 +92,9 @@ class MealReservationRepository
     /**
      * Get all delivered meal reservations for a specific contractor in a date range
      *
-     * @param array $data
+     * @param string $from
+     * @param string $to
+     * @param int $contractorId
      * @return \Illuminate\Support\Collection
      */
     public function getAllDeliveredForContractorBetweenDates(
