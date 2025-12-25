@@ -19,8 +19,6 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable;
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, HasRoles, Notifiable, HasFiles;
 
     /**
@@ -86,11 +84,6 @@ class User extends Authenticatable implements JWTSubject
     public function hrRequests(): HasMany
     {
         return $this->hasMany(HrRequest::class);
-    }
-
-    public function costCentersAsLiaison(): BelongsTo
-    {
-        return $this->belongsTo(LiaisonCostCenter::class, 'id', 'user_id');
     }
 
     public function healthCertificate()
