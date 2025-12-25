@@ -26,6 +26,13 @@ class HrRequestController
         ]);
     }
 
+    public function update(Request $request)
+    {
+        return response()->json([
+            'data' => $this->hrRequestService->update($request->toArray())
+        ]);
+    }
+
     public function getUserRequestsOfCurrentMonth(Request $request): JsonResponse
     {
         return response()->json([

@@ -24,7 +24,7 @@ class HrRequestApprovalRepository {
                     ->whereColumn('b.priority', '<', 'hr_request_approvals.priority')
                     ->where('b.status_id', '<>', AppConstants::HR_REQUEST_APPROVED_STATUS);
             })
-            ->with('request.user','request.type')
+            ->with('request.user','request.type','request.details')
             ->get();
     }
 

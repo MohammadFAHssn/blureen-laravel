@@ -72,8 +72,8 @@ class HrRequestService
      */
     protected function createDailyLeaveRequest(array $data, Collection $userApprovalFlows)
     {
-        $startDate = Jalalian::fromFormat('Y/m/d', $data['start_date'])->toCarbon()->startOfDay();
-        $endDate = Jalalian::fromFormat('Y/m/d', $data['end_date'])->toCarbon()->startOfDay();
+        $startDate = Jalalian::fromFormat('Y-m-d', $data['start_date'])->toCarbon()->startOfDay();
+        $endDate = Jalalian::fromFormat('Y-m-d', $data['end_date'])->toCarbon()->startOfDay();
         $leaveRequestDuration = ($startDate->diffInDays($endDate)+1)*AppConstants::WORK_DAY_MINUTES;
         $data['details'] = [
             'duration' => $leaveRequestDuration
@@ -100,8 +100,8 @@ class HrRequestService
 
         $currentRequestDuration = $this->calculateDiffInMinutes($startInCarbon, $endInCarbon);
         if ($endInCarbon->lt($startInCarbon)) {
-            $data['end_date'] = Jalalian::fromFormat('Y/m/d', $data['start_date'])
-                ->addDay()->format('Y/m/d');
+            $data['end_date'] = Jalalian::fromFormat('Y-m-d', $data['start_date'])
+                ->addDay()->format('Y-m-d');
         }
         $data['details'] = [
             'duration' => $currentRequestDuration,
@@ -139,8 +139,8 @@ class HrRequestService
         $startInCarbon = Carbon::createFromFormat('H:i', $data['start_time']);
         $endInCarbon = Carbon::createFromFormat('H:i', $data['end_time']);
         if ($endInCarbon->lt($startInCarbon)) {
-            $data['end_date'] = Jalalian::fromFormat('Y/m/d', $data['start_date'])
-                ->addDay()->format('Y/m/d');
+            $data['end_date'] = Jalalian::fromFormat('Y-m-d', $data['start_date'])
+                ->addDay()->format('Y-m-d');
         }
         $hrRequest = $this->hrRequestRepository->create($data);
         $this->hrRequestApprovalService->create($hrRequest->id, $userApprovalFlows);
@@ -167,7 +167,7 @@ class HrRequestService
 
         return HrRequest::
         where([
-            'user_id' => auth()->id(),
+            'user_id' => $data['user_id'],
             'request_type_id' => $data['request_type']
         ])
             ->where(function ($q) use ($start, $end) {
@@ -179,6 +179,11 @@ class HrRequestService
             ->get();
     }
 
+
+    public function update($data)
+    {
+        return $data;
+    }
 
     /*
      * helper functions

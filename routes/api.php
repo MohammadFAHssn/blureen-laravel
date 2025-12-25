@@ -140,7 +140,8 @@ Route::middleware('throttle:60,1')->group(function () {
         // TODO: add middleware
         Route::controller(\App\Http\Controllers\HrRequest\HrRequestController::class)->prefix('/hr-request')->group(function (){
            Route::post('/requests/create','create');
-            Route::get('/requests/get-user-requests','getUserRequestsOfCurrentMonth');
+           Route::patch('/requests/update','update');
+           Route::get('/requests/get-user-requests','getUserRequestsOfCurrentMonth');
         });
         Route::controller(\App\Http\Controllers\HrRequest\HrRequestApprovalController::class)->prefix('/hr-request')->group(function (){
             Route::get('/requests/get-by-approver','getApprovalRequestsByApprover');
@@ -148,8 +149,8 @@ Route::middleware('throttle:60,1')->group(function () {
         });
 
         Route::controller(\App\Http\Controllers\KasraController\KasraController::class)->prefix('/kasra')->group(function (){
-            Route::post('/reports/get-attendance-report','getEmployeeAttendanceReport');
-            Route::post('/reports/get-remaining-leave','getRemainingLeave');
+            Route::get('/reports/get-attendance-report','getEmployeeAttendanceReport');
+            Route::get('/reports/get-remaining-leave','getRemainingLeave');
         });
 
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
