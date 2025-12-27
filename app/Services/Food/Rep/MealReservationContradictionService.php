@@ -14,11 +14,10 @@ class MealReservationContradictionService
     /**
      * MealReservationContradictionService constructor
      *
-     * @param MealReservationDetailRepository $mealReservationDetailRepository
      */
-    public function __construct(MealReservationDetailRepository $mealReservationDetailRepository)
+    public function __construct()
     {
-        $this->mealReservationDetailRepository = $mealReservationDetailRepository;
+        $this->mealReservationDetailRepository = new MealReservationDetailRepository();
     }
 
     /**
