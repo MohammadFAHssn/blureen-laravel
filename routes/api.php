@@ -32,6 +32,7 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::controller(\App\Http\Controllers\Base\UserController::class)->prefix('/user')->group(function () {
                 Route::get('/approval-flows-as-requester', 'getApprovalFlowsAsRequester')->middleware('permission:read Approval-Flows');
                 Route::post('/reset-password', 'resetPassword');
+                Route::get('/details', 'getDetails')->middleware('permission:read User-Details');
             });
 
             Route::controller(\App\Http\Controllers\Base\ApprovalFlowController::class)->prefix('/approval-flow')->group(function () {
@@ -42,6 +43,10 @@ Route::middleware('throttle:60,1')->group(function () {
                 // TODO: middleware
                 Route::get('', 'get');
                 Route::get('/user-subordinates', 'getUserSubordinates');
+            });
+
+            Route::controller(\App\Http\Controllers\Base\FileController::class)->prefix('/file')->group(function () {
+                Route::post('/upload-bulk-avatars', 'uploadBulkAvatars')->middleware('role:Super Admin');
             });
         });
 
@@ -203,6 +208,22 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::get('/get-actives', 'getActives');
                 Route::post('/status/{id}', 'changeStatus');
             });
+        });
+
+        // TODO: add middleware
+        Route::controller(\App\Http\Controllers\HrRequest\HrRequestController::class)->prefix('/hr-request')->group(function (){
+           Route::post('/requests/create','create');
+           Route::patch('/requests/update','update');
+           Route::get('/requests/get-user-requests','getUserRequestsOfCurrentMonth');
+        });
+        Route::controller(\App\Http\Controllers\HrRequest\HrRequestApprovalController::class)->prefix('/hr-request')->group(function (){
+            Route::get('/requests/get-by-approver','getApprovalRequestsByApprover');
+            Route::post('/request/approve','approveRequest');
+        });
+
+        Route::controller(\App\Http\Controllers\KasraController\KasraController::class)->prefix('/kasra')->group(function (){
+            Route::get('/reports/get-attendance-report','getEmployeeAttendanceReport');
+            Route::get('/reports/get-remaining-leave','getRemainingLeave');
         });
 
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {

@@ -65,4 +65,9 @@ class UserService
             throw new CustomException('هنگام تغییر پسورد در سیستم جامع قدیمی خطایی رخ داده‌است.', 500);
         }
     }
+
+    public function getDetails()
+    {
+        return $this->userRepository->getDetails();
+    }
 }
