@@ -139,4 +139,26 @@ class MealReservationDetailRepository
             ->get();
     }
 
+    /**
+     * Get delivered personnel reservation details that still need a checkout lookup.
+     *
+     * Criteria:
+     * - delivery_status = 1
+     * - check_out_time is NULL
+     * - last_check_at is NULL OR last_check_at is older than 3 days
+     *
+     * @return \Illuminate\Support\Collection<int, \App\Models\MealReservationDetail>
+     */
+    public function personnelReservationDetailsNeedingCheckoutCheck()
+    {
+        return MealReservationDetail::query()
+            ->where('delivery_status', 1)
+            ->whereNull('check_out_time')
+            ->where(function ($q) {
+                $q
+                    ->whereNull('last_check_at')
+                    ->orWhere('last_check_at', '<', now()->subDays(3)->toDateString());
+            })
+            ->get();
+    }
 }
