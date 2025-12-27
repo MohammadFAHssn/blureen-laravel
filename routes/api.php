@@ -43,6 +43,7 @@ Route::middleware('throttle:60,1')->group(function () {
                 // TODO: middleware
                 Route::get('', 'get');
                 Route::get('/user-subordinates', 'getUserSubordinates');
+                Route::put('/update', 'update')->middleware('permission:edit Org-Chart-Nodes');
             });
 
             Route::controller(\App\Http\Controllers\Base\FileController::class)->prefix('/file')->group(function () {

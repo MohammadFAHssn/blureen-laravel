@@ -6,5 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrgUnit extends Model
 {
-    //
+    protected $fillable = [
+        'name',
+    ];
 }

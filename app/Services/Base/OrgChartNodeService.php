@@ -2,9 +2,9 @@
 namespace App\Services\Base;
 
 use App\Models\Base\LiaisonOrgUnit;
-use App\Models\User;
-use App\Models\Base\OrgPosition;
 use App\Models\Base\OrgChartNode;
+use App\Models\Base\OrgPosition;
+use App\Models\User;
 
 class OrgChartNodeService
 {
@@ -23,6 +23,7 @@ class OrgChartNodeService
             $first->users = $group->pluck('user')->filter()->values();
             unset($first->user);
             unset($first->user_id);
+
             return $first;
         })->values();
     }
@@ -95,7 +96,6 @@ class OrgChartNodeService
         return $liaisonUsers->unique('id')->values();
     }
 
-
     public function getUserSubordinates($data)
     {
         $userId = $data['user_id'];
@@ -134,5 +134,10 @@ class OrgChartNodeService
         }
 
         return $supervisor;
+    }
+
+    public function update($data)
+    {
+        return false;
     }
 }

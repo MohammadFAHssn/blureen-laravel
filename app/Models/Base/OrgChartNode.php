@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrgChartNode extends Model
 {
+    protected $fillable = [
+        'org_position_id',
+        'org_unit_id',
+        'parent_id',
+        'user_id',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
