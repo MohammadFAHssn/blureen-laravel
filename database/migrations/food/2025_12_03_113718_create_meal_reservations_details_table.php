@@ -21,6 +21,7 @@ return new class extends Migration
             $table->unsignedInteger('quantity')->default(1);
             $table->boolean('delivery_status')->default(0);
             $table->time('check_out_time')->nullable();
+            $table->date('last_check_at')->nullable();
             $table->foreignId('created_by')->constrained('users');
             $table->foreignId('edited_by')->nullable()->constrained('users');
             $table->timestamps();

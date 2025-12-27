@@ -19,6 +19,7 @@ class MealReservationDetail extends Model
         'quantity', // 1 for personnel, >=1 guest and >=1 record for same contractor but each record have different quantities
         'delivery_status', // 0 for not_delivered, 1 for delivered
         'check_out_time',
+        'last_check_at',
         'created_by',
         'edited_by',
     ];
@@ -32,6 +33,7 @@ class MealReservationDetail extends Model
         'quantity'                  => 'integer',
         'delivery_status'           => 'boolean',
         'check_out_time'            => 'string',
+        'last_check_at'             => 'date',
         'created_by'                => 'integer',
         'edited_by'                 => 'integer',
     ];
