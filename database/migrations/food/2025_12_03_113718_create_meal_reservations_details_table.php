@@ -25,6 +25,8 @@ return new class extends Migration
             $table->foreignId('created_by')->constrained('users');
             $table->foreignId('edited_by')->nullable()->constrained('users');
             $table->timestamps();
+
+            $table->index(['delivery_status', 'check_out_time', 'last_check_at'], 'idx_checkout_scan');
         });
     }
 
