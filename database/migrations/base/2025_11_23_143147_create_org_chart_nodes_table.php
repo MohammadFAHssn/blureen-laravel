@@ -16,10 +16,9 @@ return new class extends Migration {
             // TODO: Composite indexing
             $table->foreignId('org_position_id')->constrained('org_positions')->restrictOnDelete();
             $table->foreignId('org_unit_id')->constrained('org_units')->restrictOnDelete();
-            $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
             $table->foreignId('parent_id')->nullable()->constrained('org_chart_nodes')->restrictOnDelete();
 
-            $table->unique(['user_id', 'org_unit_id']);
+            $table->unique(['org_unit_id', 'org_position_id']);
 
             $table->timestamps();
         });

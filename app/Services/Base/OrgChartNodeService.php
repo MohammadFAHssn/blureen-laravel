@@ -1,7 +1,6 @@
 <?php
 namespace App\Services\Base;
 
-use App\Models\Base\LiaisonOrgUnit;
 use App\Models\Base\OrgChartNode;
 use App\Models\Base\OrgPosition;
 use App\Models\User;
@@ -10,31 +9,24 @@ class OrgChartNodeService
 {
     public function get()
     {
-        $nodes = OrgChartNode::with([
-            'user:id,first_name,last_name,personnel_code',
+        return OrgChartNode::with([
+            'users',
             'orgPosition',
             'orgUnit',
         ])->get();
-
-        return $nodes->groupBy(function ($node) {
-            return $node->org_position_id . '-' . $node->org_unit_id . '-' . $node->parent_id;
-        })->map(function ($group) {
-            $first = $group->first();
-            $first->users = $group->pluck('user')->filter()->values();
-            unset($first->user);
-            unset($first->user_id);
-
-            return $first;
-        })->values();
     }
 
     public function getUserOrgChartNodes($data)
     {
         $userId = $data['user_id'];
 
-        return OrgChartNode::where('user_id', $userId)
+        return OrgChartNode::whereHas('users', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
             ->with([
-                'user:id,first_name,last_name,personnel_code',
+                'users' => function ($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                },
                 'childrenRecursive',
                 'parentRecursive',
                 'orgPosition',
@@ -65,7 +57,7 @@ class OrgChartNodeService
         $child = collect();
 
         foreach ($userOrgChartNode->childrenRecursive as $children) {
-            $child->push($children->user);
+            $child->push(...$children->users);
             $child = $child->merge($this->getUserChildRecursive($children));
         }
 
@@ -86,14 +78,11 @@ class OrgChartNodeService
     {
         $userId = $data['user_id'];
 
-        $LiaisonOrgUnits = LiaisonOrgUnit::where('user_id', $userId)->with('liaisonUsers')->get();
-
-        $liaisonUsers = collect();
-        foreach ($LiaisonOrgUnits as $LiaisonOrgUnit) {
-            $liaisonUsers = $liaisonUsers->merge($LiaisonOrgUnit->liaisonUsers->select('id', 'first_name', 'last_name', 'personnel_code'));
-        }
-
-        return $liaisonUsers->unique('id')->values();
+        return User::whereHas('orgChartNodesAsPrimary.orgUnit.liaisonOrgUnits', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+            ->distinct()
+            ->get();
     }
 
     public function getUserSubordinates($data)
@@ -108,7 +97,9 @@ class OrgChartNodeService
 
     public function getUserOrgPositions($userId)
     {
-        return OrgChartNode::where('user_id', $userId)
+        return OrgChartNode::whereHas('users', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
             ->with('orgPosition')
             ->get()
             ->pluck('orgPosition')
@@ -121,12 +112,12 @@ class OrgChartNodeService
         $orgPositionLevel = OrgPosition::find($orgPositionId)->level;
 
         $supervisor = [];
-        foreach ($this->getUserOrgChartNodes($userId) as $userOrgChartNodes) {
+        foreach ($this->getUserOrgChartNodes(['user_id' => $userId]) as $userOrgChartNodes) {
             $parentNode = $userOrgChartNodes->parentRecursive;
 
             while ($parentNode) {
                 if ($parentNode->orgPosition->level <= $orgPositionLevel) {
-                    $supervisor[] = $parentNode->only(['user', 'orgUnit', 'orgPosition']);
+                    $supervisor[] = $parentNode->only(['users', 'orgUnit', 'orgPosition']);
                     break;
                 }
                 $parentNode = $parentNode->parentRecursive;
