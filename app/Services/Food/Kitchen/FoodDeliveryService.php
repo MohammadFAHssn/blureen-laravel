@@ -3,9 +3,12 @@
 namespace App\Services\Food\Kitchen;
 
 use App\Models\Food\MealReservation;
+use App\Repositories\Base\UserRepository;
 use App\Repositories\Food\Kitchen\FoodRepository;
 use App\Repositories\Food\Reservation\MealReservationDetailRepository;
 use App\Repositories\Food\Reservation\MealReservationRepository;
+use App\Services\Api\KasraService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class FoodDeliveryService
@@ -19,6 +22,8 @@ class FoodDeliveryService
 
     protected $mealReservationDetailRepository;
     protected $foodRepository;
+    protected $kasraService;
+    protected $userRepository;
 
     /**
      * FoodDeliveryService constructor
@@ -32,6 +37,8 @@ class FoodDeliveryService
         $this->mealReservationRepository = $mealReservationRepository;
         $this->mealReservationDetailRepository = $mealReservationDetailRepository;
         $this->foodRepository = $foodRepository;
+        $this->kasraService = new KasraService();
+        $this->userRepository = new UserRepository();
     }
 
     /**
@@ -43,22 +50,36 @@ class FoodDeliveryService
      */
     public function deliverMealReservation($data)
     {
-        $mealReservation = $this->mealReservationRepository->deliver($data['reserved_meal_id']);
         if ($data['type'] === 'personnel') {
-            $this->mealReservationDetailRepository->markDeliveredExcept($data['reserved_meal_id'], $data['noDeliveryFor'] ?? []);
-        }
-        if ($data['type'] === 'guest') {
-            $this->mealReservationDetailRepository->markDeliveredExcept($data['reserved_meal_id']);
-            return $mealReservation;
+            $personnelIds = $this
+            ->mealReservationDetailRepository
+            ->personnelIds($data['reserved_meal_id'], $data['noDeliveryFor'] ?? []);
+            $reservation = $this->mealReservationRepository->findById($data['reserved_meal_id']);
+            $this->checkingPersonnelEntry($personnelIds, $this->jalaliDate($reservation->date));
         }
 
-        if ($data['type'] === 'contractor') {
-            // base (today food)
+        return DB::transaction(function () use ($data) {
+            $mealReservation = $this->mealReservationRepository->deliver($data['reserved_meal_id']);
+
+            if ($data['type'] === 'personnel') {
+                $this->mealReservationDetailRepository->markDeliveredExcept(
+                    $data['reserved_meal_id'],
+                    $data['noDeliveryFor'] ?? []
+                );
+                return $mealReservation;
+            }
+
+            if ($data['type'] === 'guest') {
+                $this->mealReservationDetailRepository->markDeliveredExcept($data['reserved_meal_id']);
+                return $mealReservation;
+            }
+
+            // contractor
             $this->mealReservationDetailRepository->update($data['reserved_meal_id'], [
                 'quantity' => $data['today_food_count'],
                 'delivery_status' => 1,
             ]);
-            // second food
+
             if (isset($data['second_food'])) {
                 $secondFood = $this->foodRepository->findById($data['second_food']);
                 $this->mealReservationDetailRepository->create([
@@ -70,7 +91,7 @@ class FoodDeliveryService
                     'quantity' => $data['second_food_received_count'],
                 ]);
             }
-            // third food
+
             if (isset($data['third_food'])) {
                 $thirdFood = $this->foodRepository->findById($data['third_food']);
                 $this->mealReservationDetailRepository->create([
@@ -82,8 +103,50 @@ class FoodDeliveryService
                     'quantity' => $data['third_food_received_count'],
                 ]);
             }
+
+            return $mealReservation;
+        });
+    }
+
+    /**
+     * Throws if any personnel has no attendance on that date.
+     *
+     * @param \Illuminate\Support\Collection<int, int>|int[] $personnelIds
+     * @param string $date  Jalali date string like 1404/10/06
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function checkingPersonnelEntry($personnelIds, string $date): void
+    {
+        $personnelIds = collect($personnelIds)->values();
+
+        $notEnteredCodes = [];
+
+        $codesById = $this->userRepository->personnelCodesByIds($personnelIds->all());
+
+        foreach ($personnelIds as $personnelId) {
+            $report = $this->kasraService->getEmployeeAttendanceReport([
+                'start_date' => $date,
+                'end_date' => $date,
+                'user_id' => $personnelId,
+            ]);
+
+            $attendances = $report['attendances'] ?? [];
+
+            if (empty($attendances)) {
+                $notEnteredCodes[] = $codesById[$personnelId] ?? (string) $personnelId;
+            }
         }
-        return $mealReservation;
+
+        if ($notEnteredCodes) {
+            throw ValidationException::withMessages([
+                'personnel' => ['Not entered: ' . implode(', ', $notEnteredCodes)],
+            ]);
+        }
+    }
+
+    private function jalaliDate($date): string
+    {
+        return is_string($date) ? $date : \Carbon\Carbon::parse($date)->format('Y/m/d');
     }
 
     /**

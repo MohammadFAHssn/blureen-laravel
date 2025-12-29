@@ -40,7 +40,7 @@ class MealReservationContradictionService
      * Criteria:
      * - delivery_status = 1
      * - check_out_time is NULL
-     * - last_check_at is NULL OR last_check_at is older than 3 days
+     * - last_check_at is NULL OR last_check_at is older than 2 days
      *
      * @return \Illuminate\Support\Collection<int, \App\Models\MealReservationDetail>
      */
