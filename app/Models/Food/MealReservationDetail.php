@@ -20,6 +20,7 @@ class MealReservationDetail extends Model
         'delivery_status', // 0 for not_delivered, 1 for delivered
         'check_out_time',
         'last_check_at',
+        'is_entitled',
         'created_by',
         'edited_by',
     ];
@@ -34,6 +35,7 @@ class MealReservationDetail extends Model
         'delivery_status'           => 'boolean',
         'check_out_time'            => 'string',
         'last_check_at'             => 'date',
+        'is_entitled'               => 'boolean',
         'created_by'                => 'integer',
         'edited_by'                 => 'integer',
     ];
