@@ -133,7 +133,7 @@ class SurveyService
                                     "workplace" => $user->profile->workplace->name,
                                     "work_area" => $user->profile->workArea->name,
                                     "cost_center" => $user->profile->costCenter->name,
-                                    "job_position" => $user->profile->jobPosition->name,
+                                    "job_position" => 'نامشخص',
                                     "is_unique" => true,
                                 ],
                             ],
