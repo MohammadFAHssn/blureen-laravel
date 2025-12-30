@@ -12,7 +12,7 @@ class OrgChartNodeService
     public function get()
     {
         return OrgChartNode::with([
-            'users',
+            'users.avatar',
             'orgPosition',
             'orgUnit',
         ])->get();
