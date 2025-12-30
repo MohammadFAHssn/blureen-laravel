@@ -129,7 +129,7 @@ class SurveyService
                                     "first_name" => $user->first_name,
                                     "last_name" => $user->last_name,
                                     "gender" => $user->profile->gender,
-                                    "education" => $user->profile->educationLevel->name,
+                                    "education" => 'نامشخص',
                                     "workplace" => $user->profile->workplace->name,
                                     "work_area" => $user->profile->workArea->name,
                                     "cost_center" => $user->profile->costCenter->name,
