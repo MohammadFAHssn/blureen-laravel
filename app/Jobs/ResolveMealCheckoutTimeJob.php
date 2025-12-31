@@ -21,8 +21,6 @@ class ResolveMealCheckoutTimeJob implements ShouldQueue
     {
         $this->mealReservationContradictionService = new MealReservationContradictionService();
         $this->kasraService = new KasraService();
-
-        $this->queue = 'meal_checkout_time';
     }
 
     /**
