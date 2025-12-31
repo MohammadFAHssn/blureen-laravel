@@ -41,9 +41,9 @@ Route::middleware('throttle:60,1')->group(function () {
 
             Route::controller(\App\Http\Controllers\Base\OrgChartNodeController::class)->prefix('/org-chart-node')->group(function () {
                 // TODO: middleware
-                Route::get('', 'get');
+                Route::get('', 'get')->middleware('permission:read Organization-Chart');
                 Route::get('/user-subordinates', 'getUserSubordinates');
-                Route::put('/update', 'update')->middleware('permission:edit Org-Chart-Nodes');
+                Route::put('/update', 'update')->middleware('permission:edit Organization-Chart');
             });
 
             Route::controller(\App\Http\Controllers\Base\FileController::class)->prefix('/file')->group(function () {
