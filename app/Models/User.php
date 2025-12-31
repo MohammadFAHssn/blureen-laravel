@@ -1,20 +1,21 @@
 <?php
 namespace App\Models;
 
-use App\Models\Base\ApprovalFlow;
+use App\Traits\HasFiles;
 use App\Models\Base\UserProfile;
+use App\Models\Base\ApprovalFlow;
+use App\Models\Base\OrgChartNode;
+use Spatie\Permission\Traits\HasRoles;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Notifications\Notifiable;
 use App\Models\HSE\HealthCertificateUser;
 use App\Models\HrRequest\HrRequest;
 use Database\Factories\UserFactory;
-use App\Traits\HasFiles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
-use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -89,5 +90,15 @@ class User extends Authenticatable implements JWTSubject
     public function healthCertificate()
     {
         return $this->hasMany(HealthCertificateUser::class);
+    }
+
+    public function orgChartNodesAsPrimary()
+    {
+        return $this->belongsToMany(
+            OrgChartNode::class,
+            'org_chart_node_users',
+            'user_id',
+            'org_chart_node_id'
+        )->wherePivot('role', 'primary');
     }
 }
