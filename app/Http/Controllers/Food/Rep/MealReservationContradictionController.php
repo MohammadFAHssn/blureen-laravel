@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Food\Rep;
 
-use Throwable;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Validation\ValidationException;
 use App\Http\Requests\Food\FindMealReservationReportRequest;
 use App\Services\Food\Rep\MealReservationContradictionService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
+use Throwable;
 
 /**
  * Class MealReservationContradictionController
@@ -34,21 +33,28 @@ class MealReservationContradictionController
     }
 
     /**
-     * get all delivered meal reservation details for resservation type personnel in date range and meal
+     * Retrieve delivered meal reservation details for personnel reservations within a date range,
+     * filtered to personnel who did NOT stay overtime (non-entitled), for a specific meal.
      *
-     * @param Request $request
-     * @param FindMealReservationReportRequest $request
-     * @return JsonResponse
+     * Request expects:
+     * - date: [from, to]
+     * - meal_id
+     *
+     * @param  \App\Http\Requests\Food\Rep\FindMealReservationReportRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     * @throws \Throwable
      */
     public function index(FindMealReservationReportRequest $request)
     {
         try {
-            $data = $this->mealReservationDetailService->reservationDetailsByDateRangeAndMeal($request->validated());
+            $data = $this->mealReservationDetailService->nonEntitledReservationDetailsByDateRangeAndMeal($request->validated());
 
             $payload = [
                 'data' => $data,
                 'message' => 'اطلاعات با موفقیت دریافت شد.',
-                'status' => 201,
+                'status' => 200,
             ];
 
             return response()->json($payload, $payload['status']);

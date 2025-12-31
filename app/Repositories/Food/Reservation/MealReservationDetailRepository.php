@@ -113,23 +113,30 @@ class MealReservationDetailRepository
     }
 
     /**
-     * Get delivered meal reservation details for reservation type personnel for a given meal within a date range.
+     * Get delivered meal reservation details for personnel reservations for a meal within a date range
+     * where personnel did NOT stay overtime.
      *
-     * Returns a collection of MealReservationDetail models where:
-     * - reserved_for_personnel is not null
-     * - delivery_status is delivered (1)
-     * - the parent reservation matches the given meal, date range, and is an active personnel reservation
+     * Non-entitled = check_out_time is null OR check_out_time < cutoff time.
+     * Exceptions = excluded personnel user IDs.
      *
-     * @param  string  $from  Start date (Y-m-d)
-     * @param  string  $to    End date (Y-m-d)
-     * @param  int     $mealId
-     * @return \Illuminate\Support\Collection<int, \App\Models\MealReservationDetail>
+     * @param string $from Start date
+     * @param string $to End date
+     * @param int $mealId
+     * @param string $cutoffTime Time in HH:MM:SS
+     * @param int[] $exceptionUserIds
+     * @return \Illuminate\Support\Collection<int,\App\Models\MealReservationDetail>
      */
-    public function deliveredPersonnelReservationDetailsByDateRangeAndMeal(string $from, string $to, int $mealId)
+    public function nonEntitledDeliveredReservationDetailsByDateRangeAndMeal(string $from, string $to, int $mealId, string $cutoffTime, array $exceptionUserIds = [])
     {
         return MealReservationDetail::query()
             ->whereNotNull('reserved_for_personnel')
             ->where('delivery_status', 1)
+            ->where(function ($q) use ($cutoffTime) {
+                $q
+                    ->whereNull('check_out_time')
+                    ->orWhere('check_out_time', '<', $cutoffTime);
+            })
+            ->when(!empty($exceptionUserIds), fn($q) => $q->whereNotIn('reserved_for_personnel', $exceptionUserIds))
             ->whereHas('reservation', function ($q) use ($mealId, $from, $to) {
                 $q
                     ->whereBetween('date', [$from, $to])
