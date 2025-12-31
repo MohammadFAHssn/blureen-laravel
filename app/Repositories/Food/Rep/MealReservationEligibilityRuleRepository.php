@@ -69,6 +69,18 @@ class MealReservationEligibilityRuleRepository
     }
 
     /**
+     * Get by Meal ID
+     *
+     * @param int $id
+     * @return MealReservationEligibilityRule
+     * @throws ModelNotFoundException
+     */
+    public function findByMealId(int $id): MealReservationEligibilityRule
+    {
+        return MealReservationEligibilityRule::where('meal_id', $id)->firstOrFail();
+    }
+
+    /**
      * Check if there's a Meal Reservation Eligibility Rule with the same meal
      *
      * @param array $data
