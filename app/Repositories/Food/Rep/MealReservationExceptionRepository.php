@@ -2,8 +2,8 @@
 
 namespace App\Repositories\Food\Rep;
 
-use Illuminate\Support\Facades\Auth;
 use App\Models\Food\MealReservationException;
+use Illuminate\Support\Facades\Auth;
 
 class MealReservationExceptionRepository
 {
@@ -30,13 +30,17 @@ class MealReservationExceptionRepository
     }
 
     /**
-     * Get all Active Meal Reservation Exceptions
+     * Get all active meal reservation exception user IDs.
      *
-     * @return array
+     * @return int[]
      */
-    public function getAllActive()
+    public function getAllActiveUserIds()
     {
-        return MealReservationException::where('status', 1)->get();
+        return MealReservationException::query()
+            ->where('status', 1)
+            ->pluck('user_id')
+            ->map(fn($v) => (int) $v)
+            ->all();
     }
 
     /**
