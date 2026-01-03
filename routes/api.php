@@ -59,7 +59,7 @@ Route::middleware('throttle:60,1')->group(function () {
 
             Route::controller(\App\Http\Controllers\Payroll\PayrollSlipController::class)->prefix('/payroll-slip')->group(function () {
                 Route::get('/get-the-last-few-months', 'getTheLastFewMonths')->middleware('role:Super Admin|employee');
-                // Route::get('print', 'print')->middleware('role:Super Admin|employee');
+                Route::get('/print', 'print')->middleware('role:Super Admin|employee');
                 Route::get('reports', 'getReports')->middleware('permission:read Payroll-Batches');
             });
         });
