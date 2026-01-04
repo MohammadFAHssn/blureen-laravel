@@ -56,46 +56,32 @@ class KasraService
             'userCount' => count($users),
         ]);
 
-        $userData = [];
-        foreach ($users as $user) {
+        foreach ($users as $rayvarzUser) {
 
-            if (strlen($user['Code']) !== 4) {
+            if (strlen($rayvarzUser['Code']) !== 4) {
                 continue;
             }
 
-            $userData[] = [
-                'first_name' => $user['FName'],
-                'last_name' => $user['LName'],
-                'username' => $user['Code'],
-                'personnel_code' => $user['Code'],
-                'active' => false,
-                'updated_at' => now(),
-            ];
+            $ourUser = User::updateOrCreate(
+                [
+                    'user_name' => $rayvarzUser['Code'],
+                ],
+                [
+                    'first_name' => $rayvarzUser['FName'],
+                    'last_name' => $rayvarzUser['LName'],
+                    'username' => $rayvarzUser['Code'],
+                    'active' => false,
+                ]
+            );
 
-        }
-
-        foreach (array_chunk($userData, 500) as $chunk) {
-            DB::table('users')->upsert($chunk, ['username']);
-        }
-
-        $usersMap = User::pluck('id', 'personnel_code');
-        $userProfile = [];
-
-        foreach ($users as $user) {
-
-            if (strlen($user['Code']) !== 4) {
-                continue;
-            }
-
-            $userProfile[] = [
-                'user_id' => $usersMap[$user['Code']],
-                'mobile_number' => $user['MobileNO'] ? ('0' . Str::substr((string) $user['MobileNO'], -10)) : null,
-                'updated_at' => now(),
-            ];
-        }
-
-        foreach (array_chunk($userProfile, 500) as $chunk) {
-            UserProfile::upsert($chunk, ['user_id']);
+            UserProfile::updateOrCreate(
+                [
+                    'user_id' => $ourUser->id,
+                ],
+                [
+                    'mobile_number' => $rayvarzUser['MobileNO'] ? ('0' . Str::substr((string) $rayvarzUser['MobileNO'], -10)) : null,
+                ]
+            );
         }
 
         Log::info('Sync completed');
