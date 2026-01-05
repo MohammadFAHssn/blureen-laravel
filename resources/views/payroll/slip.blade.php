@@ -40,10 +40,11 @@
         .container {
             width: 100%;
             max-width: 190mm;
-            height: 100%;
-            max-height: 128mm;
+            height: 128mm;
             margin: 0 auto;
             padding: 0;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Header - Modern Outlined Style */
@@ -143,6 +144,9 @@
             border-radius: 5px;
             padding: 8px;
             background: transparent;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .attendance-info .section-title {
@@ -174,10 +178,13 @@
             border-radius: 5px;
             overflow: hidden;
             background: transparent;
+            display: flex;
+            flex-direction: column;
         }
 
         .table-container.deductions {
             border-color: #e74c3c;
+            position: relative;
         }
 
         .data-table {
@@ -349,14 +356,19 @@
         }
 
         .stamp-section {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
             text-align: center;
-            width: 100px;
+            z-index: 10;
+            pointer-events: none;
         }
 
         .stamp-image {
-            width: 100px;
+            width: 140px;
             height: auto;
-            opacity: 0.9;
+            opacity: 0.85;
             border-radius: 5px;
         }
 
@@ -472,6 +484,9 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <div class="stamp-section">
+                        <img src="{{ public_path('stamp.png') }}" alt="مهر شرکت" class="stamp-image">
+                    </div>
                 </div>
             </div>
         </div>
@@ -501,9 +516,6 @@
                             مبلغ <strong>{{ number_format($netPay) }}</strong> ریال نزد بانک <span class="bank-account">{{ $bankName }}</span> به شماره حساب
                             <span class="bank-account">{{ $bankAccount }}</span> واریز شد.
                         </div>
-                    </div>
-                    <div class="stamp-section">
-                        <img src="{{ public_path('stamp.jpeg') }}" alt="مهر شرکت" class="stamp-image">
                     </div>
                 </div>
             </div>
