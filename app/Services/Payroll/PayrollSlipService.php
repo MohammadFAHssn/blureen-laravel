@@ -170,9 +170,9 @@ class PayrollSlipService
             'bankName' => $bankName,
         ];
 
-        return Pdf::view('payroll.slip', $data)
+        return Pdf::view('pdf.payroll-slip', $data)
             ->format('a5')
             ->landscape()
-            ->name("فیش-حقوقی-{$monthName}-{$year}.pdf");
+            ->name("فیش حقوقی {$monthName} {$year}.pdf");
     }
 }

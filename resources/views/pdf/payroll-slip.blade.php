@@ -485,7 +485,7 @@
                         </tbody>
                     </table>
                     <div class="stamp-section">
-                        <img src="{{ public_path('stamp.png') }}" alt="مهر شرکت" class="stamp-image">
+                        <img src="{{ public_path('administrative-stamp.png') }}" alt="مهر شرکت" class="stamp-image">
                     </div>
                 </div>
             </div>
