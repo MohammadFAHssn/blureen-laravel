@@ -35,8 +35,6 @@ class PayrollSlipService
 
         $user = auth()->user();
 
-        $workplace = $user->profile?->workplace?->name;
-        $workArea = $user->profile?->workArea?->name;
         $costCenter = $user->profile?->costCenter?->name;
 
         $payrollSlip = $this->payrollSlipRepository->getTheLastFewMonths($month, $year, 1);
