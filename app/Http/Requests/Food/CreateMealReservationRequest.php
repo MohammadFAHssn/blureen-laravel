@@ -28,7 +28,7 @@ class CreateMealReservationRequest extends FormRequest
             'date.*' => 'required|date',
 
             'meal_id' => 'required|integer|exists:meals,id',
-            'reserve_type' => 'required|string|in:personnel,contractor,guest',
+            'reserve_type' => 'required|string|in:personnel,contractor,guest,repairman',
             'supervisor_id' => 'required|integer|exists:users,id',
 
             // personnel
@@ -38,20 +38,18 @@ class CreateMealReservationRequest extends FormRequest
             // contractor
             'contractor' => 'required_if:reserve_type,contractor|integer|exists:contractors,id',
 
-            // quantity (both contractor & guest)
-            'quantity' => 'required_if:reserve_type,contractor,guest|integer|min:1',
+            // quantity (contractor, guest and repairman)
+            'quantity' => 'required_if:reserve_type,contractor,guest,repairman|integer|min:1',
 
             // guest
-            'serve_place' => 'required_if:reserve_type,guest|string',
-            'description' => 'required_if:reserve_type,guest|string',
+            'serve_place' => 'required_if:reserve_type,guest|string|in:serve_in_kitchen,deliver',
+            'attendance_hour' => 'nullable|required_if:reserve_type,guest|required_if:serve_place,serve_in_kitchen|date_format:H:i',
+
+            // guest and repairman
+            'description' => 'required_if:reserve_type,guest,repairman|string|max:255',
         ];
     }
 
-    /**
-     * Custom validation messages
-     *
-     * @return array
-     */
     public function messages()
     {
         return [
@@ -73,28 +71,35 @@ class CreateMealReservationRequest extends FormRequest
             'supervisor_id.exists'   => 'مسئول انتخاب‌شده معتبر نیست.',
 
             // personnel
-            'personnel.required_if'   => 'برای نوع رزرو پرسنلی، انتخاب حداقل یک پرسنل الزامی است.',
+            'personnel.required_if'   => 'برای رزرو پرسنلی، انتخاب حداقل یک پرسنل الزامی است.',
             'personnel.array'         => 'لیست پرسنل باید به صورت آرایه ارسال شود.',
             'personnel.*.required_if' => 'شناسه هر پرسنل الزامی است.',
             'personnel.*.integer'     => 'شناسه هر پرسنل باید عدد صحیح باشد.',
             'personnel.*.exists'      => 'حداقل یکی از پرسنل انتخاب‌شده معتبر نیست.',
 
             // contractor
-            'contractor.required_if'  => 'برای نوع رزرو پیمانکار، انتخاب پیمانکار الزامی است.',
+            'contractor.required_if'  => 'برای رزرو پیمانکار، انتخاب پیمانکار الزامی است.',
             'contractor.integer'     => 'شناسه پیمانکار باید عدد صحیح باشد.',
             'contractor.exists'      => 'پیمانکار انتخاب‌شده معتبر نیست.',
 
-            // quantity (both contractor & guest)
+            // quantity (contractor, guest and repairman)
             'quantity.required_if'    => 'تعداد الزامی است.',
             'quantity.integer'        => 'تعداد باید عدد صحیح باشد.',
             'quantity.min'            => 'تعداد باید حداقل ۱ باشد.',
 
             // guest
-            'serve_place.required_if' => 'محل سرو برای رزرو مهمان الزامی است.',
+            'serve_place.required_if' => 'برای رزرو مهمان، محل سرو الزامی است.',
             'serve_place.string'      => 'محل سرو باید متن معتبر باشد.',
+            'serve_place.in'          => 'محل سرو انتخاب‌شده معتبر نیست.',
 
-            'description.required_if' => 'برای رزرو مهمان، وارد کردن توضیحات الزامی است.',
+            // attendance_hour
+            'attendance_hour.required_if' => 'برای رزرو مهمان در صورت سرو در آشپزخانه، ساعت حضور الزامی است.',
+            'attendance_hour.date_format' => 'فرمت ساعت حضور معتبر نیست (مثال: 14:30).',
+
+            // description
+            'description.required_if' => 'برای رزرو مهمان یا تعمیرکار، وارد کردن توضیحات الزامی است.',
             'description.string'      => 'توضیحات باید متن معتبر باشد.',
+            'description.max'         => 'توضیحات نمی‌تواند بیشتر از ۲۵۵ کاراکتر باشد.',
         ];
     }
 
