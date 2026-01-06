@@ -5,7 +5,6 @@ namespace App\Services\Api;
 use App\Models\User;
 use App\Jobs\SyncWithKasraJob;
 use App\Models\Base\UserProfile;
-use Illuminate\Support\Facades\DB;
 use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -56,30 +55,34 @@ class KasraService
             'userCount' => count($users),
         ]);
 
-        foreach ($users as $rayvarzUser) {
+        foreach ($users as $user) {
 
-            if (strlen($rayvarzUser['Code']) !== 4) {
+            if (strlen($user['Code']) !== 4) {
                 continue;
             }
 
-            $ourUser = User::updateOrCreate(
+            User::updateOrCreate(
                 [
-                    'username' => $rayvarzUser['Code'],
+                    'username' => $user['Code'],
                 ],
                 [
-                    'first_name' => $rayvarzUser['FName'],
-                    'last_name' => $rayvarzUser['LName'],
-                    'username' => $rayvarzUser['Code'],
+                    'first_name' => $user['FName'],
+                    'last_name' => $user['LName'],
+                    'username' => $user['Code'],
                     'active' => false,
                 ]
             );
+        }
 
+        $usersMap = User::pluck('id', 'personnel_code');
+
+        foreach ($users as $user) {
             UserProfile::updateOrCreate(
                 [
-                    'user_id' => $ourUser->id,
+                    'user_id' => $usersMap[$user['Code']],
                 ],
                 [
-                    'mobile_number' => $rayvarzUser['MobileNO'] ? ('0' . Str::substr((string) $rayvarzUser['MobileNO'], -10)) : null,
+                    'mobile_number' => $user['MobileNO'] ? ('0' . Str::substr((string) $user['MobileNO'], -10)) : null,
                 ]
             );
         }
