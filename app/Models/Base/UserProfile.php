@@ -12,6 +12,7 @@ class UserProfile extends Model
         'father_name',
         'birth_place',
         'birth_date',
+        'mobile_number',
         'marital_status',
         'employment_date',
         'start_date',
