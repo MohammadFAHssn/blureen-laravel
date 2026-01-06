@@ -12,11 +12,12 @@ class MealReservation extends Model
     protected $fillable = [
         'date',
         'meal_id',
-        'reserve_type',  // personnel, contractor or guest
-        'supervisor_id',  // created_by for now, may change in future - in future use, this means personnel x reserved food for staff, contractor or guest related to personnel y
+        'reserve_type',  // personnel, contractor, guest or repairman
+        'supervisor_id',  // created_by for now, may change in future - in future use, this means personnel x reserved food for staff, contractor or guest related to personnel y (personnel y Id)
         'delivery_code',
-        'description',  // mandatory only for guest
-        'serve_place',  // mandatory only for guest
+        'description',  // mandatory only for guest and repairman
+        'serve_place',  // mandatory only for guest - serve_in_kitchen or deliver
+        'attendance_hour',  // mandatory only for guest when serve_place is serve_in_kitchen
         'status',
         'created_by',
         'edited_by',
@@ -25,8 +26,12 @@ class MealReservation extends Model
     protected $casts = [
         'date' => 'date:Y/m/d',
         'meal_id' => 'integer',
+        'reserve_type' => 'string',
         'supervisor_id' => 'integer',
         'delivery_code' => 'integer',
+        'description' => 'string',
+        'serve_place' => 'string',
+        'attendance_hour' => 'string',
         'status' => 'boolean',
         'created_by' => 'integer',
         'edited_by' => 'integer',
@@ -70,5 +75,10 @@ class MealReservation extends Model
     public function scopeGuest($query)
     {
         return $query->where('reserve_type', 'guest');
+    }
+
+    public function scopeRepairman($query)
+    {
+        return $query->where('reserve_type', 'repairman');
     }
 }
