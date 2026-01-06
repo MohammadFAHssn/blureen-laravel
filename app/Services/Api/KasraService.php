@@ -64,7 +64,7 @@ class KasraService
 
             $ourUser = User::updateOrCreate(
                 [
-                    'user_name' => $rayvarzUser['Code'],
+                    'username' => $rayvarzUser['Code'],
                 ],
                 [
                     'first_name' => $rayvarzUser['FName'],
