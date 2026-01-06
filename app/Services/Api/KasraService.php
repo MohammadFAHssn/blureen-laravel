@@ -77,7 +77,9 @@ class KasraService
         $usersMap = User::pluck('id', 'personnel_code');
 
         foreach ($users as $user) {
-            if ($usersMap[$user['Code']] === null) {
+            $userId = $usersMap[$user['Code']] ?? null;
+
+            if (!$userId) {
                 continue;
             }
 
