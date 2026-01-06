@@ -77,9 +77,13 @@ class KasraService
         $usersMap = User::pluck('id', 'personnel_code');
 
         foreach ($users as $user) {
+            if ($usersMap[$user['Code']] === null) {
+                continue;
+            }
+
             UserProfile::updateOrCreate(
                 [
-                    'username' => $usersMap[$user['Code']],
+                    'user_id' => $usersMap[$user['Code']],
                 ],
                 [
                     'mobile_number' => $user['MobileNO'] ? ('0' . Str::substr((string) $user['MobileNO'], -10)) : null,
