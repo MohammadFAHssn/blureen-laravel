@@ -79,7 +79,7 @@ class KasraService
         foreach ($users as $user) {
             UserProfile::updateOrCreate(
                 [
-                    'user_id' => $usersMap[$user['Code']],
+                    'username' => $usersMap[$user['Code']],
                 ],
                 [
                     'mobile_number' => $user['MobileNO'] ? ('0' . Str::substr((string) $user['MobileNO'], -10)) : null,
