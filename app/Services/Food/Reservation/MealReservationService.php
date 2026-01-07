@@ -270,6 +270,22 @@ class MealReservationService
     }
 
     /**
+     * Get all meal reservations for repairman by a user on date
+     *
+     * @param array $data
+     * @return array
+     */
+    public function getAllMealReservationsForRepairmanByUserOnDate($request)
+    {
+        $mealReservationsForAllDates = [];
+        foreach ($request['date'] as $date) {
+            $mealReservationsForDate = $this->mealReservationRepository->getAllForRepairmanByUserOnDate($date);
+            $mealReservationsForAllDates[] = $mealReservationsForDate;
+        }
+        return $mealReservationsForAllDates;
+    }
+
+    /**
      * Get all delivered meal reservations for a specific contractor in a date range
      *
      * @param array $request

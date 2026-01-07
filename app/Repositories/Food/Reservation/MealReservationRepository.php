@@ -79,6 +79,18 @@ class MealReservationRepository
     }
 
     /**
+     * Get all meal reservations for repairman by a user on a date
+     *
+     * @param array $data
+     * @return array
+     */
+    public function getAllForRepairmanByUserOnDate($data)
+    {
+        $id = Auth::id();
+        return MealReservation::repairman()->where('date', $data)->where('created_by', $id)->with('meal', 'details', 'createdBy', 'editedBy')->get();
+    }
+
+    /**
      * Get all meal reservations on a date
      *
      * @param array $data
