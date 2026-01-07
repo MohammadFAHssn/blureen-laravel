@@ -43,7 +43,7 @@ class CreateMealReservationRequest extends FormRequest
 
             // guest
             'serve_place' => 'required_if:reserve_type,guest|string|in:serve_in_kitchen,deliver',
-            'attendance_hour' => 'nullable|required_if:reserve_type,guest|required_if:serve_place,serve_in_kitchen|date_format:H:i',
+            'attendance_hour' => 'nullable|exclude_unless:reserve_type,guest|required_if:serve_place,serve_in_kitchen|date_format:H:i',
 
             // guest and repairman
             'description' => 'required_if:reserve_type,guest,repairman|string|max:255',
