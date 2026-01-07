@@ -270,6 +270,34 @@ class MealReservationController
     }
 
     /**
+     * check to see if there is even one meal reservation in a date
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function checkForDelivered(Request $request)
+    {
+        try {
+            $data = $this->mealReservationService->checkForDelivered($request->toArray());
+
+            $payload = [
+                'data' => $data,
+                'message' => 'چک با موفقیت انجام شد.',
+                'status' => 200,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        } catch (Throwable $e) {
+            $payload = [
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        }
+    }
+
+    /**
      * Delete meal reservation
      *
      * @param int $id

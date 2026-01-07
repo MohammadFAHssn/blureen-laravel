@@ -319,6 +319,19 @@ class MealReservationService
     }
 
     /**
+     * check to see if there is even one meal reservation in a date
+     *
+     * @param array $request
+     * @return boolean
+     */
+    public function checkForDelivered(array $request)
+    {
+        return $this
+            ->mealReservationRepository
+            ->checkForDelivered($request['date']);
+    }
+
+    /**
      * Update meal reservation
      *
      * @param int $id

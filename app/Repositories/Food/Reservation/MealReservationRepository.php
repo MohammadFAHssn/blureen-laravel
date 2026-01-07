@@ -141,6 +141,19 @@ class MealReservationRepository
     }
 
     /**
+     * check to see if there is even one meal reservation in a date
+     *
+     * @param string $date
+     * @return boolean
+     */
+    public function checkForDelivered(string $date) {
+        return MealReservation::
+            where('date', $date)
+            ->where('status', 1)
+            ->exists();
+    }
+
+    /**
      * Update meal reservation
      *
      * @param int $id
