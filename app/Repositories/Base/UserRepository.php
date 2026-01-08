@@ -48,7 +48,16 @@ class UserRepository
 
         [$viewableRoleFields, $roleWhereConditions] = $this->resolveFieldPermissionsForModel('App\Models\Base\Role', $userRoleIds);
 
-        return User::select($viewableUserFields)->where($userWhereConditions)
+        [$viewableFileFields, $fileWhereConditions] = $this->resolveFieldPermissionsForModel('App\Models\Base\File', $userRoleIds);
+
+        return User::select([
+            'id',
+            'first_name',
+            'last_name',
+            'personnel_code',
+            'active'
+        ])
+            ->where($userWhereConditions)
             ->when(!empty($viewableUserProfileFields), function ($query) use ($viewableUserProfileFields, $userProfileWhereConditions) {
                 $query->with([
                     'profile' => function ($query) use ($viewableUserProfileFields, $userProfileWhereConditions) {
@@ -66,7 +75,10 @@ class UserRepository
                         $query->select($viewableRoleFields)->where($roleWhereConditions);
                     }
                 ]);
-            })->get();
+            })->when(!empty($viewableFileFields), function ($query) {
+                $query->with(['avatar']);
+            })
+            ->get();
     }
 
     function resolveFieldPermissionsForModel($modelClass, $roleIds)

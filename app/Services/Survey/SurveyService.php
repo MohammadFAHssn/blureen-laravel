@@ -86,8 +86,6 @@ class SurveyService
         } catch (\Exception $e) {
             Log::error('Porsline create new variables failed', [
                 'error' => $e->getMessage(),
-                'status' => $response->status(),
-                'body' => Str::limit($response->body(), 2000),
             ]);
             throw new CustomException('هنگام ایجاد متغیرهای جدید در Porsline خطایی رخ داده‌است.', 500);
         }
@@ -128,12 +126,12 @@ class SurveyService
                                     "personnel_code" => $user->personnel_code,
                                     "first_name" => $user->first_name,
                                     "last_name" => $user->last_name,
-                                    "gender" => $user->profile->gender,
-                                    "education" => $user->profile->educationLevel->name,
-                                    "workplace" => $user->profile->workplace->name,
-                                    "work_area" => $user->profile->workArea->name,
-                                    "cost_center" => $user->profile->costCenter->name,
-                                    "job_position" => $user->profile->jobPosition->name,
+                                    "gender" => $user->profile?->gender,
+                                    "education" => 'نامشخص',
+                                    "workplace" => $user->profile?->workplace?->name,
+                                    "work_area" => $user->profile?->workArea?->name,
+                                    "cost_center" => $user->profile?->costCenter?->name,
+                                    "job_position" => 'نامشخص',
                                     "is_unique" => true,
                                 ],
                             ],
@@ -160,8 +158,6 @@ class SurveyService
             } catch (\Exception $e) {
                 Log::error('Porsline create url failed', [
                     'error' => $e->getMessage(),
-                    'status' => $response->status(),
-                    'body' => Str::limit($response->body(), 2000),
                 ]);
                 throw new CustomException('هنگام ایجاد url در Porsline خطایی رخ داده‌است.', 500);
             }

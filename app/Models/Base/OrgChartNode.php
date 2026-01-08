@@ -6,9 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrgChartNode extends Model
 {
-    public function user()
+    protected $fillable = [
+        'org_position_id',
+        'org_unit_id',
+        'parent_id',
+    ];
+
+    public function users()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsToMany(
+            User::class,
+            'org_chart_node_users',
+            'org_chart_node_id',
+            'user_id'
+        )
+            ->wherePivot('role', 'primary')
+            ->select('users.id', 'users.first_name', 'users.last_name', 'users.personnel_code');
     }
 
     public function orgPosition()
@@ -34,12 +47,22 @@ class OrgChartNode extends Model
     public function childrenRecursive()
     {
         return $this->children()
-            ->with(['user:id,first_name,last_name,personnel_code', 'childrenRecursive', 'orgPosition', 'orgUnit']);
+            ->with([
+                'users',
+                'childrenRecursive',
+                'orgPosition',
+                'orgUnit',
+            ]);
     }
 
     public function parentRecursive()
     {
         return $this->parent()
-            ->with(['user:id,first_name,last_name,personnel_code', 'parentRecursive', 'orgPosition', 'orgUnit']);
+            ->with([
+                'users',
+                'parentRecursive',
+                'orgPosition',
+                'orgUnit',
+            ]);
     }
 }

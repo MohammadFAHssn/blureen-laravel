@@ -41,8 +41,9 @@ Route::middleware('throttle:60,1')->group(function () {
 
             Route::controller(\App\Http\Controllers\Base\OrgChartNodeController::class)->prefix('/org-chart-node')->group(function () {
                 // TODO: middleware
-                Route::get('', 'get');
+                Route::get('', 'get')->middleware('permission:read Organization-Chart');
                 Route::get('/user-subordinates', 'getUserSubordinates');
+                Route::put('/update', 'update')->middleware('permission:edit Organization-Chart');
             });
 
             Route::controller(\App\Http\Controllers\Base\FileController::class)->prefix('/file')->group(function () {
@@ -58,7 +59,7 @@ Route::middleware('throttle:60,1')->group(function () {
 
             Route::controller(\App\Http\Controllers\Payroll\PayrollSlipController::class)->prefix('/payroll-slip')->group(function () {
                 Route::get('/get-the-last-few-months', 'getTheLastFewMonths')->middleware('role:Super Admin|employee');
-                // Route::get('print', 'print')->middleware('role:Super Admin|employee');
+                Route::get('/print', 'print')->middleware('role:Super Admin|employee');
                 Route::get('reports', 'getReports')->middleware('permission:read Payroll-Batches');
             });
         });
