@@ -306,7 +306,7 @@ class MealReservationService
      * Get all meal reservations in a date range
      *
      * @param array $request
-     * @return \Illuminate\Support\Collection
+     * @return boolean
      */
     public function getAllMealReservationsInDateRange(array $request)
     {
@@ -328,7 +328,7 @@ class MealReservationService
     {
         return $this
             ->mealReservationRepository
-            ->checkForDelivered($request['date']);
+            ->checkForDelivered($request);
     }
 
     /**
