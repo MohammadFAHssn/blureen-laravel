@@ -24,7 +24,7 @@ class UserProfile extends Model
         'job_position_id',
     ];
 
-    public function educationLevel()
+    public function educationLevel(): BelongsTo
     {
         return $this->belongsTo(EducationLevel::class, 'education_level_id', 'rayvarz_id');
     }
