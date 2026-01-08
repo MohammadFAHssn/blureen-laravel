@@ -9,7 +9,6 @@ use App\Models\Base\UserProfile;
 use App\Models\HrRequest\HrRequest;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Facades\DB;
 use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
