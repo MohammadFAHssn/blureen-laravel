@@ -28,7 +28,7 @@ class RequestApprovalRuleService
         $userOrgPosition = $userOrgPositions->first();
 
         return RequestApprovalRule::with([
-            'approverOrgChartNode.user:id,first_name,last_name,personnel_code',
+            'approverOrgChartNode.users',
             'approverOrgChartNode.orgPosition',
             'approverOrgChartNode.orgUnit',
         ])
@@ -46,7 +46,7 @@ class RequestApprovalRuleService
                     }
                 } elseif ($rule->approverOrgChartNode) {
                     return [
-                        ...$rule->approverOrgChartNode->only(['user', 'orgPosition', 'orgUnit']),
+                        ...$rule->approverOrgChartNode->only(['users', 'orgPosition', 'orgUnit']),
                         'priority' => $rule->priority,
                     ];
                 }

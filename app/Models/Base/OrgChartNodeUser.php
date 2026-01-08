@@ -4,7 +4,7 @@ namespace App\Models\Base;
 
 use Illuminate\Database\Eloquent\Model;
 
-class LiaisonOrgUnit extends Model
+class OrgChartNodeUser extends Model
 {
-    protected $table = 'liaisons_org_units';
+    //
 }

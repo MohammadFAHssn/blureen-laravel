@@ -5,7 +5,6 @@ namespace App\Services\Api;
 use App\Models\User;
 use App\Jobs\SyncWithKasraJob;
 use App\Models\Base\UserProfile;
-use Illuminate\Support\Facades\DB;
 use App\Exceptions\CustomException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -56,46 +55,42 @@ class KasraService
             'userCount' => count($users),
         ]);
 
-        $userData = [];
         foreach ($users as $user) {
 
             if (strlen($user['Code']) !== 4) {
                 continue;
             }
 
-            $userData[] = [
-                'first_name' => $user['FName'],
-                'last_name' => $user['LName'],
-                'username' => $user['Code'],
-                'personnel_code' => $user['Code'],
-                'active' => false,
-                'updated_at' => now(),
-            ];
-
-        }
-
-        foreach (array_chunk($userData, 500) as $chunk) {
-            DB::table('users')->upsert($chunk, ['username']);
+            User::updateOrCreate(
+                [
+                    'username' => $user['Code'],
+                ],
+                [
+                    'first_name' => $user['FName'],
+                    'last_name' => $user['LName'],
+                    'username' => $user['Code'],
+                    'active' => false,
+                ]
+            );
         }
 
         $usersMap = User::pluck('id', 'personnel_code');
-        $userProfile = [];
 
         foreach ($users as $user) {
+            $userId = $usersMap[$user['Code']] ?? null;
 
-            if (strlen($user['Code']) !== 4) {
+            if (!$userId) {
                 continue;
             }
 
-            $userProfile[] = [
-                'user_id' => $usersMap[$user['Code']],
-                'mobile_number' => $user['MobileNO'] ? ('0' . Str::substr((string) $user['MobileNO'], -10)) : null,
-                'updated_at' => now(),
-            ];
-        }
-
-        foreach (array_chunk($userProfile, 500) as $chunk) {
-            UserProfile::upsert($chunk, ['user_id']);
+            UserProfile::updateOrCreate(
+                [
+                    'user_id' => $userId,
+                ],
+                [
+                    'mobile_number' => $user['MobileNO'] ? ('0' . Str::substr((string) $user['MobileNO'], -10)) : null,
+                ]
+            );
         }
 
         Log::info('Sync completed');

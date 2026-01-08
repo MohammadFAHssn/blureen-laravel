@@ -222,6 +222,7 @@ class AuthController
                 'id' => $user->id,
                 'role' => $user->getRoleNames(),
                 'username' => $user->username,
+                'avatar' => $user->avatar
             ],
             'userAbilityRules' => $permissions,
             'token_type' => 'bearer',

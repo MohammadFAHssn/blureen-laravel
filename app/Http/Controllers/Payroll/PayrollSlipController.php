@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Payroll;
 
 use App\Services\Payroll\PayrollSlipService;
+use App\Http\Requests\Payroll\PrintPayrollSlipRequest;
 use App\Http\Requests\Payroll\GetTheLastFewMonthsPayrollSlipsRequest;
 
 use App\Http\Requests\Payroll\GetPayrollSlipReportsRequest;
@@ -25,5 +26,10 @@ class PayrollSlipController
     public function getReports(GetPayrollSlipReportsRequest $request)
     {
         return $this->payrollSlipService->getReports($request);
+    }
+
+    public function print(PrintPayrollSlipRequest $request)
+    {
+        return $this->payrollSlipService->print($request);
     }
 }

@@ -32,6 +32,7 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::controller(\App\Http\Controllers\Base\UserController::class)->prefix('/user')->group(function () {
                 Route::get('/approval-flows-as-requester', 'getApprovalFlowsAsRequester')->middleware('permission:read Approval-Flows');
                 Route::post('/reset-password', 'resetPassword');
+                Route::get('/details', 'getDetails')->middleware('permission:read User-Details');
             });
 
             Route::controller(\App\Http\Controllers\Base\ApprovalFlowController::class)->prefix('/approval-flow')->group(function () {
@@ -40,8 +41,13 @@ Route::middleware('throttle:60,1')->group(function () {
 
             Route::controller(\App\Http\Controllers\Base\OrgChartNodeController::class)->prefix('/org-chart-node')->group(function () {
                 // TODO: middleware
-                Route::get('', 'get');
+                Route::get('', 'get')->middleware('permission:read Organization-Chart');
                 Route::get('/user-subordinates', 'getUserSubordinates');
+                Route::put('/update', 'update')->middleware('permission:edit Organization-Chart');
+            });
+
+            Route::controller(\App\Http\Controllers\Base\FileController::class)->prefix('/file')->group(function () {
+                Route::post('/upload-bulk-avatars', 'uploadBulkAvatars')->middleware('role:Super Admin');
             });
         });
 
@@ -53,7 +59,7 @@ Route::middleware('throttle:60,1')->group(function () {
 
             Route::controller(\App\Http\Controllers\Payroll\PayrollSlipController::class)->prefix('/payroll-slip')->group(function () {
                 Route::get('/get-the-last-few-months', 'getTheLastFewMonths')->middleware('role:Super Admin|employee');
-                // Route::get('print', 'print')->middleware('role:Super Admin|employee');
+                Route::get('/print', 'print')->middleware('role:Super Admin|employee');
                 Route::get('reports', 'getReports')->middleware('permission:read Payroll-Batches');
             });
         });
