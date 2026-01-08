@@ -25,7 +25,7 @@ class KasraService
         AppConstants::HR_REQUEST_TYPES['OVERTIME'] => '11101', // اضافه کار عادی
     ];
 
-    public function sync(): void
+    public function sync()
     {
         SyncWithKasraJob::dispatch();
     }
