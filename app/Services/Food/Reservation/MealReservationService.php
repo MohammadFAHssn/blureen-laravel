@@ -270,6 +270,22 @@ class MealReservationService
     }
 
     /**
+     * Get all meal reservations for repairman by a user on date
+     *
+     * @param array $data
+     * @return array
+     */
+    public function getAllMealReservationsForRepairmanByUserOnDate($request)
+    {
+        $mealReservationsForAllDates = [];
+        foreach ($request['date'] as $date) {
+            $mealReservationsForDate = $this->mealReservationRepository->getAllForRepairmanByUserOnDate($date);
+            $mealReservationsForAllDates[] = $mealReservationsForDate;
+        }
+        return $mealReservationsForAllDates;
+    }
+
+    /**
      * Get all delivered meal reservations for a specific contractor in a date range
      *
      * @param array $request
@@ -290,7 +306,7 @@ class MealReservationService
      * Get all meal reservations in a date range
      *
      * @param array $request
-     * @return \Illuminate\Support\Collection
+     * @return boolean
      */
     public function getAllMealReservationsInDateRange(array $request)
     {
@@ -300,6 +316,19 @@ class MealReservationService
                 $request['date'][0],
                 $request['date'][1]
             );
+    }
+
+    /**
+     * check to see if there is even one meal reservation in a date
+     *
+     * @param array $request
+     * @return boolean
+     */
+    public function checkForDelivered(array $request)
+    {
+        return $this
+            ->mealReservationRepository
+            ->checkForDelivered($request);
     }
 
     /**

@@ -2,8 +2,8 @@
 
 namespace App\Repositories\Food\Rep;
 
-use Illuminate\Support\Facades\Auth;
 use App\Models\Food\MealReservationEligibilityRule;
+use Illuminate\Support\Facades\Auth;
 
 class MealReservationEligibilityRuleRepository
 {
@@ -66,6 +66,20 @@ class MealReservationEligibilityRuleRepository
     public function findById(int $id): MealReservationEligibilityRule
     {
         return MealReservationEligibilityRule::findOrFail($id);
+    }
+
+    /**
+     * Get by Meal ID
+     *
+     * @param int $mealId
+     * @return MealReservationEligibilityRule
+     * @throws ModelNotFoundException
+     */
+    public function findByMealId(int $mealId): ?MealReservationEligibilityRule
+    {
+        return MealReservationEligibilityRule::query()
+            ->where('meal_id', $mealId)
+            ->first();
     }
 
     /**

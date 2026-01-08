@@ -97,7 +97,7 @@ class FoodRepository
         }
 
         $food->status = !$food->status;
-        $food->edited_by = Auth::id();
+        // $food->edited_by = Auth::id();
         $food->save();
 
         return $food;

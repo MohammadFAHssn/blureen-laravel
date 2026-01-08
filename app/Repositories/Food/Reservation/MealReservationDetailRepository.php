@@ -2,8 +2,9 @@
 
 namespace App\Repositories\Food\Reservation;
 
-use Illuminate\Support\Facades\Auth;
 use App\Models\Food\MealReservationDetail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Collection;
 
 class MealReservationDetailRepository
 {
@@ -73,8 +74,7 @@ class MealReservationDetailRepository
         $mealReservationDetail = $this->findById($id);
         if (!$mealReservationDetail->delivery_status && !$mealReservationDetail->reservation->status) {
             return $mealReservationDetail->delete();
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -103,8 +103,9 @@ class MealReservationDetailRepository
         return MealReservationDetail::query()
             ->whereNotNull('reserved_for_personnel')
             ->whereHas('reservation', function ($q) use ($date, $mealId) {
-                $q->whereDate('date', $date)
-                ->where('meal_id', $mealId);
+                $q
+                    ->whereDate('date', $date)
+                    ->where('meal_id', $mealId);
             })
             ->pluck('reserved_for_personnel')
             ->unique()
@@ -112,31 +113,80 @@ class MealReservationDetailRepository
     }
 
     /**
-     * Get delivered meal reservation details for reservation type personnel for a given meal within a date range.
+     * Get delivered meal reservation details for personnel reservations for a meal within a date range
+     * where personnel did NOT stay overtime.
      *
-     * Returns a collection of MealReservationDetail models where:
-     * - reserved_for_personnel is not null
-     * - delivery_status is delivered (1)
-     * - the parent reservation matches the given meal, date range, and is an active personnel reservation
+     * Non-entitled = check_out_time is null OR check_out_time < cutoff time.
+     * Exceptions = excluded personnel user IDs.
      *
-     * @param  string  $from  Start date (Y-m-d)
-     * @param  string  $to    End date (Y-m-d)
-     * @param  int     $mealId
-     * @return \Illuminate\Support\Collection<int, \App\Models\MealReservationDetail>
+     * @param string $from Start date
+     * @param string $to End date
+     * @param int $mealId
+     * @param string $cutoffTime Time in HH:MM:SS
+     * @param int[] $exceptionUserIds
+     * @return \Illuminate\Support\Collection<int,\App\Models\MealReservationDetail>
      */
-    public function deliveredPersonnelReservationDetailsByDateRangeAndMeal(string $from, string $to, int $mealId)
+    public function nonEntitledDeliveredReservationDetailsByDateRangeAndMeal(string $from, string $to, int $mealId, string $cutoffTime, array $exceptionUserIds = [])
     {
         return MealReservationDetail::query()
             ->whereNotNull('reserved_for_personnel')
             ->where('delivery_status', 1)
+            ->where(function ($q) use ($cutoffTime) {
+                $q
+                    ->whereNull('check_out_time')
+                    ->orWhere('check_out_time', '<', $cutoffTime);
+            })
+            ->when(!empty($exceptionUserIds), fn($q) => $q->whereNotIn('reserved_for_personnel', $exceptionUserIds))
             ->whereHas('reservation', function ($q) use ($mealId, $from, $to) {
-                $q->whereBetween('date', [$from, $to])
-                ->where('meal_id', $mealId)
-                ->where('reserve_type', 'personnel')
-                ->where('status', 1);
+                $q
+                    ->whereBetween('date', [$from, $to])
+                    ->where('meal_id', $mealId)
+                    ->where('reserve_type', 'personnel')
+                    ->where('status', 1);
             })
             ->with('food', 'reservation', 'personnel')
             ->get();
     }
 
+    /**
+     * Get delivered personnel reservation details that still need a checkout lookup.
+     *
+     * Criteria:
+     * - delivery_status = 1
+     * - check_out_time is NULL
+     * - last_check_at is NULL OR last_check_at is older than 2 days
+     *
+     * @return \Illuminate\Support\Collection<int, \App\Models\MealReservationDetail>
+     */
+    public function personnelReservationDetailsNeedingCheckoutCheck()
+    {
+        return MealReservationDetail::query()
+            ->where('delivery_status', 1)
+            ->whereNull('check_out_time')
+            ->where(function ($q) {
+                $q
+                    ->whereNull('last_check_at')
+                    ->orWhere('last_check_at', '<', now()->subDays(2)->toDateString());
+            })
+            ->get();
+    }
+
+    /**
+     * Get unique personnel user IDs for an unDelivered reservation's details (optionally excluding detail IDs).
+     *
+     * @param  int    $reservationId
+     * @param  int[]  $excludeDetailIds
+     * @return \Illuminate\Support\Collection<int, int>
+     */
+    public function personnelIds(int $reservationId, array $excludeDetailIds = []): Collection
+    {
+        return MealReservationDetail::query()
+            ->where('meal_reservation_id', $reservationId)
+            ->where('delivery_status', 0)
+            ->whereNotNull('reserved_for_personnel')
+            ->when($excludeDetailIds, fn($q) => $q->whereNotIn('id', $excludeDetailIds))
+            ->pluck('reserved_for_personnel')
+            ->unique()
+            ->values();
+    }
 }

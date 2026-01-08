@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Base;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UserIdRequest extends FormRequest
@@ -17,12 +18,20 @@ class UserIdRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
         return [
             'user_id' => 'required|integer|exists:users,id',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'user_id.required'           => 'شناسه کاربر الزامی است.',
+            'user_id.exists'             => 'کاربر انتخاب‌شده در سیستم یافت نشد.',
         ];
     }
 }

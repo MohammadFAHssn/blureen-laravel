@@ -14,11 +14,12 @@ return new class extends Migration {
             $table->id();
             $table->date('date');
             $table->foreignId('meal_id')->constrained('meals');
-            $table->string('reserve_type');  // 'personnel', 'contractor', 'guest'
+            $table->string('reserve_type'); // personnel,contractor,guest,repairman
             $table->foreignId('supervisor_id')->constrained('users');
             $table->unsignedBigInteger('delivery_code');
-            $table->text('description')->nullable();
+            $table->string('description')->nullable();
             $table->string('serve_place')->nullable();
+            $table->time('attendance_hour')->nullable();
             $table->boolean('status')->default(0);
             $table->foreignId('created_by')->constrained('users');
             $table->foreignId('edited_by')->nullable()->constrained('users');
