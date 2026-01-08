@@ -161,53 +161,42 @@ class RayvarzService
             'userCount' => count($users),
         ]);
 
-        $usersMap = User::pluck('id', 'personnel_code');
+        foreach ($users as $rayvarzYser) {
+            $ourUser = User::updateOrCreate(
+                ['username' => $rayvarzYser['personnelId']],
+                [
+                    'first_name' => $rayvarzYser['name'],
+                    'last_name' => $rayvarzYser['family'],
+                    'username' => $rayvarzYser['personnelId'],
+                    'personnel_code' => $rayvarzYser['personnelId'],
+                    'active' => $rayvarzYser["quitDate"] ? false : true,
+                ]
+            );
 
-        $userData = [];
-        $userProfile = [];
-        foreach ($users as $user) {
-
-            $userData[] = [
-                'first_name' => $user['name'],
-                'last_name' => $user['family'],
-                'username' => $user['personnelId'],
-                'personnel_code' => $user['personnelId'],
-                'active' => $user["quitDate"] ? false : true,
-                'updated_at' => now(),
-            ];
-
-            $userProfile[] = [
-                'user_id' => $usersMap[$user['personnelId']],
-                'national_code' => $user['nationalCode'],
-                'gender' => $user['genderId'] === 1 ? 'مرد' : 'زن',
-                'father_name' => $user['fatherName'],
-                'birth_place' => $rayvarzCities->firstWhere('rayvarz_id', $user['birthPlaceId'])['name'] ?? null,
-                'birth_date' => jalalianYmdDateToCarbon($user['birthDate']),
-                'marital_status' => $this->getMaritalStatusById($user['mariageStatusId']),
-                'employment_date' => jalalianYmdDateToCarbon($user['employmentDate']),
-                'start_date' => jalalianYmdDateToCarbon($user['assignmentStartDate']),
-                'education_level_id' => $user['currentEducationId'],
-                'workplace_id' => $user['currentLocation'],
-                'work_area_id' => $user['crnZoneID'],
-                'cost_center_id' => $user['currentCenterId'],
-                'job_position_id' => $user['currentPostId'],
-                'updated_at' => now(),
-            ];
-        }
-
-        foreach (array_chunk($userData, 500) as $chunk) {
-            DB::table('users')->upsert($chunk, ['username']);
-        }
-
-        foreach (array_chunk($userProfile, 500) as $chunk) {
-            UserProfile::upsert($chunk, ['user_id']);
+            UserProfile::updateOrCreate(
+                ['user_id' => $ourUser->id],
+                [
+                    'national_code' => $rayvarzYser['nationalCode'],
+                    'gender' => $rayvarzYser['genderId'] === 1 ? 'مرد' : 'زن',
+                    'father_name' => $rayvarzYser['fatherName'],
+                    'birth_place' => $rayvarzCities->firstWhere('rayvarz_id', $rayvarzYser['birthPlaceId'])['name'] ?? null,
+                    'birth_date' => jalalianYmdDateToCarbon($rayvarzYser['birthDate']),
+                    'marital_status' => $this->getMaritalStatusById($rayvarzYser['mariageStatusId']),
+                    'employment_date' => jalalianYmdDateToCarbon($rayvarzYser['employmentDate']),
+                    'start_date' => jalalianYmdDateToCarbon($rayvarzYser['assignmentStartDate']),
+                    'education_level_id' => $rayvarzYser['currentEducationId'],
+                    'workplace_id' => $rayvarzYser['currentLocation'],
+                    'work_area_id' => $rayvarzYser['crnZoneID'],
+                    'cost_center_id' => $rayvarzYser['currentCenterId'],
+                    'job_position_id' => $rayvarzYser['currentPostId'],
+                ]
+            );
         }
 
         $retiredUsers = RetiredUsers::all();
         foreach ($retiredUsers as $retiredUser) {
             User::where('personnel_code', $retiredUser->personnel_code)->update([
                 'active' => true,
-                'updated_at' => now(),
             ]);
         }
 
