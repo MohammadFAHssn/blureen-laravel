@@ -286,23 +286,6 @@ class MealReservationService
     }
 
     /**
-     * Get all delivered meal reservations for a specific contractor in a date range
-     *
-     * @param array $request
-     * @return \Illuminate\Support\Collection
-     */
-    public function getAllDeliveredMealReservationsForContractorOnDate(array $request)
-    {
-        return $this
-            ->mealReservationRepository
-            ->getAllDeliveredForContractorBetweenDates(
-                $request['date'][0],
-                $request['date'][1],
-                $request['contractor']
-            );
-    }
-
-    /**
      * Get all meal reservations in a date range
      *
      * @param array $request

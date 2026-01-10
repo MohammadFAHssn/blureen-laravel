@@ -170,7 +170,6 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::get('/get-for-contractor-on-date', 'reservationsForContractorByUserOnDate')->middleware('permission:read Reserve-Food');
                 Route::get('/get-for-guest-on-date', 'reservationsForGuestByUserOnDate')->middleware('permission:read Reserve-Food');
                 Route::get('/get-for-repairman-on-date', 'reservationsForRepairmanByUserOnDate')->middleware('permission:read Reserve-Food');
-                Route::get('/get-for-specific-contractor-on-date', 'deliveredReservationsForContractorOnDate')->middleware('permission:read Contractor-Invoice');
                 Route::get('/get-in-date-range', 'reservationsInDateRange')->middleware('permission:read Kitchen');
                 Route::get('/check-for-delivered', 'checkForDelivered')->middleware('permission:read Kitchen');
                 Route::post('/', 'store')->middleware('permission:read Reserve-Food');
@@ -179,6 +178,7 @@ Route::middleware('throttle:60,1')->group(function () {
             });
             Route::controller(\App\Http\Controllers\Food\Reservation\MealReservationDetailController::class)->prefix('meal-reservation-detail')->group(function () {
                 Route::delete('/{id}', 'delete')->middleware('permission:read Reserve-Food');
+                Route::get('/get-for-specific-contractor-on-date', 'deliveredReservationsForContractorOnDate')->middleware('permission:read Contractor-Invoice');
             });
             Route::controller(\App\Http\Controllers\Food\Kitchen\FoodDeliveryController::class)->prefix('delivery')->group(function () {
                 Route::get('/', 'index')->middleware('permission:read Kitchen');

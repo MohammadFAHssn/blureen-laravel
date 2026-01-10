@@ -102,29 +102,6 @@ class MealReservationRepository
     }
 
     /**
-     * Get all delivered meal reservations for a specific contractor in a date range
-     *
-     * @param string $from
-     * @param string $to
-     * @param int $contractorId
-     * @return \Illuminate\Support\Collection
-     */
-    public function getAllDeliveredForContractorBetweenDates(
-        string $from,
-        string $to,
-        int $contractorId
-    ) {
-        return MealReservation::contractor()
-            ->where('status', 1)  // delivered
-            ->whereBetween('date', [$from, $to])
-            ->whereHas('details', function ($q) use ($contractorId) {
-                $q->where('reserved_for_contractor', $contractorId);
-            })
-            ->with('meal', 'details', 'createdBy', 'editedBy')
-            ->get();
-    }
-
-    /**
      * Get all meal reservations in a date range
      *
      * @param array $data
