@@ -30,14 +30,16 @@ class MealReservationExceptionRepository
     }
 
     /**
-     * Get all active meal reservation exception user IDs.
+     * Get all active meal reservation exception user IDs for a specific Meal.
      *
+     * @param int $mealId
      * @return int[]
      */
-    public function getAllActiveUserIds()
+    public function getAllActiveUserIds($mealId)
     {
         return MealReservationException::query()
             ->where('status', 1)
+            ->where('meal_id', $mealId)
             ->pluck('user_id')
             ->map(fn($v) => (int) $v)
             ->all();

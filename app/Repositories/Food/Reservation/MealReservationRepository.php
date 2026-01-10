@@ -141,7 +141,7 @@ class MealReservationRepository
     }
 
     /**
-     * check to see if there is even one meal reservation in a date
+     * check to see if there is even one delivered meal reservation in a date
      *
      * @param array $data
      * @return boolean

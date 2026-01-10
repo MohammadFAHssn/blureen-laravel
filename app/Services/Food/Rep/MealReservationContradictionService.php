@@ -55,7 +55,7 @@ class MealReservationContradictionService
             ? $rule->time . ':00'
             : $rule->time;
 
-        $exceptionUserIds = $this->mealReservationExceptionRepository->getAllActiveUserIds();
+        $exceptionUserIds = $this->mealReservationExceptionRepository->getAllActiveUserIds($data['meal_id']);
         return $this->mealReservationDetailRepository->nonEntitledDeliveredReservationDetailsByDateRangeAndMeal($from, $to, (int) $data['meal_id'], $cutoffTime, $exceptionUserIds);
     }
 
