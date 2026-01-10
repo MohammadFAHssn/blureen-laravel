@@ -68,4 +68,32 @@ class MealReservationDetailController
             return response()->json($payload, $payload['status']);
         }
     }
+
+    /**
+     * Get all delivered meal reservations details for a specific contractor in a date range
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function deliveredReservationsForContractorOnDate(Request $request)
+    {
+        try {
+            $data = $this->mealReservationDetailService->getAllDeliveredMealReservationsForContractorOnDate($request->toArray());
+
+            $payload = [
+                'data' => $data,
+                'message' => 'لیست رزروها با موفقیت دریافت شد.',
+                'status' => 200,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        } catch (Throwable $e) {
+            $payload = [
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        }
+    }
 }

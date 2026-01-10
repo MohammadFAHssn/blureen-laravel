@@ -33,4 +33,21 @@ class MealReservationDetailService
     {
         return $this->mealReservationDetailRepository->delete($id);
     }
+
+    /**
+     * Get all delivered meal reservations details for a specific contractor in a date range
+     *
+     * @param array $request
+     * @return \Illuminate\Support\Collection
+     */
+    public function getAllDeliveredMealReservationsForContractorOnDate(array $request)
+    {
+        return $this
+            ->mealReservationDetailRepository
+            ->getAllDeliveredForContractorBetweenDates(
+                $request['date'][0],
+                $request['date'][1],
+                $request['contractor']
+            );
+    }
 }
