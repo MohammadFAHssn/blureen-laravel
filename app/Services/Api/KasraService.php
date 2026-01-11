@@ -56,7 +56,6 @@ class KasraService
         ]);
 
         foreach ($users as $user) {
-
             if (strlen($user['Code']) !== 4) {
                 continue;
             }
@@ -69,6 +68,7 @@ class KasraService
                     'first_name' => $user['FName'],
                     'last_name' => $user['LName'],
                     'username' => $user['Code'],
+                    'personnel_code' => $user['Code'],
                     'active' => false,
                 ]
             );
