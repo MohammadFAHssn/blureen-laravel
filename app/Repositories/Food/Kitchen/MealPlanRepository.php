@@ -1,0 +1,84 @@
+<?php
+
+namespace App\Repositories\Food\Kitchen;
+
+use App\Models\Food\MealPlan;
+use Illuminate\Support\Facades\Auth;
+
+class MealPlanRepository
+{
+    /**
+     * create new meal plan
+     *
+     * @param array $data
+     * @return \App\Models\Food\MealPlan
+     */
+    public function create(array $data)
+    {
+        $data['created_by'] = Auth::id();
+        return MealPlan::create($data);
+    }
+
+    /**
+     * Get all meal plans for a date
+     *
+     * @param array $data
+     * @return array
+     */
+    public function getAllForDate($data)
+    {
+        return MealPlan::where('date', $data['date'])->with('createdBy', 'editedBy')->get();
+    }
+
+    /**
+     * Update meal plan
+     *
+     * @param int $id
+     * @param array $data
+     * @return MealPlan
+     */
+    public function update(int $id, array $data)
+    {
+        $mealPlan = $this->findById($id);
+        $data['edited_by'] = Auth::id();
+        $mealPlan->update($data);
+        return $mealPlan;
+    }
+
+    /**
+     * Get a by ID
+     *
+     * @param int $id
+     * @return MealPlan
+     * @throws ModelNotFoundException
+     */
+    public function findById(int $id): MealPlan
+    {
+        return MealPlan::findOrFail($id);
+    }
+
+    /**
+     * Get a meal plan by date and meal Id.
+     *
+     * @param string $date
+     * @param int    $mealId
+     * @return MealPlan|null
+     */
+    public function findByDateAndId(string $date, int $mealId): ?MealPlan
+    {
+        return MealPlan::where('date', $date)
+            ->where('meal_id', $mealId)
+            ->first();
+    }
+
+    /**
+     * Check if there's a meal plan with the same date and meal Id
+     *
+     * @param array $data
+     * @return bool
+     */
+    public function mealPlanExist(array $data)
+    {
+        return MealPlan::where('date', $data['date'])->where('meal_id', $data['meal_id'])->exists();
+    }
+}

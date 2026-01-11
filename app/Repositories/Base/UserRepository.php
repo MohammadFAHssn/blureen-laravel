@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Repositories\Base;
-
 use App\Exceptions\CustomException;
 use App\Models\User;
 use App\Models\Base\FieldPermission;
@@ -112,5 +111,35 @@ class UserRepository
         }
 
         return [array_keys($viewableFields), $whereConditions];
+    }
+
+    /**
+     * Get user by ID
+     *
+     * @param int $id
+     * @return User
+     * @throws ModelNotFoundException
+     */
+    public function findById(int $id): User
+    {
+        return User::findOrFail($id);
+    }
+
+    /**
+     * Get personnel codes indexed by user ID.
+     *
+     * @param  int[]  $userIds
+     * @return array<int, string>  [user_id => personnel_code]
+     */
+    public function personnelCodesByIds(array $userIds): array
+    {
+        if (empty($userIds)) {
+            return [];
+        }
+
+        return User::query()
+            ->whereIn('id', $userIds)
+            ->pluck('personnel_code', 'id')
+            ->toArray();
     }
 }
