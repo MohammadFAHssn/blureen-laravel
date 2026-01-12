@@ -92,6 +92,18 @@ class MealReservationDetailRepository
     }
 
     /**
+     * Get a meal reservation detail by meal reservation ID
+     *
+     * @param int $mealReservationId
+     * @return MealReservationDetail
+     * @throws ModelNotFoundException
+     */
+    public function findByMealReservationId(int $mealReservationId): MealReservationDetail
+    {
+        return MealReservationDetail::where('meal_reservation_id', $mealReservationId)->first();
+    }
+
+    /**
      * Get unique personnel IDs for reserved meal for a given date and meal.
      *
      * @param  string|\Carbon\Carbon  $date

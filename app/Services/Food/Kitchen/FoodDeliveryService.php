@@ -52,8 +52,8 @@ class FoodDeliveryService
     {
         if ($data['type'] === 'personnel') {
             $personnelIds = $this
-            ->mealReservationDetailRepository
-            ->personnelIds($data['reserved_meal_id'], $data['noDeliveryFor'] ?? []);
+                ->mealReservationDetailRepository
+                ->personnelIds($data['reserved_meal_id'], $data['noDeliveryFor'] ?? []);
             $reservation = $this->mealReservationRepository->findById($data['reserved_meal_id']);
             $this->checkingPersonnelEntry($personnelIds, $this->jalaliDate($reservation->date));
         }
@@ -75,10 +75,16 @@ class FoodDeliveryService
             }
 
             // contractor
-            $this->mealReservationDetailRepository->update($data['reserved_meal_id'], [
-                'quantity' => $data['today_food_count'],
-                'delivery_status' => 1,
-            ]);
+            if ($data['today_food_count'] === 0) {
+                $mealReservationDetail = $this->mealReservationDetailRepository->findByMealReservationId($data['reserved_meal_id']);
+                $mealReservationDetail->delete();
+            }
+            else {
+                $this->mealReservationDetailRepository->update($data['reserved_meal_id'], [
+                    'quantity' => $data['today_food_count'],
+                    'delivery_status' => 1,
+                ]);
+            }
 
             if (isset($data['second_food'])) {
                 $secondFood = $this->foodRepository->findById($data['second_food']);

@@ -83,6 +83,7 @@ class ContractorService
         return [
             'id' => $contractor->id,
             'fullName' => $contractor->first_name . ' ' . $contractor->last_name,
+            'costResponsible' => $contractor->cost_responsible,
             'description' => $contractor->description,
             'status' => $contractor->active,
             'createdBy' => $contractor->createdBy ? [
