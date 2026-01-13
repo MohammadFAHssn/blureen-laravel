@@ -174,7 +174,7 @@ class MealReservationDetailRepository
     {
         return MealReservationDetail::query()
             ->where('delivery_status', 1)
-            ->whereNull('reserved_for_personnel')
+            ->whereNotNull('reserved_for_personnel')
             ->whereNull('check_out_time')
             ->where(function ($q) {
                 $q
