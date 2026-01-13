@@ -49,8 +49,8 @@
 
         /* Header - Modern Outlined Style */
         .header {
-            background: #f0f7fc;
-            border: 2px solid #1a5276;
+            background: #ecfeff7f;
+            border: 2px solid #005f78;
             border-radius: 8px;
             padding: 6px 20px;
             display: flex;
@@ -62,14 +62,14 @@
         .header-title {
             font-size: 12px;
             font-weight: bold;
-            color: #1a5276;
+            color: #005f78;
             letter-spacing: 0.5px;
         }
 
         .header-date {
             font-size: 10px;
-            color: #1a5276;
-            border: 2px solid #1a5276;
+            color: #005f78;
+            border: 2px solid #005f78;
             padding: 5px 14px;
             border-radius: 20px;
             font-weight: bold;
@@ -92,7 +92,7 @@
         }
 
         .employee-info {
-            border: 1.5px solid #3498db;
+            border: 1.5px solid #193cb8;
             border-radius: 5px;
             padding: 8px;
             background: transparent;
@@ -100,8 +100,8 @@
 
         .section-title {
             background: transparent;
-            color: #1a5276;
-            border: 1.5px solid #1a5276;
+            color: #193cb8;
+            border: 1.5px solid #193cb8;
             padding: 4px 10px;
             border-radius: 4px;
             font-size: 10px;
@@ -122,25 +122,35 @@
             display: flex;
             justify-content: space-between;
             padding: 3px 6px;
-            border: 1px solid #95a5a6;
+            border: 1px solid #8ec5ff;
             border-radius: 3px;
             font-size: 8px;
             background: transparent;
         }
 
-        .info-label {
-            color: #566573;
+        .info-item .info-label {
+            color: #162556;
             font-weight: normal;
         }
 
-        .info-value {
-            color: #2c3e50;
+        .info-item .info-value {
+            color: #193cb8;
+            font-weight: bold;
+        }
+
+        .attendance-item .info-label {
+            color: #3c0366;
+            font-weight: normal;
+        }
+
+        .attendance-item .info-value {
+            color: #6e11b0;
             font-weight: bold;
         }
 
         /* Attendance Section */
         .attendance-info {
-            border: 1.5px solid #9b59b6;
+            border: 1.5px solid #6e11b0;
             border-radius: 5px;
             padding: 8px;
             background: transparent;
@@ -150,15 +160,15 @@
         }
 
         .attendance-info .section-title {
-            border-color: #9b59b6;
-            color: #9b59b6;
+            border-color: #6e11b0;
+            color: #6e11b0;
         }
 
         .attendance-item {
             display: flex;
             justify-content: space-between;
             padding: 3px 6px;
-            border: 1px solid #a569bd;
+            border: 1px solid #dab2ff;
             border-radius: 3px;
             margin-bottom: 3px;
             font-size: 8px;
@@ -183,7 +193,12 @@
         }
 
         .table-container.deductions {
-            border-color: #e74c3c;
+            border-color: #9f0712;
+            position: relative;
+        }
+
+        .table-container.payments {
+            border-color: #016630;
             position: relative;
         }
 
@@ -204,27 +219,53 @@
         }
 
         .table-container.deductions .data-table thead tr:first-child th {
-            color: #c0392b;
-            border-bottom-color: #e74c3c;
+            color: #9f0712;
+            border-bottom-color: #9f0712;
         }
 
-        .data-table thead tr:last-child th {
+        .table-container.payments .data-table thead tr:first-child th {
+            color: #016630;
+            border-bottom-color: #016630;
+        }
+
+        .data-table.payments thead tr:last-child th {
             background: transparent;
-            color: #566573;
+            color: #032e15;
             padding: 4px;
             text-align: center;
             font-weight: normal;
             font-size: 7px;
-            border-bottom: 1px solid #aab7b8;
+            border-bottom: 1px solid #016630;
         }
 
-        .data-table td {
+        .data-table.deductions thead tr:last-child th {
+            background: transparent;
+            color: #460809;
+            padding: 4px;
+            text-align: center;
+            font-weight: normal;
+            font-size: 7px;
+            border-bottom: 1px solid #9f0712;
+        }
+
+        .data-table.payments td {
+            color: #032e15;
             padding: 6px 8px;
-            border-bottom: 1px solid #d5d8dc;
+            border-bottom: 1px solid #016630;
         }
 
-        .data-table tbody tr:nth-child(odd) {
-            background: #f8f9f9;
+        .data-table.deductions td {
+            color: #460809;
+            padding: 6px 8px;
+            border-bottom: 1px solid #9f0712;
+        }
+
+        .data-table.payments tbody tr:nth-child(odd) {
+            background: #f0fdf47f;
+        }
+
+        .data-table.deductions tbody tr:nth-child(odd) {
+            background: #fef2f27f;
         }
 
         .row-number {
@@ -244,7 +285,11 @@
         }
 
         .table-container.deductions .amount-cell {
-            color: #e74c3c;
+            color: #9f0712;
+        }
+
+        .table-container.payments .amount-cell {
+            color: #016630;
         }
 
         .label-cell {
@@ -281,18 +326,18 @@
         }
 
         .summary-box.payments {
-            border-color: #27ae60;
-            background: #eafaf1;
+            border-color: #016630;
+            background: #f0fdf47f;
         }
 
         .summary-box.deductions {
-            border-color: #e74c3c;
-            background: #fdedec;
+            border-color: #9f0712;
+            background: #fef2f27f;
         }
 
         .summary-box.net-pay {
-            border: 2.5px solid #1a5276;
-            background: #eaf2f8;
+            border: 2.5px solid #005f78;
+            background: #ecfeff7f;
         }
 
         .summary-label {
@@ -303,7 +348,7 @@
         }
 
         .summary-box.net-pay .summary-label {
-            color: #1a5276;
+            color: #053345;
             font-weight: bold;
         }
 
@@ -314,16 +359,25 @@
             direction: ltr;
         }
 
+        .summary-box.payments .summary-label {
+            color: #032e15;
+        }
+
         .summary-box.payments .summary-value {
-            color: #27ae60;
+            color: #016630;
+        }
+
+
+        .summary-box.deductions .summary-label {
+            color: #460809;
         }
 
         .summary-box.deductions .summary-value {
-            color: #e74c3c;
+            color: #9f0712;
         }
 
         .summary-box.net-pay .summary-value {
-            color: #1a5276;
+            color: #005f78;
             font-size: 15px;
         }
 
@@ -336,7 +390,7 @@
 
         .bank-info {
             background: transparent;
-            border: 1.5px solid #f39c12;
+            border: 1.5px solid #9f2d00;
             border-radius: 5px;
             padding: 8px 12px;
             flex: 1;
@@ -344,7 +398,7 @@
 
         .bank-info-text {
             font-size: 9px;
-            color: #b7950b;
+            color: #9f2d00;
         }
 
         .bank-account {
@@ -352,7 +406,7 @@
             font-family: 'Shabnam', 'Tahoma', sans-serif;
             direction: ltr;
             display: inline-block;
-            color: #9a7d0a;
+            color: #9f2d00;
         }
 
         .stamp-section {
@@ -427,8 +481,8 @@
 
             <!-- Middle Column - Payments -->
             <div class="table-column">
-                <div class="table-container">
-                    <table class="data-table">
+                <div class="table-container payments">
+                    <table class="data-table payments">
                         <thead>
                             <tr>
                                 <th colspan="3">پرداخت‌ها</th>
@@ -459,7 +513,7 @@
             <!-- Left Column - Deductions -->
             <div class="table-column">
                 <div class="table-container deductions">
-                    <table class="data-table">
+                    <table class="data-table deductions">
                         <thead>
                             <tr>
                                 <th colspan="3">کسورات</th>
@@ -491,35 +545,36 @@
             </div>
         </div>
 
-            <!-- Bottom Section - Summary & Footer -->
-            <div class="bottom-section">
-                <!-- Summary Section -->
-                <div class="summary-section">
-                    <div class="summary-box payments">
-                        <div class="summary-label">جمع پرداخت‌ها</div>
-                        <div class="summary-value">{{ number_format($totalPayments) }}</div>
-                    </div>
-                    <div class="summary-box deductions">
-                        <div class="summary-label">جمع کسورات</div>
-                        <div class="summary-value">-{{ number_format($totalDeductions) }}</div>
-                    </div>
-                    <div class="summary-box net-pay">
-                        <div class="summary-label">خالص پرداختی</div>
-                        <div class="summary-value">{{ number_format($netPay) }}</div>
-                    </div>
+        <!-- Bottom Section - Summary & Footer -->
+        <div class="bottom-section">
+            <!-- Summary Section -->
+            <div class="summary-section">
+                <div class="summary-box payments">
+                    <div class="summary-label">جمع پرداخت‌ها</div>
+                    <div class="summary-value">{{ number_format($totalPayments) }}</div>
                 </div>
+                <div class="summary-box deductions">
+                    <div class="summary-label">جمع کسورات</div>
+                    <div class="summary-value">-{{ number_format($totalDeductions) }}</div>
+                </div>
+                <div class="summary-box net-pay">
+                    <div class="summary-label">خالص پرداختی</div>
+                    <div class="summary-value">{{ number_format($netPay) }}</div>
+                </div>
+            </div>
 
-                <!-- Footer -->
-                <div class="footer-section">
-                    <div class="bank-info">
-                        <div class="bank-info-text">
-                            مبلغ <strong>{{ number_format($netPay) }}</strong> ریال نزد بانک <span class="bank-account">{{ $bankName }}</span> به شماره حساب
-                            <span class="bank-account">{{ $bankAccount }}</span> واریز شد.
-                        </div>
+            <!-- Footer -->
+            <div class="footer-section">
+                <div class="bank-info">
+                    <div class="bank-info-text">
+                        مبلغ <strong>{{ number_format($netPay) }}</strong> ریال نزد بانک <span
+                            class="bank-account">{{ $bankName }}</span> به شماره حساب
+                        <span class="bank-account">{{ $bankAccount }}</span> واریز شد.
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </body>
 
