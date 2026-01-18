@@ -94,12 +94,12 @@ Route::middleware('throttle:60,1')->group(function () {
             });
         });
 
-        //Birthday Routes
+        // Birthday Routes
         Route::prefix('birthday')->group(function () {
             Route::controller(\App\Http\Controllers\Birthday\BirthdayGiftController::class)->prefix('gift')->group(function () {
                 Route::post('/', 'store')->middleware('permission:read Birthdays');
                 Route::get('/', 'index')->middleware('permission:read Birthdays');
-                Route::get('/get-actives', 'getActives')->middleware('role:Super Admin|employee');
+                Route::get('/get-actives', 'getActives')->middleware('permission:use app');
                 Route::post('/{id}', 'update')->middleware('permission:read Birthdays');
                 Route::delete('/{id}', 'delete')->middleware('permission:read Birthdays');
             });
@@ -117,8 +117,8 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::get('/', 'index')->middleware('permission:read Birthdays');
                 Route::delete('/delete', 'delete')->middleware('permission:read Birthdays');
                 Route::post('/status', 'changeStatus')->middleware('permission:read Birthdays');
-                Route::post('/choose', 'chooseBirthdayGift')->middleware('role:Super Admin|employee');
-                Route::get('/check', 'checkAccess')->middleware('role:Super Admin|employee');
+                Route::post('/choose', 'chooseBirthdayGift')->middleware('permission:use app');
+                Route::get('/check', 'checkAccess')->middleware('permission:use app');
             });
         });
 
@@ -126,18 +126,90 @@ Route::middleware('throttle:60,1')->group(function () {
         Route::prefix('hse')->group(function () {
             Route::prefix('health-certificate')->group(function () {
                 Route::controller(\App\Http\Controllers\HSE\HealthCertificateController::class)->prefix('file')->group(function () {
-                    Route::post('/', 'store');
-                    Route::get('/', 'index');
-                    Route::post('/image', 'image');
-                    Route::post('/{id}', 'update');
-                    Route::delete('/{id}', 'delete');
-                    Route::get('/{id}', 'show');
+                    Route::post('/', 'store')->middleware('permission:read Health-Certificate');
+                    Route::get('/', 'index')->middleware('permission:read Health-Certificate');
+                    Route::post('/image', 'image')->middleware('permission:read Health-Certificate');
+                    Route::post('/{id}', 'update')->middleware('permission:read Health-Certificate');
+                    Route::delete('/{id}', 'delete')->middleware('permission:read Health-Certificate');
+                    Route::get('/{id}', 'show')->middleware('permission:read Health-Certificate');
                 });
 
                 Route::controller(\App\Http\Controllers\HSE\HealthCertificateUserController::class)->prefix('user')->group(function () {
-                    Route::get('/image', 'getImage');
-                    Route::get('/image/download', 'downloadImage');
+                    Route::get('/image', 'getImage')->middleware('permission:use app');
+                    Route::get('/image/download', 'downloadImage')->middleware('permission:use app');
                 });
+            });
+        });
+
+        // Food Routes
+        Route::prefix('food')->group(function () {
+            Route::controller(\App\Http\Controllers\Food\Kitchen\FoodController::class)->prefix('food')->group(function () {
+                Route::get('/', 'index')->middleware('permission:read Kitchen|edit Food-Price');
+                Route::get('/get-actives', 'getActives')->middleware('permission:read Kitchen');
+                Route::post('/', 'store')->middleware('permission:read Kitchen');
+                Route::post('/status/{id}', 'changeStatus')->middleware('permission:edit Food-Status');
+                Route::post('/{id}', 'update')->middleware('permission:edit Food-Price');
+                Route::delete('/{id}', 'delete')->middleware('permission:read Kitchen');
+            });
+            Route::controller(\App\Http\Controllers\Food\Kitchen\MealController::class)->prefix('meal')->group(function () {
+                Route::get('/', 'index')->middleware('permission:read Kitchen');
+                Route::get('/get-actives', 'getActives')->middleware('permission:read Kitchen|read Food-Report');
+                Route::post('/', 'store')->middleware('permission:read Kitchen');
+                Route::post('/status/{id}', 'changeStatus')->middleware('permission:read Kitchen');
+                Route::post('/{id}', 'update')->middleware('permission:read Kitchen');
+                Route::delete('/{id}', 'delete')->middleware('permission:read Kitchen');
+            });
+            Route::controller(\App\Http\Controllers\Food\Kitchen\MealPlanController::class)->prefix('meal-plan')->group(function () {
+                Route::get('/get-for-date', 'plansForDate')->middleware('permission:read Kitchen');
+                Route::post('/', 'store')->middleware('permission:read Kitchen');
+                Route::post('/{id}', 'update')->middleware('permission:read Kitchen');
+            });
+            Route::controller(\App\Http\Controllers\Food\Reservation\MealReservationController::class)->prefix('meal-reservation')->group(function () {
+                Route::get('/get-for-personnel-by-user-on-date', 'reservationsForPersonnelByUserOnDate')->middleware('permission:read Reserve-Food');
+                Route::get('/get-for-user-by-others-on-date', 'reservationsForUserByOthersOnDate')->middleware('permission:use app');
+                Route::get('/get-for-contractor-on-date', 'reservationsForContractorByUserOnDate')->middleware('permission:read Reserve-Food');
+                Route::get('/get-for-guest-on-date', 'reservationsForGuestByUserOnDate')->middleware('permission:read Reserve-Food');
+                Route::get('/get-for-repairman-on-date', 'reservationsForRepairmanByUserOnDate')->middleware('permission:read Reserve-Food');
+                Route::get('/get-in-date-range', 'reservationsInDateRange')->middleware('permission:read Kitchen');
+                Route::get('/check-for-delivered', 'checkForDelivered')->middleware('permission:read Kitchen');
+                Route::post('/', 'store')->middleware('permission:read Reserve-Food');
+                Route::post('/{id}', 'update')->middleware('permission:read Reserve-Food');
+                Route::delete('/{id}', 'delete')->middleware('permission:read Reserve-Food');
+            });
+            Route::controller(\App\Http\Controllers\Food\Reservation\MealReservationDetailController::class)->prefix('meal-reservation-detail')->group(function () {
+                Route::delete('/{id}', 'delete')->middleware('permission:read Reserve-Food');
+                Route::get('/get-for-specific-contractor-on-date', 'deliveredReservationsForContractorOnDate')->middleware('permission:read Contractor-Invoice');
+            });
+            Route::controller(\App\Http\Controllers\Food\Kitchen\FoodDeliveryController::class)->prefix('delivery')->group(function () {
+                Route::get('/', 'index')->middleware('permission:read Kitchen');
+                Route::get('/find', 'find')->middleware('permission:read Kitchen');
+                Route::post('/', 'deliver')->middleware('permission:read Kitchen');
+            });
+            Route::controller(\App\Http\Controllers\Food\Rep\MealReservationExceptionController::class)->prefix('exception')->group(function () {
+                Route::get('/', 'index')->middleware('permission:read Food-Report');
+                Route::get('/get-actives', 'getActives')->middleware('permission:read Food-Report');
+                Route::post('/', 'store')->middleware('permission:read Food-Report');
+                Route::post('/status/{id}', 'changeStatus')->middleware('permission:read Food-Report');
+                Route::delete('/{id}', 'delete')->middleware('permission:read Food-Report');
+            });
+            Route::controller(\App\Http\Controllers\Food\Rep\MealReservationEligibilityRuleController::class)->prefix('eligibility')->group(function () {
+                Route::get('/', 'index')->middleware('permission:read Food-Report');
+                Route::post('/', 'store')->middleware('permission:read Food-Report');
+                Route::post('/{id}', 'update')->middleware('permission:read Food-Report');
+                Route::delete('/{id}', 'delete')->middleware('permission:read Food-Report');
+            });
+            Route::controller(\App\Http\Controllers\Food\Rep\MealReservationContradictionController::class)->prefix('report')->group(function () {
+                Route::get('/', 'index')->middleware('permission:read Food-Report');
+            });
+        });
+
+        // Contractor Routes
+        Route::prefix('contractor')->group(function () {
+            Route::controller(\App\Http\Controllers\Contractor\ContractorController::class)->group(function () {
+                Route::get('/', 'index')->middleware('permission:read Contractor');
+                Route::post('/', 'store')->middleware('permission:read Contractor');
+                Route::get('/get-actives', 'getActives')->middleware('permission:read Contractor|read Contractor-Invoice');
+                Route::post('/status/{id}', 'changeStatus')->middleware('permission:read Contractor');
             });
         });
 
