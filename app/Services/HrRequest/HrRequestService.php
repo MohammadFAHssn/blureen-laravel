@@ -224,7 +224,7 @@ class HrRequestService
     /**
      * @throws CustomException
      */
-    function convertRemainingLeaveToMinutes(string $balance): int
+    protected function convertRemainingLeaveToMinutes(string $balance): int
     {
         if (!preg_match('/^(\d+),(\d{2}):(\d{2})$/', $balance, $matches)) {
             throw new CustomException('فرمت مانده مرخصی نامعتبر است.');

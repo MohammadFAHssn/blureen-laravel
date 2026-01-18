@@ -152,7 +152,7 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::post('/request/approve','approveRequest');
         });
 
-        Route::controller(\App\Http\Controllers\KasraController\KasraController::class)->prefix('/kasra')->group(function (){
+        Route::controller(\App\Http\Controllers\Api\KasraController::class)->prefix('/kasra')->group(function (){
             Route::get('/reports/get-attendance-report','getEmployeeAttendanceReport');
             Route::get('/reports/get-remaining-leave','getRemainingLeave');
         });
