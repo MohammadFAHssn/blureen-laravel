@@ -13,8 +13,11 @@ class RequestApprovalRuleService
         $this->orgChartNodeService = new OrgChartNodeService;
     }
 
-    public function getApprovalFlowForRequest($requestTypeId, $userId)
+    public function getApprovalFlowForRequest($data)
     {
+        $requestTypeId = $data['request_type_id'];
+        $userId = $data['user_id'];
+
         $userOrgPositions = $this->orgChartNodeService->getUserOrgPositions($userId);
 
         if ($userOrgPositions->isEmpty()) {
@@ -51,6 +54,8 @@ class RequestApprovalRuleService
                     ];
                 }
             })
+            // TODO:
+            // ->unique()
             ->filter()
             ->values();
     }
