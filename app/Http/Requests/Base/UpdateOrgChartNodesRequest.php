@@ -30,7 +30,7 @@ class UpdateOrgChartNodesRequest extends FormRequest
             'orgChartNodes.*.orgUnit' => ['required', 'array', 'min:1', 'max:10'],
             'orgChartNodes.*.orgUnit.id' => ['required'],
             'orgChartNodes.*.orgUnit.name' => ['required', 'string'],
-            'orgChartNodes.*.users' => ['required', 'array', 'min:1', 'max:200'],
+            'orgChartNodes.*.users' => ['required', 'array', 'min:1', 'max:500'],
             'orgChartNodes.*.users.*.id' => ['required', 'integer', 'exists:users,id'],
         ];
     }
