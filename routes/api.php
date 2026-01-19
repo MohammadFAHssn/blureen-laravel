@@ -153,7 +153,7 @@ Route::middleware('throttle:60,1')->group(function () {
             });
             Route::controller(\App\Http\Controllers\Food\Kitchen\MealController::class)->prefix('meal')->group(function () {
                 Route::get('/', 'index')->middleware('permission:read Kitchen');
-                Route::get('/get-actives', 'getActives')->middleware('permission:read Kitchen|read Food-Report');
+                Route::get('/get-actives', 'getActives')->middleware('permission:read Reserve-Food|read Kitchen|read Food-Report');
                 Route::post('/', 'store')->middleware('permission:read Kitchen');
                 Route::post('/status/{id}', 'changeStatus')->middleware('permission:read Kitchen');
                 Route::post('/{id}', 'update')->middleware('permission:read Kitchen');
@@ -208,7 +208,7 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::controller(\App\Http\Controllers\Contractor\ContractorController::class)->group(function () {
                 Route::get('/', 'index')->middleware('permission:read Contractor');
                 Route::post('/', 'store')->middleware('permission:read Contractor');
-                Route::get('/get-actives', 'getActives')->middleware('permission:read Contractor|read Contractor-Invoice');
+                Route::get('/get-actives', 'getActives')->middleware('permission:read Reserve-Food|read Contractor|read Contractor-Invoice');
                 Route::post('/status/{id}', 'changeStatus')->middleware('permission:read Contractor');
             });
         });
@@ -224,7 +224,7 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::post('/request/approve','approveRequest');
         });
 
-        Route::controller(\App\Http\Controllers\KasraController\KasraController::class)->prefix('/kasra')->group(function (){
+        Route::controller(\App\Http\Controllers\Api\KasraController::class)->prefix('/kasra')->group(function (){
             Route::get('/reports/get-attendance-report','getEmployeeAttendanceReport');
             Route::get('/reports/get-remaining-leave','getRemainingLeave');
         });

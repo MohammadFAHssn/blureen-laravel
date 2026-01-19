@@ -26,6 +26,7 @@ class CreateContractorRequest extends FormRequest
         return [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
+            'cost_responsible' => 'required|string|in:on_contractor,on_company',
             'description' => 'nullable|string|max:255',
         ];
     }
@@ -45,6 +46,10 @@ class CreateContractorRequest extends FormRequest
             'last_name.required' => 'نام خانوادگی الزامی است.',
             'last_name.string' => 'نام خانوادگی باید به صورت متن باشد.',
             'last_name.max' => 'نام خانوادگی نباید بیشتر از 255 کاراکتر باشد.',
+
+            'cost_responsible.required' => 'مشخص کردن مسئول هزینه الزامی است.',
+            'cost_responsible.string'      => 'مسئول هزینه باید متن معتبر باشد.',
+            'cost_responsible.in'          => 'مسئول هزینه انتخاب‌ شده معتبر نیست.',
 
             'description.string' => 'توضیحات باید به صورت متن باشد.',
             'description.max' => 'توضیحات نباید بیشتر از 255 کاراکتر باشد.',

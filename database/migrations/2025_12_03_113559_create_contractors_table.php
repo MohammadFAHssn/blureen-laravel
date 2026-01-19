@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
+            $table->string('cost_responsible');
             $table->string('description')->nullable();
             $table->boolean('active')->default(true);
             $table->foreignId('created_by')->constrained('users');
