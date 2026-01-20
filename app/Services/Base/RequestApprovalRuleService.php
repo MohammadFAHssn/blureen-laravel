@@ -54,8 +54,9 @@ class RequestApprovalRuleService
                     ];
                 }
             })
-            // TODO:
-            // ->unique()
+            ->unique(function ($item) {
+                return $item['users'][0]['id'];
+            })
             ->filter()
             ->values();
     }
