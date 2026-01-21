@@ -50,16 +50,19 @@ class PersonnelRecordsService
         $response !== false ? $personnel_records['productivity_data'] = $response:Log::error('خطا هنگام دریافت اطلاعات از سامانه بهروه وری - کدپرسنلی :'.$personnelCode);
 
         //assessment data
-        $response = $this->fetchPersonnelRecordsFromSystems($personnelCode,config('services.payroll_system.get_assessment_data'));
-        $response !== false ? $personnel_records['assessment_data'] = $response:Log::error('خطا هنگام دریافت اطلاعات از سامانه ارزیابی - کدپرسنلی :'.$personnelCode);
+        //$response = $this->fetchPersonnelRecordsFromSystems($personnelCode,config('services.payroll_system.get_assessment_data'));
+        //$response !== false ? $personnel_records['assessment_data'] = $response:Log::error('خطا هنگام دریافت اطلاعات از سامانه ارزیابی - کدپرسنلی :'.$personnelCode);
+        $personnel_records['assessment_data'] = [];
 
         //salary data
-        $response = $this->fetchPersonnelRecordsFromSystems($personnelCode,config('services.payroll_system.get_payroll_data'));
-        $response!==false ? $personnel_records['payroll_data'] = $response:Log::error('خطا هنگام دریافت اطلاعات از سامانه فیش حقوقی - کدپرسنلی :'.$personnelCode);
+        //$response = $this->fetchPersonnelRecordsFromSystems($personnelCode,config('services.payroll_system.get_payroll_data'));
+        //$response!==false ? $personnel_records['payroll_data'] = $response:Log::error('خطا هنگام دریافت اطلاعات از سامانه فیش حقوقی - کدپرسنلی :'.$personnelCode);
+        $personnel_records['payroll_data'] = [];
 
         //birthday gift data
-        $response = $this->fetchPersonnelRecordsFromSystems($personnelCode,config('services.payroll_system.get_birthday_gift_data'));
-        $response!==false ? $personnel_records['birthday_gift_data'] = $response:Log::error('خطا هنگام دریافت اطلاعات از سامانه هدیه تولد - کدپرسنلی :'.$personnelCode);
+        //$response = $this->fetchPersonnelRecordsFromSystems($personnelCode,config('services.payroll_system.get_birthday_gift_data'));
+        //$response!==false ? $personnel_records['birthday_gift_data'] = $response:Log::error('خطا هنگام دریافت اطلاعات از سامانه هدیه تولد - کدپرسنلی :'.$personnelCode);
+        $personnel_records['birthday_gift_data'] = [];
 
         //food reservation data
         $response = $this->fetchPersonnelRecordsFromSystems($personnelCode,config('services.food_reservation_system.get_food_reservation_data'));
