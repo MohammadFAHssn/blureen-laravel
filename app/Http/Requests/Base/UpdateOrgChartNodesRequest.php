@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Base;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateOrgChartNodesRequest extends FormRequest
 {
@@ -21,13 +22,16 @@ class UpdateOrgChartNodesRequest extends FormRequest
      */
     public function rules(): array
     {
+        $nodeIds = collect($this->input('orgChartNodes', []))
+            ->pluck('id')->filter()->unique()->values()->all();
+
         return [
             'orgChartNodes' => ['required', 'array', 'min:1', 'max:1000'],
             'orgChartNodes.*.id' => ['required'],
-            'orgChartNodes.*.parentId' => ['nullable', 'in_array:orgChartNodes.*.id'],
-            'orgChartNodes.*.orgPosition' => ['required', 'array', 'min:1', 'max:10'],
+            'orgChartNodes.*.parentId' => ['nullable', Rule::in($nodeIds)],
+            'orgChartNodes.*.orgPosition' => ['required', 'array'],
             'orgChartNodes.*.orgPosition.id' => ['required', 'integer', 'exists:org_positions,id'],
-            'orgChartNodes.*.orgUnit' => ['required', 'array', 'min:1', 'max:10'],
+            'orgChartNodes.*.orgUnit' => ['required', 'array'],
             'orgChartNodes.*.orgUnit.id' => ['required'],
             'orgChartNodes.*.orgUnit.name' => ['required', 'string'],
             'orgChartNodes.*.users' => ['required', 'array', 'min:1', 'max:500'],
