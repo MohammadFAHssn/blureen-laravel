@@ -22,7 +22,7 @@ class OrgChartNodeIdRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => ['required', 'integer', 'exists:org_chart_nodes,id']
+            'id' => ['required', 'integer', 'exists:org_chart_nodes,id'],
         ];
     }
 }
