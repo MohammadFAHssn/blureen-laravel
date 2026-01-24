@@ -191,4 +191,11 @@ class OrgChartNodeService
 
         return ['status' => 'success'];
     }
+
+    public function delete($data)
+    {
+        OrgChartNode::whereId($data['id'])->delete();
+
+        return ['status' => 'success'];
+    }
 }
