@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Base;
 
 use App\Http\Requests\Base\UserIdRequest;
 use App\Services\Base\OrgChartNodeService;
-use App\Http\Requests\Base\orgChartNodeIdRequest;
+use App\Http\Requests\Base\OrgChartNodeIdRequest;
+use App\Http\Requests\Base\OrganizeOrgChartRequest;
 use App\Http\Requests\Base\UpdateOrgChartNodesRequest;
 
 class OrgChartNodeController
@@ -31,8 +32,13 @@ class OrgChartNodeController
         return response()->json(['data' => $this->orgChartNodeService->update($request->validated())]);
     }
 
-    public function delete(orgChartNodeIdRequest $request)
+    public function delete(OrgChartNodeIdRequest $request)
     {
         return response()->json(['data' => $this->orgChartNodeService->delete($request->validated())]);
+    }
+
+    public function organize(OrganizeOrgChartRequest $request)
+    {
+        return response()->json(['data' => $this->orgChartNodeService->organize($request->validated())]);
     }
 }

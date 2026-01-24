@@ -4,7 +4,7 @@ namespace App\Http\Requests\Base;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class orgChartNodeIdRequest extends FormRequest
+class OrgChartNodeIdRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

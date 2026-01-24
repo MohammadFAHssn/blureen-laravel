@@ -198,4 +198,22 @@ class OrgChartNodeService
 
         return ['status' => 'success'];
     }
+
+    public function organize($data)
+    {
+        $orgChartNodes = $data['orgChartNodes'];
+
+        DB::transaction(function () use ($orgChartNodes) {
+
+            foreach ($orgChartNodes as $orgChartNode) {
+                $node = OrgChartNode::whereId($orgChartNode['id']);
+
+                $node->update([
+                    'parent_id' => $orgChartNode['parentId'],
+                ]);
+            }
+        });
+
+        return ['status' => 'success'];
+    }
 }

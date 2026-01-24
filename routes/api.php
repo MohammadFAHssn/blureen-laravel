@@ -45,6 +45,7 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::get('/user-subordinates', 'getUserSubordinates');
                 Route::put('/update', 'update')->middleware('permission:edit Organization-Chart');
                 Route::delete('/', 'delete')->middleware('permission:edit Organization-Chart');
+                Route::put('/organize', 'organize')->middleware('permission:edit Organization-Chart');
             });
 
             Route::controller(\App\Http\Controllers\Base\FileController::class)->prefix('/file')->group(function () {
