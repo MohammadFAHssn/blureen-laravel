@@ -26,7 +26,7 @@ class AssignEmployeeRoleToNewUsersJob implements ShouldQueue
         $users = User::active()->get();
 
         foreach ($users as $user) {
-            if ($user->roles->count() === 0) {
+            if (!$user->roles()->exists()) {
                 $user->assignRole('employee');
             }
         }
