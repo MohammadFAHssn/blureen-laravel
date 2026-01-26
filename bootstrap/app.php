@@ -79,18 +79,18 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->job(new SyncWithRayvarzJob('Commerce', 'Supplier', 'supplierId'))->everyFifteenMinutes();
-        $schedule->job(new SyncWithKasraJob())->everyFifteenMinutes();
-        $schedule->job(new SyncWithRayvarzJob('Base', 'User'))->everyFifteenMinutes();
+        $schedule->job(new SyncWithRayvarzJob('Commerce', 'Supplier', 'supplierId'))->hourly();
+        $schedule->job(new SyncWithKasraJob())->hourly();
+        $schedule->job(new SyncWithRayvarzJob('Base', 'User'))->hourly();
 
-        $schedule->job(new ResolveMealCheckoutTimeJob())->everyFifteenMinutes();
+        $schedule->job(new ResolveMealCheckoutTimeJob())->hourly();
 
-        // $schedule->job(new AssignEmployeeRoleToNewUsersJob())->everyFifteenMinutes();
+        // $schedule->job(new AssignEmployeeRoleToNewUsersJob())->hourly();
     
-        $schedule->job(new SyncWithRayvarzJob('Base', 'JobPosition'))->everyFifteenMinutes();
-        $schedule->job(new SyncWithRayvarzJob('Base', 'Workplace'))->everyFifteenMinutes();
-        $schedule->job(new SyncWithRayvarzJob('Base', 'EducationLevel'))->everyFifteenMinutes();
-        $schedule->job(new SyncWithRayvarzJob('Base', 'WorkArea'))->everyFifteenMinutes();
-        $schedule->job(new SyncWithRayvarzJob('Base', 'CostCenter'))->everyFifteenMinutes();
+        $schedule->job(new SyncWithRayvarzJob('Base', 'JobPosition'))->hourly();
+        $schedule->job(new SyncWithRayvarzJob('Base', 'Workplace'))->hourly();
+        $schedule->job(new SyncWithRayvarzJob('Base', 'EducationLevel'))->hourly();
+        $schedule->job(new SyncWithRayvarzJob('Base', 'WorkArea'))->hourly();
+        $schedule->job(new SyncWithRayvarzJob('Base', 'CostCenter'))->hourly();
     })
     ->create();
