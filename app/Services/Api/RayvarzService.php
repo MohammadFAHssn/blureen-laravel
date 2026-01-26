@@ -167,7 +167,6 @@ class RayvarzService
                 [
                     'first_name' => $rayvarzUser['name'],
                     'last_name' => $rayvarzUser['family'],
-                    'username' => $rayvarzUser['personnelId'],
                     'personnel_code' => $rayvarzUser['personnelId'],
                     'active' => $rayvarzUser["quitDate"] ? false : true,
                 ]
