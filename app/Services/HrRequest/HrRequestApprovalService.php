@@ -91,11 +91,11 @@ class HrRequestApprovalService
                         'id' => $hrRequestApproval->hr_request_id,
                         'status_id' => AppConstants::HR_REQUEST_APPROVED_STATUS,
                     ]);
-                    /*$kasraResponse = $this->kasraService->modifyCredit($hrRequestApproval->request);
+                    $kasraResponse = $this->kasraService->modifyCredit($hrRequestApproval->request);
 
                     if (!$kasraResponse['success']) {
                         throw new Exception($kasraResponse['message'], 422);
-                    }*/
+                    }
                 }
             });
         }

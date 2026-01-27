@@ -65,8 +65,13 @@ class HrRequestService
     public function update(array $data)
     {
         $hrRequest = HrRequest::find($data['requestId']);
-        if (($data['editor'] == 'supervisor') && $hrRequest->user_id != auth()->user()->id) {
-            throw new Exception('در این صفحه امکان ویرایش درخواست پرسنل زیرمجموعه وجود ندارد.');
+
+        if ($hrRequest->user_id == auth()->user()->id) {
+            $requestApprovals = $hrRequest->approvals;
+            foreach ($requestApprovals as $approval){
+                if($approval->status_id != AppConstants::HR_REQUEST_PENDING_STATUS)
+                    throw new Exception('امکان ویرایش درخواست های بررسی شده وجود ندارد.');
+            }
         }
 
         return match ($hrRequest->request_type_id) {
@@ -99,8 +104,12 @@ class HrRequestService
     public function delete($data)
     {
         $hrRequest = HrRequest::find($data['requestId']);
-        if (($data['delegator'] == 'supervisor') && $hrRequest->user_id != auth()->user()->id) {
-            throw new Exception('امکان حذف درخواست پرسنل زیرمجموعه وجود ندارد.');
+        if ($hrRequest->user_id == auth()->user()->id) {
+            $requestApprovals = $hrRequest->approvals;
+            foreach ($requestApprovals as $approval){
+                if($approval->status_id != AppConstants::HR_REQUEST_PENDING_STATUS)
+                    throw new Exception('امکان حذف درخواست های بررسی شده وجود ندارد.');
+            }
         }
 
         if (!$hrRequest) {

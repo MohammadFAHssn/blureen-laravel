@@ -4,6 +4,7 @@ use App\Exceptions\CustomException;
 use App\Http\Requests\HrRequest\CreateHrRequest;
 use App\Services\HrRequest\HrRequestService;
 use Exception;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -26,12 +27,17 @@ class HrRequestController
         ]);
     }
 
-    public function update(Request $request)
+    /**
+     * @throws CustomException
+     * @throws ConnectionException
+     */
+    public function update(Request $request): JsonResponse
     {
         return response()->json([
             'data' => $this->hrRequestService->update($request->toArray())
         ]);
     }
+
 
     /**
      * @throws Exception
