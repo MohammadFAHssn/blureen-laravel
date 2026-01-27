@@ -69,7 +69,7 @@ class FoodDeliveryService
                 return $mealReservation;
             }
 
-            if ($data['type'] === 'guest') {
+            if ($data['type'] === 'guest' || $data['type'] === 'repairman') {
                 $this->mealReservationDetailRepository->markDeliveredExcept($data['reserved_meal_id']);
                 return $mealReservation;
             }

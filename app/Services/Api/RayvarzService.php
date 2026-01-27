@@ -161,34 +161,33 @@ class RayvarzService
             'userCount' => count($users),
         ]);
 
-        foreach ($users as $rayvarzYser) {
+        foreach ($users as $rayvarzUser) {
             $ourUser = User::updateOrCreate(
-                ['username' => $rayvarzYser['personnelId']],
+                ['username' => $rayvarzUser['personnelId']],
                 [
-                    'first_name' => $rayvarzYser['name'],
-                    'last_name' => $rayvarzYser['family'],
-                    'username' => $rayvarzYser['personnelId'],
-                    'personnel_code' => $rayvarzYser['personnelId'],
-                    'active' => $rayvarzYser["quitDate"] ? false : true,
+                    'first_name' => $rayvarzUser['name'],
+                    'last_name' => $rayvarzUser['family'],
+                    'personnel_code' => $rayvarzUser['personnelId'],
+                    'active' => $rayvarzUser["quitDate"] ? false : true,
                 ]
             );
 
             UserProfile::updateOrCreate(
                 ['user_id' => $ourUser->id],
                 [
-                    'national_code' => $rayvarzYser['nationalCode'],
-                    'gender' => $rayvarzYser['genderId'] === 1 ? 'مرد' : 'زن',
-                    'father_name' => $rayvarzYser['fatherName'],
-                    'birth_place' => $rayvarzCities->firstWhere('rayvarz_id', $rayvarzYser['birthPlaceId'])['name'] ?? null,
-                    'birth_date' => jalalianYmdDateToCarbon($rayvarzYser['birthDate']),
-                    'marital_status' => $this->getMaritalStatusById($rayvarzYser['mariageStatusId']),
-                    'employment_date' => jalalianYmdDateToCarbon($rayvarzYser['employmentDate']),
-                    'start_date' => jalalianYmdDateToCarbon($rayvarzYser['assignmentStartDate']),
-                    'education_level_id' => $rayvarzYser['currentEducationId'],
-                    'workplace_id' => $rayvarzYser['currentLocation'],
-                    'work_area_id' => $rayvarzYser['crnZoneID'],
-                    'cost_center_id' => $rayvarzYser['currentCenterId'],
-                    'job_position_id' => $rayvarzYser['currentPostId'],
+                    'national_code' => $rayvarzUser['nationalCode'],
+                    'gender' => $rayvarzUser['genderId'] === 1 ? 'مرد' : 'زن',
+                    'father_name' => $rayvarzUser['fatherName'],
+                    'birth_place' => $rayvarzCities->firstWhere('rayvarz_id', $rayvarzUser['birthPlaceId'])['name'] ?? null,
+                    'birth_date' => jalalianYmdDateToCarbon($rayvarzUser['birthDate']),
+                    'marital_status' => $this->getMaritalStatusById($rayvarzUser['mariageStatusId']),
+                    'employment_date' => jalalianYmdDateToCarbon($rayvarzUser['employmentDate']),
+                    'start_date' => jalalianYmdDateToCarbon($rayvarzUser['assignmentStartDate']),
+                    'education_level_id' => $rayvarzUser['currentEducationId'],
+                    'workplace_id' => $rayvarzUser['currentLocation'],
+                    'work_area_id' => $rayvarzUser['crnZoneID'],
+                    'cost_center_id' => $rayvarzUser['currentCenterId'],
+                    'job_position_id' => $rayvarzUser['currentPostId'],
                 ]
             );
         }

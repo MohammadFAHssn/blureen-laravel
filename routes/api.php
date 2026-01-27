@@ -44,6 +44,8 @@ Route::middleware('throttle:60,1')->group(function () {
                 Route::get('', 'get')->middleware('permission:read Organization-Chart');
                 Route::get('/user-subordinates', 'getUserSubordinates');
                 Route::put('/update', 'update')->middleware('permission:edit Organization-Chart');
+                Route::delete('/', 'delete')->middleware('permission:edit Organization-Chart');
+                Route::put('/organize', 'organize')->middleware('permission:edit Organization-Chart');
             });
 
             Route::controller(\App\Http\Controllers\Base\FileController::class)->prefix('/file')->group(function () {
@@ -227,9 +229,9 @@ Route::middleware('throttle:60,1')->group(function () {
             Route::post('/request/approve','approveRequest');
         });
 
-        Route::controller(\App\Http\Controllers\Api\KasraController::class)->prefix('/kasra')->group(function (){
-            Route::get('/reports/get-attendance-report','getEmployeeAttendanceReport');
-            Route::get('/reports/get-remaining-leave','getRemainingLeave');
+        Route::controller(\App\Http\Controllers\Api\KasraController::class)->prefix('/kasra')->group(function () {
+            Route::get('/reports/get-attendance-report', 'getEmployeeAttendanceReport');
+            Route::get('/reports/get-remaining-leave', 'getRemainingLeave');
         });
 
         Route::controller(\App\Http\Controllers\Base\BaseController::class)->group(function () {
