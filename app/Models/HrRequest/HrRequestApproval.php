@@ -29,7 +29,7 @@ class HrRequestApproval extends Model
 
     public function approver(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,'approver_user_id');
     }
 
     public function status(): BelongsTo

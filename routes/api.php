@@ -214,13 +214,16 @@ Route::middleware('throttle:60,1')->group(function () {
         });
 
         // TODO: add middleware
-        Route::controller(\App\Http\Controllers\HrRequest\HrRequestController::class)->prefix('/hr-request')->group(function (){
-           Route::post('/requests/create','create');
-           Route::patch('/requests/update','update');
-           Route::get('/requests/get-user-requests','getUserRequestsOfCurrentMonth');
+        Route::controller(\App\Http\Controllers\HrRequest\HrRequestController::class)->prefix('/hr-request/request')->group(function (){
+           Route::post('/create','create');
+           Route::patch('/update','update');
+           Route::delete('/delete','delete');
+           Route::get('/get-user-requests','getUserRequestsOfCurrentMonth');
+           Route::get('/get-approvers','getApprovers');
+           Route::post('/referral','referral');
         });
         Route::controller(\App\Http\Controllers\HrRequest\HrRequestApprovalController::class)->prefix('/hr-request')->group(function (){
-            Route::get('/requests/get-by-approver','getApprovalRequestsByApprover');
+            Route::get('/request/get-by-approver','getApprovalRequestsByApprover');
             Route::post('/request/approve','approveRequest');
         });
 

@@ -11,9 +11,9 @@ class HrRequestController
 {
     protected HrRequestService $hrRequestService;
 
-    public function __construct(HrRequestService $hrRequestService)
+    public function __construct()
     {
-        $this->hrRequestService = $hrRequestService;
+        $this->hrRequestService = new HrRequestService();
     }
 
     /**
@@ -33,10 +33,37 @@ class HrRequestController
         ]);
     }
 
+    /**
+     * @throws Exception
+     */
+    public function delete(Request $request)
+    {
+        return response()->json([
+            'data' => $this->hrRequestService->delete($request->toArray())
+        ]);
+    }
+
     public function getUserRequestsOfCurrentMonth(Request $request): JsonResponse
     {
         return response()->json([
             'data' => $this->hrRequestService->getUserRequestsOfCurrentMonth($request->toArray())
+        ]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getApprovers(Request $request)
+    {
+        return response()->json([
+            'data' => $this->hrRequestService->getApprovers($request->toArray())
+        ]);
+    }
+
+    public function referral(Request $request)
+    {
+        return response()->json([
+            'data' => $this->hrRequestService->referral($request->toArray())
         ]);
     }
 
