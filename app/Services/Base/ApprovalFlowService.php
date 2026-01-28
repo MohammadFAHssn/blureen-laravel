@@ -16,9 +16,9 @@ class ApprovalFlowService
 {
     protected ApprovalFlowRepository $approvalFlowRepository;
 
-    public function __construct(ApprovalFlowRepository $approvalFlowRepository)
+    public function __construct()
     {
-        $this->approvalFlowRepository = $approvalFlowRepository;
+        $this->approvalFlowRepository = new ApprovalFlowRepository();
     }
     public function update($request): void
     {

@@ -117,11 +117,15 @@ class KasraService
 
     /**
      * @throws CustomException
+     * @throws Exception
      */
     public function modifyCredit(HrRequest $hrRequest): array
     {
+        $user = User::find($hrRequest->user_id);
+        if(!$user)
+            throw new Exception('خطا هنگام ثبت در کسرا: کاربر یافت نشد');
         $requestData = [
-            'PersonCode'  => '123456789',
+            'PersonCode'  => $user->personnel_code,
             'StartDate'   => $hrRequest->start_date,
             'EndDate'     => $hrRequest->end_date,
             'StartTime'   => $hrRequest->start_time ?? '',
@@ -368,6 +372,10 @@ class KasraService
         $n = $rows[0];
         $personnel = isset($n->{'شماره_x0020_پرسنلي'}) ? (string) $n->{'شماره_x0020_پرسنلي'} : null;
         $remain    = isset($n->{'مانده'}) ? (string) $n->{'مانده'} : null;
+        if ($remain !== null && str_ends_with($remain, '-')) {
+            $remain = '-' . rtrim($remain, '-');
+        }
+
 
         return [
             'personnel_code'  => $personnel,

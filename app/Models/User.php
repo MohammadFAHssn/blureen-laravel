@@ -32,6 +32,9 @@ class User extends Authenticatable implements JWTSubject
         'last_name',
         'username',
         'personnel_code',
+        'active',
+        'otp_code',
+        'otp_expires_at'
     ];
 
     /**

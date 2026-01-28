@@ -85,8 +85,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $schedule->job(new ResolveMealCheckoutTimeJob())->daily();
 
-        $schedule->job(new AssignEmployeeRoleToNewUsersJob())->daily();
-
+        // $schedule->job(new AssignEmployeeRoleToNewUsersJob())->daily();
+    
         $schedule->job(new SyncWithRayvarzJob('Base', 'JobPosition'))->daily();
         $schedule->job(new SyncWithRayvarzJob('Base', 'Workplace'))->daily();
         $schedule->job(new SyncWithRayvarzJob('Base', 'EducationLevel'))->daily();

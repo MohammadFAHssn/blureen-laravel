@@ -23,33 +23,29 @@ class HrRequestApprovalService
     protected KasraService $kasraService;
 
 
-    public function __construct(
-        HrRequestApprovalRepository $hrRequestApprovalRepository,
-        ApprovalFlowService         $approvalFlowService,
-        HrRequestRepository         $hrRequestRepository,
-        KasraService                $kasraService,
-    )
+    public function __construct()
     {
-        $this->hrRequestApprovalRepository = $hrRequestApprovalRepository;
-        $this->approvalFlowService = $approvalFlowService;
-        $this->hrRequestRepository = $hrRequestRepository;
-        $this->kasraService = $kasraService;
+        $this->hrRequestApprovalRepository = new HrRequestApprovalRepository();
+        $this->approvalFlowService = new ApprovalFlowService();
+        $this->hrRequestRepository = new HrRequestRepository();
+        $this->kasraService = new KasraService();
     }
 
-//todo: important change!!! replace approval_flow_id with approver_user_id
-    public function create(int $hrRequestId, Collection $userApprovalFlows): void
+    public function create(int $hrRequestId, $userApprovalFlows): true
     {
-        if ($userApprovalFlows->isEmpty()) return;
         DB::transaction(function () use ($hrRequestId, $userApprovalFlows) {
+            $priority = 1;
             foreach ($userApprovalFlows as $flow) {
+                info($userApprovalFlows);
                 HrRequestApproval::create([
                     'hr_request_id' => $hrRequestId,
-                    'approver_user_id' => $flow->approver_user_id,
-                    'priority' => $flow->priority,
+                    'approver_user_id' => $flow['users'][0]['id'],
+                    'priority' => $priority++,
                     'status_id' => AppConstants::HR_REQUEST_PENDING_STATUS
                 ]);
             }
         });
+        return true;
     }
 
 
@@ -95,11 +91,11 @@ class HrRequestApprovalService
                         'id' => $hrRequestApproval->hr_request_id,
                         'status_id' => AppConstants::HR_REQUEST_APPROVED_STATUS,
                     ]);
-                    /*$kasraResponse = $this->kasraService->modifyCredit($hrRequestApproval->request);
+                    $kasraResponse = $this->kasraService->modifyCredit($hrRequestApproval->request);
 
                     if (!$kasraResponse['success']) {
                         throw new Exception($kasraResponse['message'], 422);
-                    }*/
+                    }
                 }
             });
         }
