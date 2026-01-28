@@ -209,10 +209,16 @@ Route::middleware('throttle:60,1')->group(function () {
         Route::prefix('contractor')->group(function () {
             Route::controller(\App\Http\Controllers\Contractor\ContractorController::class)->group(function () {
                 Route::get('/', 'index')->middleware('permission:read Contractor');
-                Route::post('/', 'store')->middleware('permission:read Contractor');
                 Route::get('/get-actives', 'getActives')->middleware('permission:read Reserve-Food|read Contractor|read Contractor-Invoice');
+                Route::post('/', 'store')->middleware('permission:read Contractor');
+                Route::post('/{id}', 'update')->middleware('permission:read Contractor');
                 Route::post('/status/{id}', 'changeStatus')->middleware('permission:read Contractor');
             });
+        });
+
+        // Employee Transport Routes
+        Route::prefix('employee-transport')->group(function () {
+            // 
         });
 
         // TODO: add middleware

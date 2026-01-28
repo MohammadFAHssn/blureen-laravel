@@ -48,7 +48,7 @@ class ContractorService
     }
 
     /**
-     * Get all active foods
+     * Get all active contractors
      *
      * @return array
      */
@@ -56,6 +56,20 @@ class ContractorService
     {
         $contractors = $this->contractorRepository->getAllActive();
         return $this->formatContractorsListPayload($contractors);
+    }
+
+    /**
+     * Update contractor
+     *
+     * @param int $id
+     * @param array $data
+     * @return array
+     * @throws ValidationException
+     */
+    public function updateContractor(int $id, array $data)
+    {
+        $contractor = $this->contractorRepository->update($id, $data);
+        return $this->formatContractorPayload($contractor);
     }
 
     /**
