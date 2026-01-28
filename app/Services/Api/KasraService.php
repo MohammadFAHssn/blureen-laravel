@@ -372,6 +372,10 @@ class KasraService
         $n = $rows[0];
         $personnel = isset($n->{'شماره_x0020_پرسنلي'}) ? (string) $n->{'شماره_x0020_پرسنلي'} : null;
         $remain    = isset($n->{'مانده'}) ? (string) $n->{'مانده'} : null;
+        if ($remain !== null && str_ends_with($remain, '-')) {
+            $remain = '-' . rtrim($remain, '-');
+        }
+
 
         return [
             'personnel_code'  => $personnel,

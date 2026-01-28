@@ -315,6 +315,7 @@ class HrRequestService
     {
         $kasraResponse = $this->kasraService->getRemainingLeave($userId);
         $remainingLeave = $this->convertRemainingLeaveToMinutes($kasraResponse['remaining_leave']);
+        info($remainingLeave);
         $totalPendingLeaveRequestDurationInMin = $this->hrRequestDetailRepository->getAllPendingLeaveRequestDuration($userId);
         $maxNegativeLeaveMinutes = (int)(
             Setting::query()
@@ -323,6 +324,7 @@ class HrRequestService
                 ->value('value')
             ?? 0
         );
+        info($maxNegativeLeaveMinutes);
         return $requestDurationInMin <= ($maxNegativeLeaveMinutes + $remainingLeave - $totalPendingLeaveRequestDurationInMin);
 
 
@@ -333,15 +335,20 @@ class HrRequestService
      */
     protected function convertRemainingLeaveToMinutes(string $balance): int
     {
-        if (!preg_match('/^(\d+),(\d{2}):(\d{2})$/', $balance, $matches)) {
+        if (!preg_match('/^(-?)(\d+),(0\d|1\d|2[0-3]):([0-5]\d)$/', $balance, $matches)) {
             throw new CustomException('فرمت مانده مرخصی نامعتبر است.');
         }
 
-        $days = (int)$matches[1];
-        $hours = (int)$matches[2];
-        $minutes = (int)$matches[3];
-        return $days * 440 + $hours * 60 + $minutes;
+        $sign    = $matches[1] === '-' ? -1 : 1;
+        $days    = (int) $matches[2];
+        $hours   = (int) $matches[3];
+        $minutes = (int) $matches[4];
+
+        $totalMinutes = ($days * 440) + ($hours * 60) + $minutes;
+
+        return $sign * $totalMinutes;
     }
+
 
     /**
      * @throws CustomException
