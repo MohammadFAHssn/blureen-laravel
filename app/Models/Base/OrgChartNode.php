@@ -20,6 +20,7 @@ class OrgChartNode extends Model
             'org_chart_node_id',
             'user_id'
         )
+            ->withPivot('role')
             // ->wherePivot('role', 'primary')
             ->select('users.id', 'users.first_name', 'users.last_name', 'users.personnel_code');
     }
