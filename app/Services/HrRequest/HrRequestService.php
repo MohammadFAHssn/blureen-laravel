@@ -315,7 +315,6 @@ class HrRequestService
     {
         $kasraResponse = $this->kasraService->getRemainingLeave($userId);
         $remainingLeave = $this->convertRemainingLeaveToMinutes($kasraResponse['remaining_leave']);
-        info($remainingLeave);
         $totalPendingLeaveRequestDurationInMin = $this->hrRequestDetailRepository->getAllPendingLeaveRequestDuration($userId);
         $maxNegativeLeaveMinutes = (int)(
             Setting::query()
@@ -324,7 +323,6 @@ class HrRequestService
                 ->value('value')
             ?? 0
         );
-        info($maxNegativeLeaveMinutes);
         return $requestDurationInMin <= ($maxNegativeLeaveMinutes + $remainingLeave - $totalPendingLeaveRequestDurationInMin);
 
 

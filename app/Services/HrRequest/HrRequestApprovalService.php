@@ -36,7 +36,6 @@ class HrRequestApprovalService
         DB::transaction(function () use ($hrRequestId, $userApprovalFlows) {
             $priority = 1;
             foreach ($userApprovalFlows as $flow) {
-                info($userApprovalFlows);
                 HrRequestApproval::create([
                     'hr_request_id' => $hrRequestId,
                     'approver_user_id' => $flow['users'][0]['id'],
