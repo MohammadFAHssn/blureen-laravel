@@ -7,47 +7,37 @@ use Exception;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Base\Setting;
+use Illuminate\Support\Collection;
 use Morilog\Jalali\Jalalian;
 use App\Constants\AppConstants;
 use App\Services\Api\KasraService;
 use App\Exceptions\CustomException;
 use App\Models\HrRequest\HrRequest;
-use Illuminate\Support\Facades\App;
-use App\Services\Base\ApprovalFlowService;
 use App\Services\Base\OrgChartNodeService;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Client\ConnectionException;
 use App\Services\Base\RequestApprovalRuleService;
 use App\Repositories\HrRequest\HrRequestRepository;
 use App\Repositories\HrRequest\HrRequestDetailRepository;
+use function PHPUnit\Framework\matches;
 
 class HrRequestService
 {
     protected HrRequestRepository $hrRequestRepository;
     protected HrRequestDetailRepository $hrRequestDetailRepository;
-    protected ApprovalFlowService $approvalFlowService;
     protected HrRequestApprovalService $hrRequestApprovalService;
     protected KasraService $kasraService;
     protected OrgChartNodeService $orgChartNodeService;
     protected RequestApprovalRuleService $requestApprovalRuleService;
 
 
-    public function __construct(
-        HrRequestRepository $hrRequestRepository,
-        HrRequestDetailRepository $hrRequestDetailRepository,
-        ApprovalFlowService $approvalFlowService,
-        HrRequestApprovalService $hrRequestApprovalService,
-        KasraService $kasraService,
-        OrgChartNodeService $orgChartNodeService,
-        RequestApprovalRuleService $requestApprovalRuleService
-    ) {
-        $this->hrRequestRepository = $hrRequestRepository;
-        $this->hrRequestDetailRepository = $hrRequestDetailRepository;
-        $this->approvalFlowService = $approvalFlowService;
-        $this->hrRequestApprovalService = $hrRequestApprovalService;
-        $this->kasraService = $kasraService;
-        $this->orgChartNodeService = $orgChartNodeService;
-        $this->requestApprovalRuleService = $requestApprovalRuleService;
+    public function __construct()
+    {
+        $this->hrRequestRepository = new HrRequestRepository();
+        $this->hrRequestDetailRepository = new HrRequestDetailRepository();
+        $this->hrRequestApprovalService = new HrRequestApprovalService();
+        $this->kasraService = new KasraService();
+        $this->orgChartNodeService = new OrgChartNodeService();
+        $this->requestApprovalRuleService = new RequestApprovalRuleService();
     }
 
     /**
@@ -57,19 +47,12 @@ class HrRequestService
     public function create(array $data)
     {
         $formTypeId = $data['request_type_id'];
-        $userId = $data['user_id'];
-
-        $userApprovalFlows = $this->approvalFlowService->getUserApprovalFlow($userId, $formTypeId);
-        if ($userApprovalFlows->isEmpty()) {
-            throw new CustomException('برای این درخواست رده تاییدیه تعریف نشده است.', 403);
-        }
-
 
         return match ($formTypeId) {
-            AppConstants::HR_REQUEST_TYPES['DAILY_LEAVE'] => $this->createDailyLeaveRequest($data, $userApprovalFlows),
-            AppConstants::HR_REQUEST_TYPES['HOURLY_LEAVE'] => $this->createHourlyLeaveRequest($data, $userApprovalFlows),
-            AppConstants::HR_REQUEST_TYPES['OVERTIME'] => $this->createOvertimeRequest($data, $userApprovalFlows),
-            AppConstants::HR_REQUEST_TYPES['SICK'] => $this->createSickRequest($data, $userApprovalFlows),
+            AppConstants::HR_REQUEST_TYPES['DAILY_LEAVE'] => $this->createDailyLeaveRequest($data),
+            AppConstants::HR_REQUEST_TYPES['HOURLY_LEAVE'] => $this->createHourlyLeaveRequest($data),
+            AppConstants::HR_REQUEST_TYPES['OVERTIME'] => $this->createOvertimeRequest($data),
+            AppConstants::HR_REQUEST_TYPES['SICK'] => $this->createSickRequest($data),
             default => throw new Exception('فرم ارسالی نامعتبر است', 400),
         };
     }
@@ -79,7 +62,80 @@ class HrRequestService
      * @throws ConnectionException
      * @throws Exception
      */
-    protected function createDailyLeaveRequest(array $data, Collection $userApprovalFlows)
+    public function update(array $data)
+    {
+        $hrRequest = HrRequest::find($data['requestId']);
+
+        if ($hrRequest->user_id == auth()->user()->id) {
+            $requestApprovals = $hrRequest->approvals;
+            foreach ($requestApprovals as $approval){
+                if($approval->status_id != AppConstants::HR_REQUEST_PENDING_STATUS)
+                    throw new Exception('امکان ویرایش درخواست های بررسی شده وجود ندارد.');
+            }
+        }
+
+        return match ($hrRequest->request_type_id) {
+            AppConstants::HR_REQUEST_TYPES['DAILY_LEAVE'] => $this->updateDailyLeaveRequest($data),
+        };
+
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getApprovers(array $data)
+    {
+        $hrRequest = HrRequest::find($data['requestId']);
+        if ($hrRequest->status_id != AppConstants::HR_REQUEST_PENDING_STATUS) {
+            throw new Exception('امکان ارجاع درخواست های تایید/رد شده وجود ندارد.');
+        }
+
+        return $this->getApprovalFlowForDailyRequest($data['user_id'],$data['user_id']);
+    }
+
+    public function referral(array $data): true
+    {
+        return $this->hrRequestApprovalService->create($data['requestId'],$data['approver']);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function delete($data)
+    {
+        $hrRequest = HrRequest::find($data['requestId']);
+        if ($hrRequest->user_id == auth()->user()->id) {
+            $requestApprovals = $hrRequest->approvals;
+            foreach ($requestApprovals as $approval){
+                if($approval->status_id != AppConstants::HR_REQUEST_PENDING_STATUS)
+                    throw new Exception('امکان حذف درخواست های بررسی شده وجود ندارد.');
+            }
+        }
+
+        if (!$hrRequest) {
+            throw new Exception('درخواست مورد نظر یافت نشد.', 404);
+        }
+
+        $hasProcessedApproval = $hrRequest->approvals()
+            ->where('status_id', '!=', AppConstants::HR_REQUEST_PENDING_STATUS)
+            ->exists();
+
+        if ($hasProcessedApproval) {
+            throw new Exception(
+                'امکان حذف درخواست بررسی شده وجود ندارد.',
+                403
+            );
+        }
+
+        return $hrRequest->delete();
+    }
+
+    /**
+     * @throws CustomException
+     * @throws ConnectionException
+     * @throws Exception
+     */
+    protected function createDailyLeaveRequest(array $data)
     {
         $startDate = Jalalian::fromFormat('Y-m-d', $data['start_date'])->toCarbon()->startOfDay();
         $endDate = Jalalian::fromFormat('Y-m-d', $data['end_date'])->toCarbon()->startOfDay();
@@ -92,9 +148,10 @@ class HrRequestService
             throw new Exception('مانده مرخصی کافی نمیباشد.', 403);
         }
 
+        $approvalFlows = $this->getApprovalFlowForDailyRequest($data['user_id'], auth()->user()->id);
 
         $hrRequest = $this->hrRequestRepository->create($data);
-        $this->hrRequestApprovalService->create($hrRequest->id, $userApprovalFlows);
+        $this->hrRequestApprovalService->create($hrRequest->id, $approvalFlows);
         return true;
     }
 
@@ -102,7 +159,7 @@ class HrRequestService
      * @throws Exception
      */
 
-    protected function createHourlyLeaveRequest(array $data, Collection $userApprovalFlows)
+    protected function createHourlyLeaveRequest(array $data)
     {
         $startInCarbon = Carbon::createFromFormat('H:i', $data['start_time']);
         $endInCarbon = Carbon::createFromFormat('H:i', $data['end_time']);
@@ -137,13 +194,12 @@ class HrRequestService
 
 
         $hrRequest = $this->hrRequestRepository->create($data);
-        $this->hrRequestApprovalService->create($hrRequest->id, $userApprovalFlows);
+        //$this->hrRequestApprovalService->create($hrRequest->id);
 
         return true;
     }
 
-
-    protected function createOvertimeRequest(array $data, Collection $userApprovalFlows): true
+    protected function createOvertimeRequest(array $data): true
     {
         $startInCarbon = Carbon::createFromFormat('H:i', $data['start_time']);
         $endInCarbon = Carbon::createFromFormat('H:i', $data['end_time']);
@@ -152,19 +208,19 @@ class HrRequestService
                 ->addDay()->format('Y-m-d');
         }
         $hrRequest = $this->hrRequestRepository->create($data);
-        $this->hrRequestApprovalService->create($hrRequest->id, $userApprovalFlows);
+        $this->hrRequestApprovalService->create($hrRequest->id);
         return true;
     }
 
-    protected function createSickRequest(array $data, Collection $userApprovalFlows): true
+    protected function createSickRequest(array $data): true
     {
         $hrRequest = $this->hrRequestRepository->create($data);
-        $this->hrRequestApprovalService->create($hrRequest->id, $userApprovalFlows);
+        $this->hrRequestApprovalService->create($hrRequest->id);
         return true;
     }
 
 
-    public function getUserRequestsOfCurrentMonth($data): \Illuminate\Support\Collection
+    public function getUserRequestsOfCurrentMonth($data): Collection
     {
         $jNow = Jalalian::now();
         $jy = $jNow->getYear();
@@ -175,23 +231,65 @@ class HrRequestService
 
 
         return HrRequest::
-            where([
-                'user_id' => $data['user_id'],
-                'request_type_id' => $data['request_type']
-            ])
+        where([
+            'user_id' => $data['user_id'],
+            'request_type_id' => $data['request_type']
+        ])
             ->where(function ($q) use ($start, $end) {
                 $q->whereBetween('start_date', [$start, $end])
                     ->orWhereBetween('end_date', [$start, $end]);
             })
             ->orderBy('start_date')
-            ->with('status')
+            ->with('status', 'approvals.approver')
             ->get();
     }
 
 
-    public function update($data)
+    /**
+     * @throws CustomException
+     * @throws ConnectionException
+     * @throws Exception
+     */
+    protected function updateDailyLeaveRequest(array $data): bool
     {
-        return $data;
+        $hrRequest = HrRequest::find($data['requestId']);
+        if ($hrRequest->status_id !== AppConstants::HR_REQUEST_PENDING_STATUS) {
+            throw new Exception('فقط درخواست‌های در روند قابل ویرایش هستند.', 403);
+        }
+
+        $startDateCarbon = Jalalian::fromFormat('Y-m-d', $data['start_date'])->toCarbon()->startOfDay();
+        $endDateCarbon = Jalalian::fromFormat('Y-m-d', $data['end_date'])->toCarbon()->startOfDay();
+
+        if ($endDateCarbon->lt($startDateCarbon)) {
+            throw new Exception('تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد.', 422);
+        }
+
+        $newDuration = ($startDateCarbon->diffInDays($endDateCarbon) + 1) * AppConstants::WORK_DAY_MINUTES;
+
+        $oldDuration = (int)$hrRequest->details()
+            ->where('key', 'duration')
+            ->value('value');
+
+        $delta = $newDuration - $oldDuration;
+
+        if ($delta > 0) {
+            if (!$this->userHasEnoughLeaveBalance($hrRequest->user_id, $delta)) {
+                throw new Exception('مانده مرخصی کافی نمیباشد.', 403);
+            }
+        }
+
+        $this->hrRequestRepository->update([
+            'id' => $hrRequest->id,
+            'start_date' => $data['start_date'],
+            'end_date' => $data['end_date'],
+        ]);
+
+        $hrRequest->details()->update(
+            ['key' => 'duration'],
+            ['value' => $newDuration]
+        );
+
+        return true;
     }
 
     /*
@@ -218,7 +316,7 @@ class HrRequestService
         $kasraResponse = $this->kasraService->getRemainingLeave($userId);
         $remainingLeave = $this->convertRemainingLeaveToMinutes($kasraResponse['remaining_leave']);
         $totalPendingLeaveRequestDurationInMin = $this->hrRequestDetailRepository->getAllPendingLeaveRequestDuration($userId);
-        $maxNegativeLeaveMinutes = (int) (
+        $maxNegativeLeaveMinutes = (int)(
             Setting::query()
                 ->where('group', 'human_resource')
                 ->where('key', 'max_negative_leave_minutes')
@@ -239,16 +337,18 @@ class HrRequestService
             throw new CustomException('فرمت مانده مرخصی نامعتبر است.');
         }
 
-        $days = (int) $matches[1];
-        $hours = (int) $matches[2];
-        $minutes = (int) $matches[3];
+        $days = (int)$matches[1];
+        $hours = (int)$matches[2];
+        $minutes = (int)$matches[3];
         return $days * 440 + $hours * 60 + $minutes;
     }
 
-    private function getApprovalFlowForDailyRequest($requesterUserId)
+    /**
+     * @throws CustomException
+     * @throws Exception
+     */
+    private function getApprovalFlowForDailyRequest($requesterUserId, $loginUserId)
     {
-        $loginUserId = auth()->user()->id;
-
         $approvalFlowForRequest = $this->requestApprovalRuleService->getApprovalFlowForRequest([
             'user_id' => $requesterUserId,
             'request_type_id' => AppConstants::HR_REQUEST_TYPES['DAILY_LEAVE'],
@@ -256,20 +356,26 @@ class HrRequestService
 
         $loginUserOrgPositions = $this->orgChartNodeService->getUserOrgPositions($loginUserId);
 
-        $approvalFlowForRequest = collect(
-            array_filter($approvalFlowForRequest->toArray(), function ($i) use ($loginUserOrgPositions) {
-                return $i['orgPosition']['level'] < $loginUserOrgPositions[0]['level'];
-            })
-        )->filter()->values();
+        $approvalFlowForRequest = $loginUserOrgPositions->isEmpty()
+            ?collect()
+            :collect(
+                array_filter($approvalFlowForRequest->toArray(), function ($i) use ($loginUserOrgPositions) {
+                    return $i['orgPosition']['level'] < $loginUserOrgPositions[0]['level'];
+                })
+            )->filter()->values();
 
         $liaison = User::whereId($requesterUserId)
             ->with('orgChartNodesAsPrimary.orgUnit.liaisons')->first()
             ->orgChartNodesAsPrimary->first()
             ->orgUnit->liaisons->first()
-            ->only(['id', 'first_name', 'last_name', 'personnel_code']);
+            ?->only(['id', 'first_name', 'last_name', 'personnel_code']);
+
+        if (!$liaison)
+            throw new Exception('رابط اداری برای این واحد تعیین نشده است.');
 
         $approvalFlowForRequest->push(['users' => [$liaison]]);
 
         return $approvalFlowForRequest;
     }
+
 }

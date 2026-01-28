@@ -19,7 +19,7 @@ class CreateHrRequest extends FormRequest
     {
         $formType = $this->integer('request_type_id');
         return match ($formType) {
-            AppConstants::HR_REQUEST_TYPES['DAILY_LEAVE'] => $this->rulesForDailyLeaveRequest(),
+            AppConstants::HR_REQUEST_TYPES['DAILY_LEAVE'] => $this->baseRules(),
             AppConstants::HR_REQUEST_TYPES['HOURLY_LEAVE'] => $this->rulesForHourlyLeaveRequest(),
             AppConstants::HR_REQUEST_TYPES['OVERTIME'] => $this->rulesForOvertimeRequest(),
             AppConstants::HR_REQUEST_TYPES['SICK'] => $this->rulesForSickRequest(),
@@ -31,20 +31,14 @@ class CreateHrRequest extends FormRequest
         return [
             'user_id' => ['required', 'exists:users,id'],
             'request_type_id' => ['required', 'integer', 'exists:request_types,id'],
-        ];
-    }
-    protected function rulesForDailyLeaveRequest(): array
-    {
-        return array_merge($this->baseRules(), [
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
-        ]);
+        ];
     }
+
     protected function rulesForHourlyLeaveRequest(): array
     {
         return array_merge($this->baseRules(), [
-            'start_date' => ['required', 'date'],
-            'end_date' => ['required', 'date'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i','different:start_time'],
         ]);
@@ -52,8 +46,6 @@ class CreateHrRequest extends FormRequest
     protected function rulesForOvertimeRequest(): array
     {
         return array_merge($this->baseRules(), [
-            'start_date' => ['required','date'],
-            'end_date' => ['required','date'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time'  => ['required', 'date_format:H:i'],
             'details.description' => ['required','string','max:500']
@@ -62,8 +54,6 @@ class CreateHrRequest extends FormRequest
     protected function rulesForSickRequest(): array
     {
         return array_merge($this->baseRules(), [
-            'start_date' => ['required', 'date'],
-            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'details.description' => ['required','string','max:500']
         ]);
     }
