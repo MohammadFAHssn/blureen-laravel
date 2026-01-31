@@ -146,20 +146,20 @@ Route::middleware('throttle:60,1')->group(function () {
         // Food Routes
         Route::prefix('food')->group(function () {
             Route::controller(\App\Http\Controllers\Food\Kitchen\FoodController::class)->prefix('food')->group(function () {
-                Route::get('/', 'index')->middleware('permission:read Kitchen|edit Food-Price');
+                Route::get('/', 'index')->middleware('permission:see Food');
                 Route::get('/get-actives', 'getActives')->middleware('permission:read Kitchen');
-                Route::post('/', 'store')->middleware('permission:read Kitchen');
-                Route::post('/status/{id}', 'changeStatus')->middleware('permission:edit Food-Status');
-                Route::post('/{id}', 'update')->middleware('permission:edit Food-Price');
-                Route::delete('/{id}', 'delete')->middleware('permission:read Kitchen');
+                Route::post('/', 'store')->middleware('permission:see Food');
+                Route::post('/status/{id}', 'changeStatus')->middleware('permission:see Food');
+                Route::post('/{id}', 'update')->middleware('permission:see Food');
+                Route::delete('/{id}', 'delete')->middleware('permission:see Food');
             });
             Route::controller(\App\Http\Controllers\Food\Kitchen\MealController::class)->prefix('meal')->group(function () {
-                Route::get('/', 'index')->middleware('permission:read Kitchen');
+                Route::get('/', 'index')->middleware('permission:see Meal');
                 Route::get('/get-actives', 'getActives')->middleware('permission:read Reserve-Food|read Kitchen|read Food-Report');
-                Route::post('/', 'store')->middleware('permission:read Kitchen');
-                Route::post('/status/{id}', 'changeStatus')->middleware('permission:read Kitchen');
-                Route::post('/{id}', 'update')->middleware('permission:read Kitchen');
-                Route::delete('/{id}', 'delete')->middleware('permission:read Kitchen');
+                Route::post('/', 'store')->middleware('permission:see Meal');
+                Route::post('/status/{id}', 'changeStatus')->middleware('permission:see Meal');
+                Route::post('/{id}', 'update')->middleware('permission:see Meal');
+                Route::delete('/{id}', 'delete')->middleware('permission:see Meal');
             });
             Route::controller(\App\Http\Controllers\Food\Kitchen\MealPlanController::class)->prefix('meal-plan')->group(function () {
                 Route::get('/get-for-date', 'plansForDate')->middleware('permission:read Kitchen');
