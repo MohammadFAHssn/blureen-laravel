@@ -25,4 +25,16 @@ class OrgUnit extends Model
             'user_id'
         );
     }
+
+    public function orgChartNodeUsers()
+    {
+        return $this->hasManyThrough(
+            OrgChartNodeUser::class,
+            OrgChartNode::class,
+            'org_unit_id',
+            'org_chart_node_id',
+            'id',
+            'id'
+        );
+    }
 }

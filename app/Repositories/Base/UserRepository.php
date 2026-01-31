@@ -1,13 +1,30 @@
 <?php
 
 namespace App\Repositories\Base;
-use App\Exceptions\CustomException;
 use App\Models\User;
+use App\Exceptions\CustomException;
 use App\Models\Base\FieldPermission;
+use App\Models\Base\OrgChartNodeUser;
 use Illuminate\Support\Facades\Schema;
 
 class UserRepository
 {
+    public function getUsersByOrgUnit($orgUnitId)
+    {
+        return User::whereHas('orgChartNodesAsPrimary', function ($query) use ($orgUnitId) {
+            $query->where('org_unit_id', $orgUnitId);
+        })->distinct()->get();
+    }
+
+    public function findUsersWhoseDeputyIs($deputyUserId)
+    {
+        $orgChartNodeIds = OrgChartNodeUser::where('user_id', $deputyUserId)->where('role', 'deputy')->pluck('org_chart_node_id');
+
+        return User::whereHas('orgChartNodesAsPrimary', function ($query) use ($orgChartNodeIds) {
+            $query->whereIn('org_chart_node_id', $orgChartNodeIds);
+        })->distinct()->get();
+    }
+
     public function getApprovalFlowsAsRequester($requestTypeId)
     {
         // $user = auth()->user();

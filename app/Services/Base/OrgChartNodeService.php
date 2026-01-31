@@ -12,7 +12,7 @@ class OrgChartNodeService
     public function get()
     {
         return OrgChartNode::with([
-            'users.avatar',
+            'allPrimaryAndDeputyUsers.avatar',
             'orgPosition',
             'orgUnit',
         ])->get();
@@ -128,44 +128,6 @@ class OrgChartNodeService
 
         return $supervisor;
     }
-
-    // public function update($data)
-    // {
-    //     $orgChartNodes = $data['orgChartNodes'];
-
-    //     DB::transaction(function () use ($orgChartNodes) {
-
-    //         $newNodeIds = [];
-    //         $nodeIdChanges = [];
-    //         foreach ($orgChartNodes as $orgChartNode) {
-    //             $orgUnit = OrgUnit::firstOrCreate(['name' => $orgChartNode['orgUnit']['name']]);
-
-    //             $nodeData = [
-    //                 'org_unit_id' => $orgUnit->id,
-    //                 'org_position_id' => $orgChartNode['orgPosition']['id'],
-    //                 'parent_id' => $orgChartNode['parentId'],
-    //             ];
-
-    //             $node = OrgChartNode::find($orgChartNode['id']);
-    //             if ($node) {
-    //                 $nodeData['parent_id'] = $nodeIdChanges[$orgChartNode['parentId']] ?? $nodeData['parent_id'];
-    //                 $node->update($nodeData);
-    //             } else {
-    //                 $nodeData['parent_id'] = $nodeIdChanges[$orgChartNode['parentId']] ?? $nodeData['parent_id'];
-    //                 $node = OrgChartNode::create($nodeData);
-    //                 $nodeIdChanges[$orgChartNode['id']] = $node->id;
-    //             }
-
-    //             $newNodeIds[] = $node->id;
-    //             $node->users()->sync(collect($orgChartNode['users'])->pluck('id')->toArray());
-    //         }
-
-    //         OrgChartNode::whereNotIn('id', $newNodeIds)->delete();
-    //     });
-
-    //     return ['status' => 'success'];
-    // }
-
 
     public function update($data)
     {
