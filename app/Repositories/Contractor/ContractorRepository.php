@@ -40,6 +40,21 @@ class ContractorRepository
     }
 
     /**
+     * Update contractor
+     *
+     * @param int $id
+     * @param array $data
+     * @return Contractor
+     */
+    public function update(int $id, array $data)
+    {
+        $contractor = $this->findById($id);
+        $data['edited_by'] = Auth::id();
+        $contractor->update($data);
+        return $contractor;
+    }
+
+    /**
      * Get contractor by ID
      *
      * @param int $id

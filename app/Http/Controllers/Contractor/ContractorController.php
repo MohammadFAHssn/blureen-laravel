@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Contractor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Contractor\CreateContractorRequest;
+use App\Http\Requests\Contractor\EditContractorRequest;
 use App\Services\Contractor\ContractorService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -114,6 +115,52 @@ class ContractorController
                 'data' => $data,
                 'message' => 'لیست پیمانکاران با موفقیت دریافت شد.',
                 'status' => 200,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        } catch (Throwable $e) {
+            $payload = [
+                'error' => $e->getMessage(),
+                'status' => 500,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        }
+    }
+
+    /**
+     * Update a specific contractor
+     *
+     * @param EditContractorRequest $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function update(EditContractorRequest $request, int $id)
+    {
+        try {
+            $data = $this->contractorService->updateContractor($id, $request->validated());
+
+            $payload = [
+                'data' => $data,
+                'message' => 'پیمانکار با موفقیت بروزرسانی شد.',
+                'status' => 200,
+            ];
+
+            return response()->json($payload, $payload['status']);
+        } catch (ModelNotFoundException $e) {
+            $payload = [
+                'message' => 'پیمانکار مورد نظر یافت نشد.',
+                'status' => 404,
+                'code' => 'CONTRACTOR_NOT_FOUND',
+            ];
+
+            return response()->json($payload)->setStatusCode($payload['status']);
+        } catch (ValidationException $e) {
+            $payload = [
+                'errors' => $e->errors(),
+                'message' => 'اطلاعات وارد شده معتبر نیست.',
+                'status' => 422,
+                'code' => 'VALIDATION_ERROR',
             ];
 
             return response()->json($payload, $payload['status']);

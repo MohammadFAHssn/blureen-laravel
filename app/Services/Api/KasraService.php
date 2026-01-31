@@ -123,7 +123,7 @@ class KasraService
     {
         $user = User::find($hrRequest->user_id);
         if(!$user)
-            throw new Exception('خطا هنگام ثبت در کسرا: کاربر یافت نشد');
+            throw new CustomException('خطا هنگام ثبت در کسرا: کاربر یافت نشد');
         $requestData = [
             'PersonCode'  => $user->personnel_code,
             'StartDate'   => $hrRequest->start_date,
@@ -263,7 +263,7 @@ class KasraService
         try {
             $sx = @simplexml_load_string($response->body());
             if ($sx === false) {
-                throw new Exception('خطا در دریافت لیست تردد از سامانه کسرا',403);
+                throw new CustomException('خطا در دریافت لیست تردد از سامانه کسرا',403);
             }
 
             $sx->registerXPathNamespace('t', 'http://tempuri.org/');
@@ -372,6 +372,10 @@ class KasraService
         $n = $rows[0];
         $personnel = isset($n->{'شماره_x0020_پرسنلي'}) ? (string) $n->{'شماره_x0020_پرسنلي'} : null;
         $remain    = isset($n->{'مانده'}) ? (string) $n->{'مانده'} : null;
+        if ($remain !== null && str_ends_with($remain, '-')) {
+            $remain = '-' . rtrim($remain, '-');
+        }
+
 
         return [
             'personnel_code'  => $personnel,
