@@ -12,7 +12,7 @@ class OrgChartNode extends Model
         'parent_id',
     ];
 
-    public function users()
+    public function allPrimaryAndDeputyUsers()
     {
         return $this->belongsToMany(
             User::class,
@@ -22,6 +22,30 @@ class OrgChartNode extends Model
         )
             ->withPivot('role')
             // ->wherePivot('role', 'primary')
+            ->select('users.id', 'users.first_name', 'users.last_name', 'users.personnel_code');
+    }
+
+    public function users() // primary
+    {
+        return $this->belongsToMany(
+            User::class,
+            'org_chart_node_users',
+            'org_chart_node_id',
+            'user_id'
+        )
+            ->wherePivot('role', 'primary')
+            ->select('users.id', 'users.first_name', 'users.last_name', 'users.personnel_code');
+    }
+
+    public function deputyUsers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'org_chart_node_users',
+            'org_chart_node_id',
+            'user_id'
+        )
+            ->wherePivot('role', 'deputy')
             ->select('users.id', 'users.first_name', 'users.last_name', 'users.personnel_code');
     }
 
