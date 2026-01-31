@@ -53,7 +53,7 @@ class HrRequestService
             AppConstants::HR_REQUEST_TYPES['HOURLY_LEAVE'] => $this->createHourlyLeaveRequest($data),
             AppConstants::HR_REQUEST_TYPES['OVERTIME'] => $this->createOvertimeRequest($data),
             AppConstants::HR_REQUEST_TYPES['SICK'] => $this->createSickRequest($data),
-            default => throw new Exception('فرم ارسالی نامعتبر است', 400),
+            default => throw new CustomException('فرم ارسالی نامعتبر است', 400),
         };
     }
 
@@ -70,7 +70,7 @@ class HrRequestService
             $requestApprovals = $hrRequest->approvals;
             foreach ($requestApprovals as $approval){
                 if($approval->status_id != AppConstants::HR_REQUEST_PENDING_STATUS)
-                    throw new Exception('امکان ویرایش درخواست های بررسی شده وجود ندارد.');
+                    throw new CustomException('امکان ویرایش درخواست های بررسی شده وجود ندارد.');
             }
         }
 
@@ -87,7 +87,7 @@ class HrRequestService
     {
         $hrRequest = HrRequest::find($data['requestId']);
         if ($hrRequest->status_id != AppConstants::HR_REQUEST_PENDING_STATUS) {
-            throw new Exception('امکان ارجاع درخواست های تایید/رد شده وجود ندارد.');
+            throw new CustomException('امکان ارجاع درخواست های تایید/رد شده وجود ندارد.');
         }
 
         return $this->getApprovalFlowForDailyRequest($data['user_id'],$data['user_id']);
@@ -108,12 +108,12 @@ class HrRequestService
             $requestApprovals = $hrRequest->approvals;
             foreach ($requestApprovals as $approval){
                 if($approval->status_id != AppConstants::HR_REQUEST_PENDING_STATUS)
-                    throw new Exception('امکان حذف درخواست های بررسی شده وجود ندارد.');
+                    throw new CustomException('امکان حذف درخواست های بررسی شده وجود ندارد.');
             }
         }
 
         if (!$hrRequest) {
-            throw new Exception('درخواست مورد نظر یافت نشد.', 404);
+            throw new CustomException('درخواست مورد نظر یافت نشد.', 404);
         }
 
         $hasProcessedApproval = $hrRequest->approvals()
@@ -121,7 +121,7 @@ class HrRequestService
             ->exists();
 
         if ($hasProcessedApproval) {
-            throw new Exception(
+            throw new CustomException(
                 'امکان حذف درخواست بررسی شده وجود ندارد.',
                 403
             );
@@ -145,7 +145,7 @@ class HrRequestService
         ];
 
         if (!$this->userHasEnoughLeaveBalance($data['user_id'], $leaveRequestDuration)) {
-            throw new Exception('مانده مرخصی کافی نمیباشد.', 403);
+            throw new CustomException('مانده مرخصی کافی نمیباشد.', 403);
         }
 
         $approvalFlows = $this->getApprovalFlowForDailyRequest($data['user_id'], auth()->user()->id);
@@ -185,11 +185,11 @@ class HrRequestService
         }
 
         if ($currentRequestDuration + $otherHourlyRequestsDuration > AppConstants::MAX_HOURLY_LEAVE_MINUTES) {
-            throw new Exception('مجموع مرخصی ساعتی در یک روز نمی‌تواند بیشتر از ۳ ساعت و ۳۰ دقیقه باشد.', 403);
+            throw new CustomException('مجموع مرخصی ساعتی در یک روز نمی‌تواند بیشتر از ۳ ساعت و ۳۰ دقیقه باشد.', 403);
         }
 
         if (!$this->userHasEnoughLeaveBalance($data['user_id'], $currentRequestDuration)) {
-            throw new Exception('مانده مرخصی کافی نمیباشد.', 403);
+            throw new CustomException('مانده مرخصی کافی نمیباشد.', 403);
         }
 
 
@@ -254,14 +254,14 @@ class HrRequestService
     {
         $hrRequest = HrRequest::find($data['requestId']);
         if ($hrRequest->status_id !== AppConstants::HR_REQUEST_PENDING_STATUS) {
-            throw new Exception('فقط درخواست‌های در روند قابل ویرایش هستند.', 403);
+            throw new CustomException('فقط درخواست‌های در روند قابل ویرایش هستند.', 403);
         }
 
         $startDateCarbon = Jalalian::fromFormat('Y-m-d', $data['start_date'])->toCarbon()->startOfDay();
         $endDateCarbon = Jalalian::fromFormat('Y-m-d', $data['end_date'])->toCarbon()->startOfDay();
 
         if ($endDateCarbon->lt($startDateCarbon)) {
-            throw new Exception('تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد.', 422);
+            throw new CustomException('تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد.', 422);
         }
 
         $newDuration = ($startDateCarbon->diffInDays($endDateCarbon) + 1) * AppConstants::WORK_DAY_MINUTES;
@@ -274,7 +274,7 @@ class HrRequestService
 
         if ($delta > 0) {
             if (!$this->userHasEnoughLeaveBalance($hrRequest->user_id, $delta)) {
-                throw new Exception('مانده مرخصی کافی نمیباشد.', 403);
+                throw new CustomException('مانده مرخصی کافی نمیباشد.', 403);
             }
         }
 
@@ -376,7 +376,7 @@ class HrRequestService
             ?->only(['id', 'first_name', 'last_name', 'personnel_code']);
 
         if (!$liaison)
-            throw new Exception('رابط اداری برای این واحد تعیین نشده است.');
+            throw new CustomException('رابط اداری برای این واحد تعیین نشده است.');
 
         $approvalFlowForRequest->push(['users' => [$liaison]]);
 

@@ -54,7 +54,7 @@ class HrRequestApprovalService
     public function getApprovalRequestsByApprover(): Collection
     {
         $userId = auth()->id();
-        if (!$userId) throw new Exception('کاربر وارد نشده است', 401);
+        if (!$userId) throw new CustomException('کاربر وارد نشده است', 401);
         return $this->hrRequestApprovalRepository->getApprovalRequestsByApprover($userId);
     }
 
@@ -67,7 +67,7 @@ class HrRequestApprovalService
             DB::transaction(function () use ($approvalRequestId, $data) {
                 $hrRequestApproval = HrRequestApproval::find($approvalRequestId);
                 if (!$hrRequestApproval) {
-                    throw new Exception('درخواست تاییدیه یافت نشد', 404);
+                    throw new CustomException('درخواست تاییدیه یافت نشد', 404);
                 }
 
                 $hrRequestApproval->status_id = $data['approve']
@@ -93,7 +93,7 @@ class HrRequestApprovalService
                     $kasraResponse = $this->kasraService->modifyCredit($hrRequestApproval->request);
 
                     if (!$kasraResponse['success']) {
-                        throw new Exception($kasraResponse['message'], 422);
+                        throw new CustomException($kasraResponse['message'], 422);
                     }
                 }
             });
